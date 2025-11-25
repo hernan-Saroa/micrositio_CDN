@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIITS - Proyecto Completo</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #004884 0%, #002847 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #004884 0%, #0066cc 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #004884;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #004884;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h3 {
+            color: #0066cc;
+            font-size: 1.3rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 72, 132, 0.2);
+            border-color: #004884;
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #004884 0%, #0066cc 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-icon .material-icons {
+            color: white;
+            font-size: 32px;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #004884;
+            margin-bottom: 10px;
+        }
+        
+        .card-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        
+        .doc-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .doc-item {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #004884;
+            transition: all 0.3s ease;
+        }
+        
+        .doc-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .doc-item a {
+            text-decoration: none;
+            color: #004884;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .doc-item .material-icons {
+            font-size: 20px;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .alert .material-icons {
+            color: #ffc107;
+            font-size: 32px;
+        }
+        
+        .alert-content h3 {
+            color: #856404;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+        
+        .alert-content p {
+            color: #856404;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #004884;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚦 VIITS - Sistema de Vigilancia Inteligente</h1>
+            <p>Sistema de Infraestructura de Transporte y Seguridad - INVIAS</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert">
+                <span class="material-icons">info</span>
+                <div class="alert-content">
+                    <h3>📋 Inicio Rápido</h3>
+                    <p>Este es el índice principal del proyecto VIITS. Desde aquí puedes acceder a todos los componentes del sistema: micrositio público, panel administrativo, dashboards y documentación completa.</p>
+                </div>
+            </div>
+            
+            <!-- Componentes Principales -->
+            <div class="section">
+                <h2>
+                    <span class="material-icons">web</span>
+                    Componentes del Sistema
+                </h2>
+                
+                <div class="cards-grid">
+                    <a href="index.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">public</span>
+                        </div>
+                        <div class="card-title">🌐 Micrositio Público</div>
+                        <div class="card-description">
+                            Página principal del sistema VIITS con información institucional, estadísticas en tiempo real y acceso a servicios para ciudadanos.
+                        </div>
+                    </a>
+                    
+                    <a href="dashboard-sectores-viales.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">dashboard</span>
+                        </div>
+                        <div class="card-title">📊 Dashboard Sectores Viales</div>
+                        <div class="card-description">
+                            Visualización interactiva de estadísticas de tráfico por sectores viales con gráficos Chart.js y datos reales de 57 sectores.
+                        </div>
+                    </a>
+                    
+                    <a href="participacion-ciudadana.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">how_to_vote</span>
+                        </div>
+                        <div class="card-title">👥 Participación Ciudadana</div>
+                        <div class="card-description">
+                            Plataforma para ciudadanos con autenticación 2FA, descarga de datos y consulta de información de transporte.
+                        </div>
+                    </a>
+                    
+                    <a href="documentos.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">description</span>
+                        </div>
+                        <div class="card-title">📄 Documentos</div>
+                        <div class="card-description">
+                            Repositorio de documentación técnica, normativa y recursos del sistema VIITS.
+                        </div>
+                    </a>
+                    
+                    <a href="admin-panel/login.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">admin_panel_settings</span>
+                        </div>
+                        <div class="card-title">🔐 Panel Administrativo</div>
+                        <div class="card-description">
+                            Acceso al sistema de administración para oficiales de INVIAS. Gestión de contenido, usuarios y configuración.
+                        </div>
+                    </a>
+                    
+                    <a href="admin-panel/admin-panel.html" class="card">
+                        <div class="card-icon">
+                            <span class="material-icons">settings</span>
+                        </div>
+                        <div class="card-title">⚙️ Admin Dashboard</div>
+                        <div class="card-description">
+                            Panel completo de administración con todas las funcionalidades de gestión del sistema.
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Guías y Documentación -->
+            <div class="section">
+                <h2>
+                    <span class="material-icons">menu_book</span>
+                    Documentación y Guías
+                </h2>
+                
+                <h3>📖 Guías de Inicio</h3>
+                <ul class="doc-list">
+                    <li class="doc-item">
+                        <a href="INICIO-AQUI.html">
+                            <span class="material-icons">play_arrow</span>
+                            <span><strong>INICIO-AQUI.html</strong> - Punto de entrada principal del proyecto</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="INDICE-NAVEGACION.html">
+                            <span class="material-icons">explore</span>
+                            <span><strong>INDICE-NAVEGACION.html</strong> - Índice completo de navegación</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="INDEX-RECURSOS-VIITS.html">
+                            <span class="material-icons">folder</span>
+                            <span><strong>INDEX-RECURSOS-VIITS.html</strong> - Recursos y assets del proyecto</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <h3>📝 Documentación Técnica (Markdown)</h3>
+                <ul class="doc-list">
+                    <li class="doc-item">
+                        <a href="INICIO-RAPIDO.md" download>
+                            <span class="material-icons">speed</span>
+                            <span><strong>INICIO-RAPIDO.md</strong> - Guía de inicio rápido del sistema</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="RESUMEN-EJECUTIVO.md" download>
+                            <span class="material-icons">analytics</span>
+                            <span><strong>RESUMEN-EJECUTIVO.md</strong> - Resumen ejecutivo del proyecto</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="INDICE-HTML-VIITS.md" download>
+                            <span class="material-icons">list</span>
+                            <span><strong>INDICE-HTML-VIITS.md</strong> - Índice de archivos HTML</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="GUIA-MODIFICACION-DETALLADA.md" download>
+                            <span class="material-icons">edit</span>
+                            <span><strong>GUIA-MODIFICACION-DETALLADA.md</strong> - Guía para modificaciones</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="CAMBIOS-DASHBOARD.md" download>
+                            <span class="material-icons">change_history</span>
+                            <span><strong>CAMBIOS-DASHBOARD.md</strong> - Registro de cambios del dashboard</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="COMPARACION-ANTES-DESPUES.md" download>
+                            <span class="material-icons">compare</span>
+                            <span><strong>COMPARACION-ANTES-DESPUES.md</strong> - Comparación de versiones</span>
+                        </a>
+                    </li>
+                    <li class="doc-item">
+                        <a href="SNIPPETS-CODIGO.md" download>
+                            <span class="material-icons">code</span>
+                            <span><strong>SNIPPETS-CODIGO.md</strong> - Fragmentos de código útiles</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Información del Sistema -->
+            <div class="section">
+                <h2>
+                    <span class="material-icons">info</span>
+                    Información del Sistema
+                </h2>
+                
+                <div class="cards-grid">
+                    <div class="card" style="cursor: default;">
+                        <div class="card-icon">
+                            <span class="material-icons">straighten</span>
+                        </div>
+                        <div class="card-title">📏 Cobertura</div>
+                        <div class="card-description">
+                            <strong>15,000+ km</strong> de infraestructura vial nacional monitoreada en <strong>28+ departamentos</strong> de Colombia con <strong>1,200+ dispositivos ITS</strong>.
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="cursor: default;">
+                        <div class="card-icon">
+                            <span class="material-icons">speed</span>
+                        </div>
+                        <div class="card-title">🚗 Estadísticas</div>
+                        <div class="card-description">
+                            <strong>71.1 km/h</strong> velocidad promedio<br>
+                            <strong>5,822</strong> vehículos/día<br>
+                            <strong>1,205</strong> vehículos/día excediendo límites
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="cursor: default;">
+                        <div class="card-icon">
+                            <span class="material-icons">groups</span>
+                        </div>
+                        <div class="card-title">👥 Usuarios</div>
+                        <div class="card-description">
+                            Sistema diseñado para <strong>15+ millones</strong> de usuarios potenciales: oficiales INVIAS, ciudadanos y agencias gubernamentales.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>VIITS - Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</strong></p>
+            <p>Instituto Nacional de Vías (INVIAS) - Colombia</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                Cumplimiento: Gov.co Design Standards | WCAG 2.1 AA | Seguridad Gubernamental
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Histórico de Documentos - Sistema VIITS INVIAS">
+    <title>Documentos - VIITS | INVIAS | Gov.co</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Gov.co Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Material Icons CDN -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- JavaScript Externo -->
+    <script src="scripts/documentos.js"></script>
+
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="styles/documentos.css">
+    <link rel="stylesheet" href="styles/index.css">
+
+</head>
+<body>
+    <!-- Gov.co Header -->
+    <header class="gov-header" role="banner">
+        <div class="container">
+            <div class="gov-content">
+                <div class="gov-logo">
+                    <img src="images/govco.png" alt="Logo Gobierno de Colombia - Gov.co" style="height: clamp(21px, 8vw, 40px); width: auto;">
+                </div>
+                <nav class="gov-right" aria-label="Enlaces gubernamentales">
+                    <a href="https://www.gov.co" class="gov-link" target="_blank">Inicio</a>
+                    <a href="https://www.invias.gov.co" class="gov-link" target="_blank">INVIAS</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navbar -->
+     <nav class="navbar" role="navigation" aria-label="Menú principal">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="javascript:void(0)" onclick="scrollToSection('inicio')" class="navbar-brand" aria-label="VIITS - Sistema de Vigilancia Inteligente de INVIAS">
+                    <img src="images/VIITS-LOGO.png" alt="Logo VIITS - Sistema de Vigilancia Inteligente de INVIAS" style="height: clamp(40px, 8vw, 50px); width: auto;">
+                </a>
+
+                <div class="navbar-menu" role="menubar">
+                    <a href="https://crista-pareve-farforthly.ngrok-free.dev/" class="navbar-link active" role="menuitem" aria-current="page">Inicio</a>
+                    <a href="index.html#que-es" class="navbar-link" role="menuitem">Quiénes Somos</a>
+                    <a href="documentos.html" class="navbar-link" role="menuitem">Información Pública</a>
+                    <a href="participacion-ciudadana.html" class="navbar-link" role="menuitem" style="background: linear-gradient(135deg, var(--color-primary), #ea580c); color: white; padding: 0.5rem 1rem; border-radius: 4px; border: none;" aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
+                </div>
+
+                <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="mobileMenu">
+                    <i class="material-icons" aria-hidden="true">menu</i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación móvil" aria-hidden="true">
+        <div class="mobile-menu-header">
+            <a href="javascript:void(0)" onclick="scrollToSection('inicio')" style="font-weight: 700; font-size: 1.25rem; color: var(--color-secondary); text-decoration: none;" aria-label="VIITS - Ir al inicio">VIITS</a>
+            <button onclick="toggleMobileMenu()" aria-label="Cerrar menú de navegación móvil" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+                <i class="material-icons" aria-hidden="true">close</i>
+            </button>
+        </div>
+        <nav class="mobile-menu-links" role="navigation" aria-label="Menú móvil">
+            <a href="index.html" class="mobile-menu-link">Inicio</a>
+            <a href="index.html#que-es" class="mobile-menu-link">Quiénes Somos</a>
+            <a href="documentos.html" class="mobile-menu-link active" aria-current="page">Información Pública</a>
+            <a href="participacion-ciudadana.html" class="mobile-menu-link" style="background: var(--color-primary); color: white; text-align: center; border-radius: 4px; border-left: none;" aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
+        </nav>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title">Histórico de Documentos</h1>
+            <p class="page-subtitle">Accede a todos los documentos públicos del sistema VIITS</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            
+            <!-- Stats Summary -->
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDocuments">246</div>
+                    <div class="stat-label">Documentos Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalDownloads">45.7K</div>
+                    <div class="stat-label">Descargas Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="thisMonth">18</div>
+                    <div class="stat-label">Este Mes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgSize">2.8 MB</div>
+                    <div class="stat-label">Tamaño Promedio</div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label" for="searchInput">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">search</i>
+                            Buscar documento
+                        </label>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="filter-input" 
+                            placeholder="Buscar por nombre, descripción..."
+                            onkeyup="filterDocuments()"
+                        >
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="dateFrom">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">date_range</i>
+                            Desde
+                        </label>
+                        <input 
+                            type="date" 
+                            id="dateFrom" 
+                            class="filter-input"
+                            onchange="filterDocuments()"
+                        >
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="dateTo">Hasta</label>
+                        <input 
+                            type="date" 
+                            id="dateTo" 
+                            class="filter-input"
+                            onchange="filterDocuments()"
+                        >
+                    </div>
+                    
+                    <div class="filter-group" style="justify-content: flex-end;">
+                        <label class="filter-label" style="opacity: 0;">Acción</label>
+                        <button class="btn" onclick="resetFilters()">
+                            <i class="material-icons">refresh</i>
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="documents-table-container">
+                <table class="documents-table" id="documentsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;"></th>
+                            <th>Documento</th>
+                            <th class="hide-mobile">Fecha</th>
+                            <th class="hide-mobile">Descargas</th>
+                            <th>Tamaño</th>
+                            <th style="width: 80px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsBody">
+                        <!-- Los documentos se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+                
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">
+                        <i class="material-icons" style="font-size: inherit;">search_off</i>
+                    </div>
+                    <p><strong>No se encontraron documentos</strong></p>
+                    <p>Intenta ajustar los filtros de búsqueda</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Se generará dinámicamente -->
+            </div>
+        </div>
+    </div>
+    <!-- Footer Estilo Ministerial -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-main" style="max-width: 92%;">
+            <!-- Contenido Principal del Footer -->
+            <div class="footer-content">
+                <div class="footer-info">
+                    <!-- Columna Izquierda -->
+                    <div>
+                        <!-- Sede Principal -->
+                        <div class="footer-section">
+                            <h3>Sede Principal - Bogotá</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 59 No. 26 - 60 CAN<br>
+                                Bogotá D.C., Colombia<br>
+                                Código Postal: 111321<br><br>
+                                
+                                <strong>Horario de Atención:</strong><br>
+                                Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+                                
+                                <strong>Conmutador:</strong><br>
+                                PBX: (601) 705 6000<br>
+                                Línea gratuita nacional: 018000 960 960
+                            </div>
+                        </div>
+                        
+                        <!-- Territorial Norte -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Norte</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 8 No. 16 - 21 piso Barranquilla, D.C.<br>
+                                Código Postal: 111711<br><br>
+                                
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+                                
+                                <strong>Teléfono:</strong> +57 605 242 74 00<br>
+                                <strong>Extensiones:</strong> 4170 - 4171 - 4172
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Columna Derecha -->
+                    <div>
+                        <!-- Territorial Centro Oriente -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Centro Oriente</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 12 No. 78 - 65 • piso Bucaramanga, D.C.<br>
+                                Código Postal: 111711<br><br>
+                                
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+                                
+                                <strong>Teléfono:</strong> +57 607 240 243 00<br>
+                                <strong>Extensiones:</strong> 4250 - 4251 - 4252<br>
+                                <strong>Subdirección de Gestión:</strong><br>
+                                6325 Grupo de Gestión Jurídica
+                            </div>
+                        </div>
+                        
+                        <!-- VIITS Contact -->
+                        <div class="footer-section">
+                            <h3>Contacto VIITS</h3>
+                            <div class="footer-contact">
+                                <strong>Teléfono:</strong> +57 601 705 74 00<br>
+                                <strong>Extensiones:</strong> 5963 - 5964<br><br>
+                                
+                                <strong>Correos Electrónicos:</strong><br>
+                                viits@invias.gov.co<br>
+                                servicioalciudadano@invias.gov.co
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logos -->
+                <div class="footer-logos">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                        <!-- Logo INVIAS -->
+                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                            <img src="images/logo_invias_nuevo.jpg" alt="Logo INVIAS - Instituto Nacional de Vías" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                        </div>
+                        
+                        <!-- Logo Ministerio de Transporte -->
+                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                            <img src="images/logo-mintransporte.png" alt="Logo Ministerio de Transporte de Colombia" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Redes Sociales -->
+            <div class="social-section">
+                <div class="social-header">Síguenos en redes sociales</div>
+                <div class="social-links">
+                    <a href="https://twitter.com/InviasCol" class="social-link" aria-label="Twitter INVIAS" target="_blank">
+                        <i class="material-icons">alternate_email</i>
+                    </a>
+                    <a href="https://www.facebook.com/InviasCol" class="social-link" aria-label="Facebook INVIAS" target="_blank">
+                        <i class="material-icons">facebook</i>
+                    </a>
+                    <a href="https://www.youtube.com/InviasCol" class="social-link" aria-label="YouTube INVIAS" target="_blank">
+                        <i class="material-icons">smart_display</i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/invias" class="social-link" aria-label="LinkedIn INVIAS" target="_blank">
+                        <i class="material-icons">business</i>
+                    </a>
+                    <a href="https://www.instagram.com/inviascol/" class="social-link" aria-label="Instagram INVIAS" target="_blank">
+                        <i class="material-icons">camera_alt</i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Enlaces del Footer -->
+            <div class="footer-links">
+                <div class="links-grid">
+                    <a href="#" class="footer-link">Otras Políticas</a>
+                    <a href="#" class="footer-link">Mapa del sitio</a>
+                    <a href="#" class="footer-link">Términos y condiciones</a>
+                    <a href="#" class="footer-link">Datos personales</a>
+                    <a href="#" class="footer-link">Derechos de autor</a>
+                    <a href="#" class="footer-link">PQRS</a>
+                    <a href="participacion-ciudadana.html" class="footer-link">Participación Ciudadana</a>
+                    <a href="admin-panel.html" class="footer-link" style="opacity: 0.3;">Admin</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Barra Gov.co -->
+        <div class="footer-gov">
+            <a href="https://www.gov.co" class="gov-logo" target="_blank">
+                <img src="images/logo_co_footer.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+                <img src="images/govco.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+            </a>
+        </div>
+    </footer>
+
+</body>
+</html>

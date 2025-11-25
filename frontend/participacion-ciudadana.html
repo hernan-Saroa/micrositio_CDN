@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participación Ciudadana - Descarga de Datos | VIITS INVIAS</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Gov.co Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- JavaScript Externo -->
+    <script src="scripts/participacion-ciudadana.js"></script>
+
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="styles/participacion-ciudadana.css">
+
+</head>
+<body>
+        <header class="gov-header" role="banner">
+            <div class="container">
+                <div class="gov-content">
+                    <div class="gov-logo">
+                        <img src="images/govco.png" alt="Logo Gobierno de Colombia - Gov.co" style="height: clamp(21px, 8vw, 40px); width: auto;">
+                    </div>
+                    <nav class="gov-right" aria-label="Enlaces gubernamentales">
+                        <a href="https://www.gov.co" class="gov-link" target="_blank">Inicio</a>
+                        <a href="https://www.invias.gov.co" class="gov-link" target="_blank">INVIAS</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem; margin-right: 1rem; padding: 0.5rem 1rem; background: rgba(249, 115, 22, 0.1); border-radius: 8px; transition: all 0.3s;">
+                    <i class="material-icons" style="font-size: 20px;">arrow_back</i>
+                    <span style="font-weight: 600; font-size: 0.9rem;">Volver</span>
+                </a>
+                <img src="images/gov.png" alt="GOV.CO Logo" class="viits-logo">
+                <div class="header-text">
+                    <h2>Plataforma de Descarga</h2>
+                    <div class="subtitle">VIITS - INVIAS</div>
+                </div>
+            </div>
+
+            <!-- User Info - Sin sesión -->
+            <div class="user-info not-logged" id="notLoggedInfo">
+                <i class="material-icons">account_circle</i>
+                <span>Inicie sesión para descargar</span>
+            </div>
+
+            <!-- User Profile - Con sesión -->
+            <div class="user-profile" id="userProfile">
+                <div class="user-profile-trigger" id="userProfileTrigger">
+                    <div class="user-avatar" id="userAvatar">PC</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-entity" id="userEntity">Entidad</div>
+                    </div>
+                    <i class="material-icons dropdown-icon">expand_more</i>
+                </div>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-header">
+                        <div class="user-name" id="dropdownUserName">Usuario</div>
+                        <div class="user-email" id="userEmail">correo@ejemplo.com</div>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" id="historyLink">
+                            <i class="material-icons">history</i>
+                            <span>Historial de descargas</span>
+                        </div>
+                        <div class="dropdown-item logout" id="logoutLink">
+                            <i class="material-icons">logout</i>
+                            <span>Cerrar sesión</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Message -->
+        <div class="welcome-message" id="welcomeMessage">
+            <h3>¡Bienvenido de nuevo! 👋</h3>
+            <p>Ya estás autenticado. Puedes realizar nuevas descargas sin necesidad de verificar tu identidad nuevamente.</p>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper">
+            <div class="stepper-header">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Seleccionar<br>Dispositivos</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Aplicar<br>Filtros</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Revisar y<br>Descargar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: Device Selection -->
+        <div id="stepContent1" class="step-content active">
+            <h3 style="margin-bottom: 1.5rem;">Seleccione los Dispositivos ITS</h3>
+            
+            <div class="alert alert-info">
+                <i class="material-icons">info</i>
+                <div>
+                    <strong>Selección única permitida</strong><br>
+                    Puede seleccionar un tipo de dispositivo. La descarga se procesará en segundo plano.
+                </div>
+            </div>
+
+            <div class="devices-grid">
+                <div class="device-card" data-device="wim">
+                    <input type="checkbox" class="device-checkbox" id="device-wim">
+                    <div class="device-icon">⚖️</div>
+                    <div class="device-name">WIM</div>
+                    <div class="device-description">Peso en movimiento vehicular por eje y total</div>
+                </div>
+
+                <div class="device-card" data-device="conteos-fijos">
+                    <input type="checkbox" class="device-checkbox" id="device-conteo-fijo">
+                    <div class="device-icon">🚗</div>
+                    <div class="device-name">Conteos Fijos</div>
+                    <div class="device-description">Conteo vehicular por tipo, carril y dirección</div>
+                </div>
+
+                <div class="device-card" data-device="conteos-moviles">
+                    <input type="checkbox" class="device-checkbox" id="device-conteo-movil">
+                    <div class="device-icon">📊</div>
+                    <div class="device-name">Conteos Móviles</div>
+                    <div class="device-description">Conteo vehicular temporal en diferentes puntos</div>
+                </div>
+
+                <!-- <div class="device-card" data-device="dai">
+                    <input type="checkbox" class="device-checkbox" id="device-dai">
+                    <div class="device-icon">🚨</div>
+                    <div class="device-name">DAI</div>
+                    <div class="device-description">Detección automática de incidentes en vía</div>
+                </div> -->
+
+                <div class="device-card" data-device="galibos">
+                    <input type="checkbox" class="device-checkbox" id="device-galibo">
+                    <div class="device-icon">📏</div>
+                    <div class="device-name">Galibos</div>
+                    <div class="device-description">Control de altura máxima de vehículos</div>
+                </div>
+
+                <div class="device-card" data-device="radares">
+                    <input type="checkbox" class="device-checkbox" id="device-radar">
+                    <div class="device-icon">📡</div>
+                    <div class="device-name">Radares</div>
+                    <div class="device-description">Control de velocidad y detección de infracciones</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Filters Configuration -->
+        <div id="stepContent2" class="step-content">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <h3 class="filter-title">
+                        <i class="material-icons">date_range</i>
+                        Rango de Fechas
+                    </h3>
+                    
+                    <div class="alert alert-warning">
+                        <i class="material-icons">warning</i>
+                        <div>
+                            <strong>Límite de descarga: 7 días máximo</strong><br>
+                            El sistema permite descargar hasta 7 días de datos por solicitud.
+                        </div>
+                    </div>
+                    
+                    <div class="date-range-selector">
+                        <div class="form-control">
+                            <label>Fecha Inicial</label>
+                            <input type="date" id="startDate" max="" onchange="validateDateRange()">
+                        </div>
+                        <div class="form-control">
+                            <label>Fecha Final</label>
+                            <input type="date" id="endDate" max="" onchange="validateDateRange()">
+                        </div>
+                    </div>
+                    
+                    <div id="dateError" style="color: var(--error); margin-top: 0.5rem; display: none;"></div>
+                </div>
+
+                <div class="filter-group">
+                    <h3 class="filter-title">
+                        <i class="material-icons">location_on</i>
+                        Filtros Geográficos
+                    </h3>
+                    
+                    <div class="date-range-selector">
+                        <div class="form-control">
+                            <label>Departamento</label>
+                            <select id="department">
+                                <option value="">Todos los departamentos</option>
+                                <option value="cundinamarca">Cundinamarca</option>
+                                <option value="antioquia">Antioquia</option>
+                                <option value="valle">Valle del Cauca</option>
+                                <option value="atlantico">Atlántico</option>
+                                <option value="santander">Santander</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label>Sector</label>
+                            <select id="sector" disabled>
+                                <option value="">Primero seleccione un departamento</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group" style="display: none;">
+                    <h3 class="filter-title">
+                        <i class="material-icons">analytics</i>
+                        Tipo de Datos
+                    </h3>
+                    
+                    <div class="form-control">
+                        <label>Seleccione el tipo de información</label>
+                        <select id="dataType">
+                            <option value="all">Todos los datos disponibles</option>
+                            <option value="weight">Solo Pesos</option>
+                            <option value="speed">Solo Velocidades</option>
+                            <option value="volume">Solo Volúmenes</option>
+                            <option value="behavior">Solo Comportamiento Vehicular</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Summary and Confirm -->
+        <div id="stepContent3" class="step-content">
+            <div class="alert alert-error">
+                <i class="material-icons">gavel</i>
+                <div>
+                    <strong>Aviso Legal</strong><br>
+                    Los datos descargados son para uso académico y de investigación. El uso indebido de la información está sujeto a las sanciones establecidas en la ley colombiana.
+                </div>
+            </div>
+
+            <div class="summary-container">
+                <h3 style="margin-bottom: 1.5rem;">Resumen de la Solicitud</h3>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Dispositivos seleccionados:</span>
+                    <span class="summary-value" id="summaryDevices">-</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Rango de fechas:</span>
+                    <span class="summary-value" id="summaryDates">-</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Días de datos:</span>
+                    <span class="summary-value" id="summaryDays">-</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Departamento:</span>
+                    <span class="summary-value" id="summaryDepartment">Todos</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Sector:</span>
+                    <span class="summary-value" id="summarySector">Todos</span>
+                </div>
+                
+                <div class="summary-item" style="display: none;">
+                    <span class="summary-label">Tipo de datos:</span>
+                    <span class="summary-value" id="summaryDataType">Todos los datos</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Formato de descarga:</span>
+                    <span class="summary-value">CSV</span>
+                </div>
+                
+                <div class="summary-item" style="display: none;">
+                    <span class="summary-label">Tiempo estimado de procesamiento:</span>
+                    <span class="summary-value" id="summaryTime">2-5 minutos</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <label style="display: flex; align-items: start; gap: 0.5rem;">
+                    <input type="checkbox" id="termsAccept" style="margin-top: 0.25rem;">
+                    <span>Acepto los términos y condiciones de uso de datos y confirmo que utilizaré esta información de manera responsable y conforme a la ley.</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <button class="btn btn-secondary" id="btnBack" style="display: none;">
+                <i class="material-icons">arrow_back</i>
+                Atrás
+            </button>
+
+            <button class="btn btn-primary" id="btnNext">
+                Siguiente
+                <i class="material-icons">arrow_forward</i>
+            </button>
+        </div>
+
+        <!-- Download History Section -->
+        <div class="history-section" id="historySection" style="display: none;">
+            <div class="history-header">
+                <h3>📊 Historial de Descargas</h3>
+                <span style="font-size: 0.875rem; color: #6b7280;" id="historyListCount">Historial de descargas</span>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- El historial se cargará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Estilo Ministerial -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-main" style="max-width: 92%;">
+            <!-- Contenido Principal del Footer -->
+            <div class="footer-content">
+                <div class="footer-info">
+                    <!-- Columna 1 -->
+                    <div>
+                        <!-- Sede Principal -->
+                        <div class="footer-section">
+                            <h3>Sede Principal - Bogotá</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 59 No. 26 - 60 CAN<br>
+                                Bogotá D.C., Colombia<br>
+                                Código Postal: 111321<br><br>
+
+                                <strong>Horario de Atención:</strong><br>
+                                Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Conmutador:</strong><br>
+                                PBX: (601) 705 6000<br>
+                                Línea gratuita nacional: 018000 960 960
+
+                                <!-- Territorial Norte -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Norte</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 8 No. 16 - 21 piso Barranquilla, D.C.<br>
+                                Código Postal: 111711<br><br>
+
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Teléfono:</strong> +57 605 242 74 00<br>
+                                <strong>Extensiones:</strong> 4170 - 4171 - 4172
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 2 -->
+                    <div>
+                        
+
+                        <!-- Territorial Centro Oriente -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Centro Oriente</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 12 No. 78 - 65 • piso Bucaramanga, D.C.<br>
+                                Código Postal: 111711<br><br>
+
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Teléfono:</strong> +57 607 240 243 00<br>
+                                <strong>Extensiones:</strong> 4250 - 4251 - 4252<br>
+                                <strong>Subdirección de Gestión:</strong><br>
+                                6325 Grupo de Gestión Jurídica
+
+                                <!-- VIITS Contact -->
+                        <div class="footer-section">
+                            <h3>Contacto VIITS</h3>
+                            <div class="footer-contact">
+                                <strong>Teléfono:</strong> +57 601 705 74 00<br>
+                                <strong>Extensiones:</strong> 5963 - 5964<br><br>
+
+                                <strong>Correos Electrónicos:</strong><br>
+                                viits@invias.gov.co<br>
+                                servicioalciudadano@invias.gov.co
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 3 -->
+                    <div>
+                        
+
+                        <!-- Logos -->
+                        <div class="footer-logos">
+                            <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                                <!-- Logo INVIAS -->
+                                <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                    <img src="images/logo_invias_nuevo.jpg" alt="Logo INVIAS - Instituto Nacional de Vías" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                                </div>
+
+                                <!-- Logo Ministerio de Transporte -->
+                                <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                    <img src="images/logo-mintransporte.png" alt="Logo Ministerio de Transporte de Colombia" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redes Sociales -->
+            <div class="social-section">
+                <div class="social-header">Síguenos en redes sociales</div>
+                <div class="social-links">
+                    <a href="https://twitter.com/InviasCol" class="social-link" aria-label="Twitter INVIAS" target="_blank">
+                        <i class="material-icons">alternate_email</i>
+                    </a>
+                    <a href="https://www.facebook.com/InviasCol" class="social-link" aria-label="Facebook INVIAS" target="_blank">
+                        <i class="material-icons">facebook</i>
+                    </a>
+                    <a href="https://www.youtube.com/InviasCol" class="social-link" aria-label="YouTube INVIAS" target="_blank">
+                        <i class="material-icons">smart_display</i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/invias" class="social-link" aria-label="LinkedIn INVIAS" target="_blank">
+                        <i class="material-icons">business</i>
+                    </a>
+                    <a href="https://www.instagram.com/inviascol/" class="social-link" aria-label="Instagram INVIAS" target="_blank">
+                        <i class="material-icons">camera_alt</i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enlaces del Footer -->
+            <div class="footer-links">
+                <div class="links-grid">
+                    <a href="#" class="footer-link">Otras Políticas</a>
+                    <a href="#" class="footer-link">Mapa del sitio</a>
+                    <a href="#" class="footer-link">Términos y condiciones</a>
+                    <a href="#" class="footer-link">Datos personales</a>
+                    <a href="#" class="footer-link">Derechos de autor</a>
+                    <a href="#" class="footer-link">PQRS</a>
+                    <a href="participacion-ciudadana.html" class="footer-link">Participación Ciudadana</a>
+                    <a href="admin-panel.html" class="footer-link" style="opacity: 0.3;">Admin</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra Gov.co -->
+        <div class="footer-gov">
+            <a href="https://www.gov.co" class="gov-logo" target="_blank">
+                <img src="images/logo_co_footer.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+                <img src="images/govco.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+            </a>
+        </div>
+    </footer>
+
+    <!-- Modal de Autenticación -->
+    <div id="twoFactorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Verificación de Seguridad</h3>
+                <button style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(249, 115, 22, 0.1); border-radius: 50%;">
+                        <i class="material-icons" style="font-size: 36px; color: var(--orange);">verified_user</i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="userNameInput" placeholder="Ingrese su nombre completo" required>
+                    <span id="nameError" class="error-message">Este campo es obligatorio</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Correo Electrónico *</label>
+                    <input type="email" id="userEmailInput" placeholder="ejemplo@correo.com" required>
+                    <span id="emailError" class="error-message">Ingrese un correo válido</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Entidad a la que pertenece *</label>
+                    <select id="userEntityInput" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Ninguna / Ciudadano">Ninguna / Ciudadano</option>
+                        <option value="Policía Nacional">Policía Nacional</option>
+                        <option value="Ejército Nacional">Ejército Nacional</option>
+                        <option value="Bomberos">Bomberos</option>
+                        <option value="Ministerio de Transporte">Ministerio de Transporte</option>
+                        <option value="INVIAS">INVIAS</option>
+                        <option value="Academia / Universidad">Academia / Universidad</option>
+                        <option value="Otra entidad">Otra entidad</option>
+                    </select>
+                    <span id="entityError" class="error-message">Seleccione una entidad</span>
+                </div>
+                
+                <div id="otpSection" class="otp-section">
+                    <div class="success-message">
+                        <i class="material-icons" style="vertical-align: middle;">check_circle</i>
+                        Código enviado a: <strong id="displayEmail"></strong>
+                    </div>
+                    
+                    <div class="timer-display">
+                        <i class="material-icons" style="vertical-align: middle;">schedule</i>
+                        Tiempo restante: <strong id="countdown">5:00</strong>
+                    </div>
+                    
+                    <p style="text-align: center; color: #6b7280; margin-bottom: 1rem; font-size: 0.95rem;">
+                        Ingrese el código de 6 dígitos:
+                    </p>
+                    
+                    <div class="otp-inputs">
+                        <input type="text" class="otp-input" maxlength="1" id="otp1" 
+                               onkeyup="moveToNext(this, 'otp2')" 
+                               onpaste="handlePaste(event)" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                        <input type="text" class="otp-input" maxlength="1" id="otp2" 
+                               onkeyup="moveToNext(this, 'otp3')" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                        <input type="text" class="otp-input" maxlength="1" id="otp3" 
+                               onkeyup="moveToNext(this, 'otp4')" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                        <input type="text" class="otp-input" maxlength="1" id="otp4" 
+                               onkeyup="moveToNext(this, 'otp5')" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                        <input type="text" class="otp-input" maxlength="1" id="otp5" 
+                               onkeyup="moveToNext(this, 'otp6')" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                        <input type="text" class="otp-input" maxlength="1" id="otp6" 
+                               onkeyup="autoVerifyCode()" 
+                               inputmode="numeric" 
+                               pattern="[0-9]" 
+                               onkeypress="return onlyNumbers(event)">
+                    </div>
+                    
+                    <div class="resend-link">
+                        ¿No recibiste el código? 
+                        <a href="#" id="resendCodeLink">Reenviar código</a>
+                    </div>
+                    
+                    <div id="codeError" class="alert alert-error" style="display: none; margin-top: 1rem;">
+                        <i class="material-icons">error</i>
+                        <span id="codeErrorMessage">Código incorrecto. Intente nuevamente.</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning" style="margin-top: 1.5rem;">
+                    <i class="material-icons">info</i>
+                    <div style="font-size: 0.875rem;">
+                        <strong>Aviso Legal:</strong> Los datos descargados son para uso académico y de investigación.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="close2FAModal()">Cancelar</button>
+                <button class="btn btn-primary" id="btnAction">
+                    <i class="material-icons" id="btnActionIcon">send</i>
+                    <span id="btnActionText">Enviar Código</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body" style="text-align: center; padding: 3rem;">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; margin-bottom: 1.5rem;">
+                    <i class="material-icons" style="font-size: 48px; color: var(--success);">check_circle</i>
+                </div>
+
+                <h3 style="margin-bottom: 1rem;">¡Solicitud Procesada!</h3>
+                <p style="color: #6b7280; margin-bottom: 2rem;">
+                    Tu solicitud de descarga ha sido recibida y está siendo procesada.<br>
+                    Podrás ver el progreso en tu historial de descargas.
+                </p>
+
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">ID de Solicitud</div>
+                    <div style="font-family: monospace; font-size: 1.125rem; font-weight: 600;" id="requestId">REQ-2025-10-11-001247</div>
+                </div>
+
+                <button class="btn btn-primary">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Selection Error Modal -->
+    <div id="deviceSelectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body" style="text-align: center; padding: 3rem;">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; margin-bottom: 1.5rem;">
+                    <i class="material-icons" style="font-size: 48px; color: var(--error);">error</i>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: var(--error);">Selección Requerida</h3>
+                <p style="color: #6b7280; margin-bottom: 2rem;">
+                    Por favor seleccione al menos un dispositivo para continuar con la descarga.
+                </p>
+
+                <button class="btn btn-primary" onclick="closeDeviceSelectionModal()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms Acceptance Error Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body" style="text-align: center; padding: 3rem;">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; margin-bottom: 1.5rem;">
+                    <i class="material-icons" style="font-size: 48px; color: var(--warning);">gavel</i>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: var(--warning);">Términos y Condiciones</h3>
+                <p style="color: #6b7280; margin-bottom: 2rem;">
+                    Debe aceptar los términos y condiciones para continuar con la descarga.
+                </p>
+
+                <button class="btn btn-primary" onclick="closeTermsModal()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutConfirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-body" style="text-align: center; padding: 2rem;">
+                <div style="color: var(--warning); margin-bottom: 1rem;">
+                    <i class="material-icons" style="font-size: 64px;">help_outline</i>
+                </div>
+                <h3 style="color: var(--dark-gray); margin-bottom: 1rem;">Confirmar Cierre de Sesión</h3>
+                <p style="color: #374151; font-size: 1.1rem; margin-bottom: 1.5rem;">¿Está seguro que desea cerrar sesión?</p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="closeLogoutConfirmModal()">No</button>
+                    <button class="btn btn-danger" onclick="confirmLogout()">Sí, Cerrar Sesión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Success Modal -->
+    <div id="logoutSuccessModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-body" style="text-align: center; padding: 2rem;">
+                <div style="color: var(--success); margin-bottom: 1rem;">
+                    <i class="material-icons" style="font-size: 64px;">check_circle</i>
+                </div>
+                <h3 style="color: var(--success); margin-bottom: 1rem;">¡Éxito!</h3>
+                <p style="color: #374151; font-size: 1.1rem; margin-bottom: 1.5rem;">Sesión cerrada exitosamente</p>
+                <button class="btn btn-primary" onclick="closeLogoutSuccessModal()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

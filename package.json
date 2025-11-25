@@ -1,0 +1,36 @@
+{
+  "name": "micrositio-viits",
+  "version": "1.0.0",
+  "description": "Sistema VIITS - Micrositio INVIAS Colombia",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "echo 'No dependencies for frontend'",
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "build": "echo 'No build step required'",
+    "test": "cd backend && npm test",
+    "lint": "cd backend && npm run lint"
+  },
+  "keywords": [
+    "viits",
+    "invias",
+    "colombia",
+    "transporte",
+    "micrositio"
+  ],
+  "author": "INVIAS - Instituto Nacional de Vías",
+  "license": "ISC",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "json2csv": "^6.0.0-alpha.2"
+  }
+}

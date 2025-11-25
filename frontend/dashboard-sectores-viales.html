@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de análisis vial - INVIAS</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- JavaScript Externo -->
+    <script src="scripts/dashboard-sectores-viales.js"></script>
+
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="styles/index.css">
+    <link rel="stylesheet" href="styles/dashboard-sectores-viales.css">
+
+</head>
+<body>
+    <!-- Gov.co Header Oficial -->
+    <header class="gov-header" role="banner">
+        <div class="container">
+            <div class="gov-content">
+                <div class="gov-logo">
+                    <img src="images/govco.png" alt="Logo Gobierno de Colombia - Gov.co" style="height: clamp(21px, 8vw, 40px); width: auto;">
+                </div>
+                <nav class="gov-right" aria-label="Enlaces gubernamentales">
+                    <a href="https://www.gov.co" class="gov-link" target="_blank">Inicio</a>
+                    <a href="https://www.invias.gov.co" class="gov-link" target="_blank">INVIAS</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+   
+    <!-- Navbar de navegación -->
+    <nav style="background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
+        <div style="max-width: 1600px; margin: 0 auto; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+            <a href="javascript:void(0)" onclick="scrollToSection('inicio')" class="navbar-brand" aria-label="VIITS - Sistema de Vigilancia Inteligente de INVIAS">
+                    <img src="images/VIITS-LOGO.png" alt="Logo VIITS - Sistema de Vigilancia Inteligente de INVIAS" style="height: clamp(40px, 8vw, 50px); width: auto;">
+                </a>
+            
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <a href="index.html" style="color: #6b7280; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='#f3f4f6'; this.style.color='#f97316';" onmouseout="this.style.background='transparent'; this.style.color='#6b7280';">
+                    <i class="material-icons" style="font-size: 20px;">home</i>
+                    Inicio
+                </a>
+                <a href="documentos.html" style="color: #6b7280; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='#f3f4f6'; this.style.color='#f97316';" onmouseout="this.style.background='transparent'; this.style.color='#6b7280';">
+                    <i class="material-icons" style="font-size: 20px;">description</i>
+                    Documentos
+                </a>
+                <a href="participacion-ciudadana.html" style="color: #6b7280; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='#f3f4f6'; this.style.color='#f97316';" onmouseout="this.style.background='transparent'; this.style.color='#6b7280';">
+                    <i class="material-icons" style="font-size: 20px;">download</i>
+                    Participación Ciudadana
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1>📊 Dashboard de análisis vial</h1>
+                    <p>Sistema inteligente de tránsito, transporte e infraestructura - INVIAS</p>
+                </div>
+                <a href="index.html" style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='#ea580c';" onmouseout="this.style.background='var(--primary)';">
+                    <i class="material-icons">arrow_back</i>
+                    Volver al inicio
+                </a>
+            </div>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filters">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>
+                        <i class="material-icons" style="vertical-align: middle; font-size: 1rem;">location_on</i>
+                        DEPARTAMENTO
+                    </label>
+                    <select id="departmentFilter" onchange="updateDashboard()">
+                        <option value="">Todos los departamentos</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>
+                        <i class="material-icons" style="vertical-align: middle; font-size: 1rem;">analytics</i>
+                        MÉTRICA
+                    </label>
+                    <select id="metricFilter" onchange="updateDashboard()">
+                        <option value="speed">Velocidad promedio</option>
+                        <option value="volume">Volumen de tráfico</option>
+                        <option value="excess">Velocidad mayor a 80km/h</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>
+                        <i class="material-icons" style="vertical-align: middle; font-size: 1rem;">calendar_today</i>
+                        PERÍODO
+                    </label>
+                    <select id="periodFilter" onchange="updateDashboardQuery()">
+                        <!-- Las opciones se generarán dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        <i class="material-icons" style="vertical-align: middle; font-size: 1rem;">directions_car</i>
+                        TIPO DE VEHÍCULO
+                    </label>
+                    <select id="vehicleTypeFilter" onchange="updateDashboardQuery()">
+                        <option value="all">Todos los vehículos</option>
+                        <option value="motorcycles">Motos</option>
+                        <option value="heavy">Vehículos pesados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- KPIs -->
+        <div class="kpis">
+            <div class="kpi-card speed">
+                <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                    <div class="kpi-icon">
+                        <i class="material-icons">local_shipping</i>
+                    </div>
+                    <div class="kpi-label">Volumen promedio por sector vial</div>
+                </div>
+                <div class="kpi-value">
+                    ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
+                </div>
+                <div class="kpi-trend">
+                    <span style="color: #6b7280; font-weight: 600;">...</span>
+                    <span style="color: #6b7280;">vs ayer</span>
+                </div>
+                <div class="kpi-trend-8">
+                    <span style="color: #6b7280; font-weight: 600;">...</span>
+                    <span style="color: #6b7280;">vs 8 días</span>
+                </div>
+            </div>
+            
+            <div class="kpi-card volume">
+                <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                    <div class="kpi-icon">
+                        <i class="material-icons">speed</i>
+                    </div>
+                    <div class="kpi-label">Velocidad promedio por sector vial</div>
+                </div>
+                <div class="kpi-value">
+                    ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">km/h</span>
+                </div>
+                <div class="kpi-trend">
+                    <span style="color: #6b7280; font-weight: 600;">...</span>
+                    <span style="color: #6b7280;">vs ayer</span>
+                </div>
+                <div class="kpi-trend-8">
+                    <span style="color: #6b7280; font-weight: 600;">...</span>
+                    <span style="color: #6b7280;">vs 8 días</span>
+                </div>
+            </div>
+            
+            <div class="kpi-card excess">
+                <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                    <div class="kpi-icon">
+                        <i class="material-icons">bar_chart</i>
+                    </div>
+                    <div class="kpi-label"># de vehículos promedio con velocidad mayor a 80km/h por sector vial</div>
+                </div>
+                <div class="kpi-value">
+                    ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
+                </div>
+                <div class="kpi-trend">
+                    <span style="color: #6b7280; font-weight: 600;">-3.2%</span>
+                    <span style="color: #6b7280;">vs ayer</span>
+                </div>
+                <div class="kpi-trend-8">
+                    <span style="color: #6b7280; font-weight: 600;">...</span>
+                    <span style="color: #6b7280;">vs 8 días</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Info Box -->
+        <div class="info-box">
+            <p>
+                <i class="material-icons">info</i>
+                <strong>Interacción:</strong> Pasa el mouse sobre cada barra de la gráfica para ver el PR (Punto de Referencia) y nombre completo del sector.
+            </p>
+        </div>
+        
+        <!-- Gráfica Principal -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Análisis por sector vial</h2>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="updateChartType('bar')">Barras</button>
+                    <button class="btn" onclick="updateChartType('line')">Líneas</button>
+                </div>
+            </div>
+            <div class="chart-wrapper traffic">
+                <canvas id="sectorsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfica Diaria (oculta por defecto) -->
+        <div id="dailyChartContainer" class="chart-container" style="display: none; margin-top: 2rem;">
+            <div class="chart-header">
+                <h2 id="dailyChartTitle">Análisis diario</h2>
+                <button class="btn" onclick="closeDailyChart()" style="background: var(--danger); color: white;">Cerrar</button>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="dailyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráfica por Hora (oculta por defecto) -->
+        <div id="hourChartContainer" class="chart-container" style="display: none; margin-top: 2rem;">
+            <div class="chart-header">
+                <h2 id="hourChartTitle">Análisis por hora</h2>
+                <button class="btn" onclick="closeHoursChart()" style="background: var(--danger); color: white;">Cerrar</button>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="hourChart"></canvas>
+            </div>
+        </div>
+        <div id="hourChartLoading" style="padding-bottom: 2rem; display: none;">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <h6 id="loadingTitle" class="loading-title" style="margin-top: -34px; text-align: center;">Cargando gráfica...</h6>
+        </div>
+
+        <!-- Tabla de Sectores -->
+        <div class="sectors-table">
+            <h2>Detalle de sectores</h2>
+            <table id="sectorsTableData">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Departamento
+                            <br>
+                            <input type="text" id="filterDepartment" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            Municipio
+                            <br>
+                            <input type="text" id="filterMunicipality" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            Ruta
+                            <br>
+                            <input type="text" id="filterRoute" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            Tramo
+                            <br>
+                            <input type="text" id="filterTramo" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            Sector vial
+                            <br>
+                            <input type="text" id="filterSector" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            PR
+                            <br>
+                            <input type="text" id="filterPR" oninput="filterTable()" placeholder="Buscar...">
+                        </th>
+                        <th>
+                            Velocidad promedio (km/h)
+                        </th>
+                        <th>
+                            Volumen promedio (veh/día)
+                        </th>
+                        <th>
+                            Velocidad mayor a 80km/h (veh/día)
+                        </th>
+                        <th>
+                            Estado Velocidad
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="sectorsTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer Estilo Ministerial -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-main" style="max-width: 92%;">
+            <!-- Contenido Principal del Footer -->
+            <div class="footer-content">
+                <div class="footer-info">
+                    <!-- Columna Izquierda -->
+                    <div>
+                        <!-- Sede Principal -->
+                        <div class="footer-section">
+                            <h3>Sede Principal - Bogotá</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 59 No. 26 - 60 CAN<br>
+                                Bogotá D.C., Colombia<br>
+                                Código Postal: 111321<br><br>
+
+                                <strong>Horario de Atención:</strong><br>
+                                Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Conmutador:</strong><br>
+                                PBX: (601) 705 6000<br>
+                                Línea gratuita nacional: 018000 960 960
+                            </div>
+                        </div>
+
+                        <!-- Territorial Norte -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Norte</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 8 No. 16 - 21 piso Barranquilla, D.C.<br>
+                                Código Postal: 111711<br><br>
+
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Teléfono:</strong> +57 605 242 74 00<br>
+                                <strong>Extensiones:</strong> 4170 - 4171 - 4172
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha -->
+                    <div>
+                        <!-- Territorial Centro Oriente -->
+                        <div class="footer-section">
+                            <h3>Sede • Territorial Centro Oriente</h3>
+                            <div class="footer-contact">
+                                <strong>Dirección:</strong> Carrera 12 No. 78 - 65 • piso Bucaramanga, D.C.<br>
+                                Código Postal: 111711<br><br>
+
+                                <strong>Horario de Atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
+
+                                <strong>Teléfono:</strong> +57 607 240 243 00<br>
+                                <strong>Extensiones:</strong> 4250 - 4251 - 4252<br>
+                                <strong>Subdirección de Gestión:</strong><br>
+                                6325 Grupo de Gestión Jurídica
+                            </div>
+                        </div>
+
+                        <!-- VIITS Contact -->
+                        <div class="footer-section">
+                            <h3>Contacto VIITS</h3>
+                            <div class="footer-contact">
+                                <strong>Teléfono:</strong> +57 601 705 74 00<br>
+                                <strong>Extensiones:</strong> 5963 - 5964<br><br>
+
+                                <strong>Correos Electrónicos:</strong><br>
+                                viits@invias.gov.co<br>
+                                servicioalciudadano@invias.gov.co
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logos -->
+                <div class="footer-logos">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                        <!-- Logo INVIAS -->
+                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                            <img src="images/logo_invias_nuevo.jpg" alt="Logo INVIAS - Instituto Nacional de Vías" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                        </div>
+
+                        <!-- Logo Ministerio de Transporte -->
+                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                            <img src="images/logo-mintransporte.png" alt="Logo Ministerio de Transporte de Colombia" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redes Sociales -->
+            <div class="social-section">
+                <div class="social-header">Síguenos en redes sociales</div>
+                <div class="social-links">
+                    <a href="https://twitter.com/InviasCol" class="social-link" aria-label="Twitter INVIAS" target="_blank">
+                        <i class="material-icons">alternate_email</i>
+                    </a>
+                    <a href="https://www.facebook.com/InviasCol" class="social-link" aria-label="Facebook INVIAS" target="_blank">
+                        <i class="material-icons">facebook</i>
+                    </a>
+                    <a href="https://www.youtube.com/InviasCol" class="social-link" aria-label="YouTube INVIAS" target="_blank">
+                        <i class="material-icons">smart_display</i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/invias" class="social-link" aria-label="LinkedIn INVIAS" target="_blank">
+                        <i class="material-icons">business</i>
+                    </a>
+                    <a href="https://www.instagram.com/inviascol/" class="social-link" aria-label="Instagram INVIAS" target="_blank">
+                        <i class="material-icons">camera_alt</i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enlaces del Footer -->
+            <div class="footer-links">
+                <div class="links-grid">
+                    <a href="#" class="footer-link">Otras Políticas</a>
+                    <a href="#" class="footer-link">Mapa del sitio</a>
+                    <a href="#" class="footer-link">Términos y condiciones</a>
+                    <a href="#" class="footer-link">Datos personales</a>
+                    <a href="#" class="footer-link">Derechos de autor</a>
+                    <a href="#" class="footer-link">PQRS</a>
+                    <a href="participacion-ciudadana.html" class="footer-link">Participación Ciudadana</a>
+                    <a href="admin-panel.html" class="footer-link" style="opacity: 0.3;">Admin</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra Gov.co -->
+        <div class="footer-gov">
+            <a href="https://www.gov.co" class="gov-logo" target="_blank">
+                <img src="images/logo_co_footer.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+                <img src="images/govco.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+            </a>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    <a href="#" class="whatsapp-float" id="whatsappButton" aria-label="Contactar por WhatsApp - Servicio al ciudadano">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" focusable="false">
+            <path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.737 5.479 2.028 7.772L0 32l8.396-2.004A15.897 15.897 0 0 0 16 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm8.284 22.588c-.365 1.029-1.816 1.885-2.964 2.133-.787.166-1.813.3-5.273-1.133-4.428-1.833-7.288-6.313-7.508-6.604-.22-.291-1.796-2.39-1.796-4.556 0-2.167 1.137-3.233 1.54-3.671.403-.437.88-.547 1.174-.547.294 0 .588.003.847.016.271.012.635-.103.993.756.365.878 1.243 3.033 1.353 3.254.11.22.183.478.037.769-.146.291-.22.474-.438.73-.22.256-.461.571-.66.768-.219.217-.446.452-.192.887.254.435 1.13 1.862 2.425 3.016 1.667 1.484 3.072 1.945 3.51 2.163.439.22.694.183.95-.109.256-.293 1.1-1.283 1.393-1.721.293-.439.587-.365.99-.22.403.146 2.564 1.209 3.002 1.429.439.22.731.33.838.512.11.183.11 1.065-.256 2.094z"/>
+        </svg>
+    </a>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="loading-modal" role="dialog" aria-labelledby="loadingTitle" aria-describedby="loadingMessage" aria-hidden="true">
+        <div class="loading-modal-overlay"></div>
+        <div class="loading-modal-content">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <h3 id="loadingTitle" class="loading-title">Cargando datos...</h3>
+            <p id="loadingMessage" class="loading-message">Por favor espere mientras actualizamos la información del dashboard.</p>
+        </div>
+    </div>
+
+</body>
+</html>

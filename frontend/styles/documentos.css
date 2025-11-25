@@ -1,0 +1,959 @@
+/* ==========================================
+    VARIABLES Y RESET - RESPONSIVE OPTIMIZADO
+   ========================================== */
+
+:root {
+    /* Colores Oficiales Gov.co */
+    --color-primary: #f97316;
+    --color-secondary: #1f2937;
+    --color-gov-blue: #025dc3;
+    --color-gov-blue-dark: #003366;
+    --color-success: #069169;
+    --color-warning: #F6A623;
+    --color-error: #E3342F;
+    --color-text: #3D4852;
+    --color-text-light: #606F7B;
+    --color-background: #FFFFFF;
+    --color-gray-50: #F8FAFC;
+    --color-gray-100: #F1F5F8;
+    --color-gray-200: #E8EEF1;
+    --color-gray-300: #DAE1E7;
+
+    /* Typography Fluida - Responsive */
+    --font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-base: clamp(14px, 2vw, 16px);
+    --font-size-sm: clamp(12px, 1.8vw, 14px);
+    --font-size-lg: clamp(16px, 2.2vw, 18px);
+    --font-size-xl: clamp(18px, 2.5vw, 20px);
+    --font-size-2xl: clamp(20px, 3vw, 24px);
+    --font-size-3xl: clamp(24px, 4vw, 32px);
+    --font-size-4xl: clamp(28px, 5vw, 40px);
+    --font-size-5xl: clamp(32px, 6vw, 48px);
+    --line-height-base: 1.5;
+
+    /* Spacing Responsive */
+    --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+    --space-sm: clamp(0.5rem, 1vw, 0.75rem);
+    --space-md: clamp(0.75rem, 1.5vw, 1rem);
+    --space-lg: clamp(1rem, 2vw, 1.5rem);
+    --space-xl: clamp(1.5rem, 3vw, 2rem);
+    --space-xxl: clamp(2rem, 4vw, 3rem);
+
+    /* Container */
+    --container-max: 1400px;
+    --container-padding: clamp(1rem, 3vw, 2rem);
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* Reset & Base Styles con mejoras */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--color-text);
+    background-color: var(--color-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--color-text);
+    background-color: var(--color-gray-50);
+}
+
+/* ==========================================
+    GOV.CO HEADER - RESPONSIVE
+   ========================================== */
+
+.gov-header {
+    background-color: var(--color-gov-blue);
+    color: white;
+    padding: 2px 0;
+    font-size: var(--font-size-sm);
+    position: relative;
+    overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+    .gov-header {
+        padding: 0.5rem 0;
+    }
+
+    .gov-left span {
+        font-size: 0.75rem;
+    }
+
+    .gov-right {
+        gap: 0.5rem;
+    }
+
+    .gov-link {
+        font-size: 0.75rem;
+    }
+
+    .lang-selector {
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+    }
+}
+
+.gov-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #FFD700 0%, #FF6B00 25%, #004884 50%, #00A651 75%, #E3342F 100%);
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+.gov-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.gov-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex: 1;
+    min-width: 0;
+}
+
+.gov-left span {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.escudo-nacional {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--color-gov-blue);
+    flex-shrink: 0;
+}
+
+.gov-right {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    flex-shrink: 0;
+}
+
+.gov-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity var(--transition-fast);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+}
+
+.gov-link:hover, .gov-link:focus {
+    opacity: 0.8;
+    outline: none;
+}
+
+.lang-selector {
+    background: rgba(255,255,255,0.15);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    transition: background var(--transition-fast);
+    white-space: nowrap;
+}
+
+.lang-selector:hover, .lang-selector:focus {
+    background: rgba(255,255,255,0.25);
+    outline: none;
+}
+
+/* ==========================================
+    NAVIGATION - RESPONSIVE MEJORADA
+   ========================================== */
+
+.navbar {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) 0;
+    gap: var(--space-md);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    flex-shrink: 0;
+}
+
+.navbar-brand:hover, .navbar-brand:focus {
+    opacity: 0.8;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.navbar-logo {
+    height: clamp(35px, 8vw, 40px);
+    width: clamp(35px, 8vw, 40px);
+    background: var(--color-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: clamp(16px, 4vw, 20px);
+    transition: all var(--transition-normal);
+}
+
+.navbar-brand:hover .navbar-logo {
+    background: #ea580c;
+    transform: scale(1.05);
+}
+
+.navbar-brand-text {
+    font-weight: 700;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    color: var(--color-secondary);
+}
+
+.navbar-brand-subtitle {
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+    color: var(--color-text-light);
+}
+
+.navbar-menu {
+    display: none;
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.navbar-link {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-base);
+    white-space: nowrap;
+}
+
+.navbar-link:hover,
+.navbar-link:focus,
+.navbar-link.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+    outline: none;
+}
+
+.navbar-toggle {
+    background: none;
+    border: none;
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+    cursor: pointer;
+    color: var(--color-secondary);
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-toggle:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ==========================================
+    PAGE HEADER - RESPONSIVE
+   ========================================== */
+
+.page-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #ea580c 100%);
+    color: white;
+    padding: clamp(2rem, 6vw, 3rem) 0 clamp(1.5rem, 4vw, 2rem);
+}
+
+.page-title {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+    line-height: 1.2;
+}
+
+.page-subtitle {
+    font-size: clamp(0.95rem, 2.5vw, 1.125rem);
+    opacity: 0.95;
+    line-height: 1.4;
+}
+
+/* ==========================================
+    MAIN CONTENT - RESPONSIVE
+   ========================================== */
+
+.main-content {
+    padding: clamp(1.5rem, 4vw, 2rem) 0;
+}
+
+/* ==========================================
+    FILTERS SECTION - RESPONSIVE
+   ========================================== */
+
+.filters-section {
+    background: white;
+    border-radius: 8px;
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+}
+
+@media (min-width: 768px) {
+    .filters-grid {
+        grid-template-columns: 2fr 1fr 1fr auto;
+    }
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.filter-label {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--color-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.filter-input {
+    padding: clamp(0.625rem, 2vw, 0.75rem);
+    border: 2px solid var(--color-gray-300);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    color: #1f2937;
+    background: white;
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+    width: 100%;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ==========================================
+    BUTTONS - RESPONSIVE
+   ========================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: clamp(0.625rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+    font-weight: 500;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    white-space: nowrap;
+    text-align: center;
+}
+
+.btn:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: white;
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+    background-color: #111827;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-outline:hover, .btn-outline:focus {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* ==========================================
+    DOCUMENTS TABLE - RESPONSIVE
+   ========================================== */
+
+.documents-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    overflow-x: auto;
+}
+
+.documents-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.documents-table thead {
+    background: var(--color-gray-100);
+}
+
+.documents-table th {
+    padding: var(--space-lg);
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-secondary);
+    border-bottom: 2px solid var(--color-gray-300);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.documents-table td {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.documents-table tbody tr {
+    transition: all var(--transition-normal);
+}
+
+.documents-table tbody tr:hover {
+    background: var(--color-gray-50);
+}
+
+.doc-icon {
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(35px, 8vw, 40px);
+    background: rgba(249, 115, 22, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+
+.doc-title {
+    font-weight: 600;
+    color: var(--color-secondary);
+    margin-bottom: var(--space-xs);
+    font-size: var(--font-size-base);
+}
+
+.doc-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    line-height: 1.4;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-new {
+    background: var(--color-success);
+    color: white;
+}
+
+.badge-updated {
+    background: var(--color-warning);
+    color: white;
+}
+
+.download-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: clamp(0.25rem, 1vw, 0.5rem) clamp(0.5rem, 1.5vw, 0.75rem);
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--color-primary);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--space-sm);
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+
+.action-btn:hover, .action-btn:focus {
+    background: rgba(249, 115, 22, 0.1);
+    outline: none;
+}
+
+/* ==========================================
+    STATS SUMMARY - RESPONSIVE
+   ========================================== */
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: var(--space-lg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--space-sm);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+}
+
+/* ==========================================
+    EMPTY STATE & PAGINATION - RESPONSIVE
+   ========================================== */
+
+.empty-state {
+    text-align: center;
+    padding: clamp(2rem, 6vw, 3rem);
+    color: var(--color-text-light);
+}
+
+.empty-state-icon {
+    font-size: clamp(3rem, 8vw, 4rem);
+    margin-bottom: var(--space-lg);
+    opacity: 0.5;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: clamp(1.5rem, 4vw, 2rem) 0;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
+    border: 1px solid var(--color-gray-300);
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-btn:hover:not(:disabled), .pagination-btn:focus {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    outline: none;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+/* ==========================================
+    FOOTER - RESPONSIVE OPTIMIZADO
+   ========================================== */
+
+.footer {
+    background: var(--color-gov-blue);
+    padding: 0;
+    margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.footer-main {
+    background: white;
+    margin: 0 auto;
+    max-width: 63%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.footer-content {
+    padding: var(--space-xl);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+}
+
+.footer-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-xl);
+}
+
+.footer-section h3 {
+    color: var(--color-gov-blue);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.footer-text, .footer-contact {
+    color: #333;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    margin-bottom: var(--space-sm);
+}
+
+.footer-contact strong {
+    color: var(--color-gov-blue);
+    font-weight: 600;
+}
+
+.footer-logos {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.invias-logo {
+    width: clamp(120px, 30vw, 150px);
+    height: auto;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.iso-badge {
+    background: var(--color-gov-blue);
+    color: white;
+    padding: clamp(0.625rem, 2vw, 0.75rem);
+    border-radius: 50%;
+    width: clamp(70px, 15vw, 80px);
+    height: clamp(70px, 15vw, 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-align: center;
+}
+
+.footer-links {
+    background: #f8f9fa;
+    padding: var(--space-md) var(--space-xl);
+    border-top: 1px solid #e9ecef;
+}
+
+.links-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(0.75rem, 3vw, 1rem);
+}
+
+.footer-link {
+    color: var(--color-gov-blue);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.footer-link:hover, .footer-link:focus {
+    color: var(--color-primary);
+    outline: none;
+}
+
+.footer-gov {
+    background: var(--color-gov-blue);
+    padding: var(--space-md) 0;
+    text-align: center;
+}
+
+.gov-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-md);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+.colombia-shield {
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(35px, 8vw, 40px);
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--color-gov-blue);
+}
+
+/* Social Links */
+.social-section {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.social-header {
+    color: var(--color-gov-blue);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--color-gray-100);
+    border-radius: 50%;
+    color: var(--color-gov-blue);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    background: var(--color-gov-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 72, 132, 0.3);
+}
+
+/* ==========================================
+    RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Mobile First - Base responsive improvements */
+@media (max-width: 767px) {
+    .documents-table {
+        font-size: var(--font-size-sm);
+    }
+
+    .documents-table th,
+    .documents-table td {
+        padding: var(--space-sm) var(--space-xs);
+    }
+
+    .page-title {
+        font-size: clamp(1.5rem, 7vw, 1.75rem);
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .filters-section {
+        padding: var(--space-md);
+    }
+
+    .stats-summary {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+
+    .stat-card {
+        padding: var(--space-md);
+    }
+
+    .footer-content {
+        padding: var(--space-lg);
+    }
+
+    .footer-info {
+        gap: var(--space-lg);
+    }
+
+    .footer-logos {
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+
+    .social-links {
+        gap: 0.75rem;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+    .navbar-menu {
+        display: flex;
+    }
+
+    .navbar-toggle {
+        display: none;
+    }
+
+    .filters-grid {
+        grid-template-columns: 2fr 1fr 1fr auto;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr 200px;
+    }
+
+    .footer-info {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-logos {
+        flex-direction: column;
+    }
+}
+
+/* Large screens */
+@media (min-width: 992px) {
+    .documents-table-container {
+        overflow-x: visible;
+    }
+
+    .documents-table {
+        min-width: auto;
+    }
+}
