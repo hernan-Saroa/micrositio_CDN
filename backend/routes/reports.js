@@ -33,10 +33,20 @@ const upload = multer({
         fileSize: parseInt(process.env.UPLOAD_MAX_SIZE) || 50 * 1024 * 1024 // 50MB default
     },
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') {
+        const allowedMimeTypes = [
+            'application/pdf',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv',
+            'application/csv',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword'
+        ];
+        const allowedExts = /\.(pdf|xls|xlsx|csv|docx|doc)$/i;
+        if (allowedMimeTypes.includes(file.mimetype) || allowedExts.test(file.originalname)) {
             cb(null, true);
         } else {
-            cb(new AppError('Solo se permiten archivos PDF', 400));
+            cb(new AppError('Solo se permiten archivos PDF, Excel, CSV o Word', 400));
         }
     }
 });
@@ -141,63 +151,81 @@ router.get('/public', asyncHandler(async (req, res) => {
 // GET /api/reports
 // Obtener todos los reportes (con paginación y filtros) - PROTEGIDO
 // ========================================
-router.get('/', asyncHandler(async (req, res) => {
+router.get('/', [authenticateToken, authorizeRole(['admin', 'editor'])], asyncHandler(async (req, res) => {
     const {
         page = 1,
-        limit = 10,
+        limit = 20,
         search = '',
         is_public = null,
         sort_by = 'created_at',
         sort_order = 'DESC'
     } = req.query;
 
+    const safeSort = ['created_at', 'title', 'view_count', 'download_count'].includes(sort_by) ? sort_by : 'created_at';
+    const safeOrder = sort_order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const offset = (page - 1) * limit;
 
     // Construir query
     let queryStr = `
         SELECT 
             r.*,
-            u.name as created_by_name,
-            COUNT(*) OVER() as total_count
+            u.name as created_by_name
         FROM reports r
         LEFT JOIN users u ON r.created_by = u.id
         WHERE 1=1
     `;
     const params = [];
 
-    // Filtros
+    // Filtros (LIKE en lugar de ILIKE para compatibilidad SQLite)
     if (search) {
         params.push(`%${search}%`);
-        queryStr += ` AND (r.title ILIKE $${params.length} OR r.description ILIKE $${params.length})`;
+        queryStr += ` AND (r.title LIKE $${params.length} OR r.description LIKE $${params.length})`;
     }
 
-    if (is_public !== null) {
+    if (is_public !== null && is_public !== '') {
         params.push(is_public === 'true');
         queryStr += ` AND r.is_public = $${params.length}`;
     }
 
     // Ordenamiento
-    queryStr += ` ORDER BY r.${sort_by} ${sort_order}`;
+    queryStr += ` ORDER BY r.${safeSort} ${safeOrder}`;
+
+    // Conteo total (sin paginación)
+    const countParams = [...params];
+    let countStr = queryStr.replace(/SELECT[\s\S]+?FROM/, 'SELECT COUNT(*) as cnt FROM').replace(/ORDER BY[\s\S]*$/, '');
+    const countResult = await query(countStr, countParams);
+    const totalCount = parseInt(countResult.rows[0]?.cnt || 0);
 
     // Paginación
-    params.push(limit, offset);
+    params.push(parseInt(limit), parseInt(offset));
     queryStr += ` LIMIT $${params.length - 1} OFFSET $${params.length}`;
 
     const result = await query(queryStr, params);
 
-    const reports = result.rows;
-    const totalCount = reports.length > 0 ? parseInt(reports[0].total_count) : 0;
+    // Estadísticas globales (independiente de filtros/paginación)
+    const statsResult = await query(`
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN is_public = 1 OR is_public = 'true' OR is_public = true THEN 1 ELSE 0 END) as total_public,
+            SUM(CASE WHEN is_featured = 1 OR is_featured = 'true' OR is_featured = true THEN 1 ELSE 0 END) as total_featured,
+            COALESCE(SUM(download_count), 0) as total_downloads
+        FROM reports
+    `, []);
+    const stats = statsResult.rows[0] || {};
 
     res.json({
-        reports: reports.map(r => {
-            const { total_count, ...report } = r;
-            return report;
-        }),
+        reports: result.rows,
         pagination: {
             total: totalCount,
             page: parseInt(page),
             limit: parseInt(limit),
-            pages: Math.ceil(totalCount / limit)
+            pages: Math.ceil(totalCount / parseInt(limit))
+        },
+        stats: {
+            total: parseInt(stats.total || 0),
+            totalPublic: parseInt(stats.total_public || 0),
+            totalFeatured: parseInt(stats.total_featured || 0),
+            totalDownloads: parseInt(stats.total_downloads || 0)
         }
     });
 }));
@@ -254,10 +282,6 @@ router.post('/', [
     // Validaciones básicas
     if (!title || title.trim() === '') {
         throw new AppError('Título es requerido', 400);
-    }
-
-    if (!description || description.trim() === '') {
-        throw new AppError('Descripción es requerida', 400);
     }
 
     const result = await query(
@@ -333,28 +357,118 @@ router.put('/:id', [
     params.push(req.user.id);
     updates.push(`updated_by = $${params.length}`);
 
-    const result = await query(
+    await query(
         `UPDATE reports SET ${updates.join(', ')}, updated_at = NOW()
-         WHERE id = $1
-         RETURNING *`,
+         WHERE id = $1`,
         params
     );
+
+    const updated = await query('SELECT * FROM reports WHERE id = $1', [id]);
 
     // Log
     await query(
         `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, old_values, new_values, ip_address)
          VALUES ($1, 'update_report', 'report', $2, $3, $4, $5)`,
-        [req.user.id, id, JSON.stringify(currentResult.rows[0]), JSON.stringify(result.rows[0]), req.ip]
+        [req.user.id, id, JSON.stringify(currentResult.rows[0]), JSON.stringify(updated.rows[0]), req.ip]
     );
 
     logger.info(`Usuario ${req.user.email} actualizó reporte ID: ${id}`);
 
-    res.json(result.rows[0]);
+    res.json(updated.rows[0]);
+}));
+
+// ========================================
+// PUT /api/reports/:id/replace
+// Reemplazar el archivo de un reporte existente
+// ========================================
+router.put('/:id/replace', [
+    authenticateToken,
+    authorizeRole(['admin', 'editor']),
+    upload.single('file')
+], asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    // Buscar reporte actual
+    const currentResult = await query('SELECT * FROM reports WHERE id = $1', [id]);
+    if (currentResult.rows.length === 0) {
+        throw new AppError('Reporte no encontrado', 404);
+    }
+    const current = currentResult.rows[0];
+
+    if (!req.file) {
+        throw new AppError('Debe adjuntar un archivo para reemplazar el documento', 400);
+    }
+
+    // Eliminar archivo físico anterior
+    if (current.file_path) {
+        try {
+            await fs.unlink(current.file_path);
+            logger.info(`Archivo anterior eliminado: ${current.file_path}`);
+        } catch (unlinkErr) {
+            logger.warn(`No se pudo eliminar archivo anterior: ${current.file_path} — ${unlinkErr.message}`);
+        }
+    }
+
+    // Campos a actualizar con el nuevo archivo
+    const { title, description, is_public, is_featured } = req.body;
+
+    const updates = [
+        `file_name = $2`,
+        `file_path = $3`,
+        `file_size = $4`,
+        `mime_type = $5`,
+        `updated_at = NOW()`,
+        `updated_by = $6`
+    ];
+    const params = [
+        id,
+        req.file.originalname,
+        req.file.path,
+        req.file.size,
+        req.file.mimetype,
+        req.user.id
+    ];
+
+    if (title) {
+        params.push(title.trim());
+        updates.push(`title = $${params.length}`);
+    }
+    if (description !== undefined) {
+        params.push(description);
+        updates.push(`description = $${params.length}`);
+    }
+    if (is_public !== undefined) {
+        params.push(is_public === 'true' || is_public === true);
+        updates.push(`is_public = $${params.length}`);
+    }
+    if (is_featured !== undefined) {
+        params.push(is_featured === 'true' || is_featured === true);
+        updates.push(`is_featured = $${params.length}`);
+    }
+
+    await query(
+        `UPDATE reports SET ${updates.join(', ')} WHERE id = $1`,
+        params
+    );
+
+    const updated = await query('SELECT * FROM reports WHERE id = $1', [id]);
+
+    // Log de auditoría
+    await query(
+        `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, old_values, new_values, ip_address)
+         VALUES ($1, 'replace_report_file', 'report', $2, $3, $4, $5)`,
+        [req.user.id, id, JSON.stringify(current), JSON.stringify(updated.rows[0]), req.ip]
+    );
+
+    logger.info(`Usuario ${req.user.email} reemplazó archivo del reporte ID: ${id} → ${req.file.originalname}`);
+
+    res.json(updated.rows[0]);
 }));
 
 // ========================================
 // DELETE /api/reports/:id
 // Eliminar reporte
+
 // ========================================
 router.delete('/:id', [
     authenticateToken,

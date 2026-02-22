@@ -1,12 +1,23 @@
 /**
- * Configuración de la base de datos PostgreSQL
- * VIITS - INVIAS Colombia
+ * ╔════════════════════════════════════════════════════════════════╗
+ * ║  VIITS - Configuración de Base de Datos                       ║
+ * ║  • development  →  SQLite local (sin instalación)             ║
+ * ║  • production   →  PostgreSQL real                            ║
+ * ╚════════════════════════════════════════════════════════════════╝
  */
 
-const { Pool } = require('pg');
 const dotenv = require('dotenv');
-
 dotenv.config();
+
+// En modo desarrollo, usar SQLite como reemplazo de PostgreSQL
+if (process.env.NODE_ENV !== 'production') {
+    console.log('🛠️  [Modo DESARROLLO] Usando base de datos SQLite local');
+    module.exports = require('./database-dev');
+    return;
+}
+
+// En producción, usar PostgreSQL
+const { Pool } = require('pg');
 
 // Configuración del pool de conexiones
 const pool = new Pool({

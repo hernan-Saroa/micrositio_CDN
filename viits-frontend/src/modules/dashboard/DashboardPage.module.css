@@ -1,0 +1,206 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--gray-100, #f1f5f9);
+}
+
+.scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* KPI */
+.kpiRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.kpiCard {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: box-shadow .15s, transform .15s;
+}
+
+.kpiCard:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .07);
+    transform: translateY(-2px);
+}
+
+.kpiIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpiIcon .material-icons {
+    font-size: 22px;
+}
+
+.kpiNum {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #1e293b;
+    line-height: 1;
+    margin-top: 4px;
+}
+
+.kpiLabel {
+    font-size: .72rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+/* Modules */
+.sectionTitle {
+    font-size: .8rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.moduleGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.moduleCard {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow .15s, transform .15s, border-color .15s;
+    min-height: 140px;
+}
+
+.moduleCard:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+}
+
+.moduleIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.moduleIcon .material-icons {
+    font-size: 24px;
+}
+
+.moduleName {
+    font-size: .95rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.moduleDesc {
+    font-size: .76rem;
+    color: #94a3b8;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Health */
+.healthGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.healthCard {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.healthDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ok {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, .5);
+}
+
+.warn {
+    background: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, .5);
+}
+
+.fail {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, .5);
+}
+
+.healthLabel {
+    font-size: .8rem;
+    font-weight: 600;
+    color: #334155;
+    flex: 1;
+}
+
+.healthLat {
+    font-size: .72rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+
+    .kpiRow,
+    .moduleGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+
+    .kpiRow,
+    .healthGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .moduleGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .kpiRow {
+        grid-template-columns: 1fr;
+    }
+}

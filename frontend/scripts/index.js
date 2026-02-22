@@ -5,7 +5,7 @@
 // ============================================
 // INICIALIZACIÓN
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Inicializar slider dinámico desde la base de datos
     loadSliderImages();
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     startSliderInterval();
 
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             clearTimeout(sliderInterval);
         } else if (isPlaying) {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadKPIs(true);
 
     // Cerrar menú móvil al hacer clic fuera
-    document.getElementById('mobileMenu').addEventListener('click', function(e) {
+    document.getElementById('mobileMenu').addEventListener('click', function (e) {
         if (e.target === this) {
             toggleMobileMenu();
         }
@@ -136,7 +136,7 @@ function togglePlayPause() {
 function startSliderInterval() {
     clearTimeout(sliderInterval);
     const duration = slideDurations[currentSlide] || 5000;
-    
+
     sliderInterval = setTimeout(() => {
         changeSlide(1);
     }, duration);
@@ -163,13 +163,13 @@ function updateSliderPosition() {
 
 function changeSlide(direction) {
     currentSlide += direction;
-    
+
     if (currentSlide >= totalSlides) {
         currentSlide = 0;
     } else if (currentSlide < 0) {
         currentSlide = totalSlides - 1;
     }
-    
+
     updateSliderPosition();
     resetSliderInterval();
 }
@@ -270,61 +270,55 @@ function createDynamicSlider(images) {
         return;
     }
 
-    // Crear slides dinámicos
+    // Crear slides dinámicos — MISMO DISEÑO APROBADO POR EL CLIENTE
+    // Se mantiene exactamente la misma estructura HTML/CSS del slider estático
     activeImages.forEach((image, index) => {
         const slide = document.createElement('div');
         slide.className = `slide slide-dynamic ${index === 0 ? 'active' : ''}`;
 
-        // Construir URL de la imagen
-        const imageUrl = `/uploads/slider/${image.image_path}`;
+        // Aplicar color de fondo desde la BD (gradiente CSS almacenado en bg_color)
+        const defaultGradient = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%)';
+        const bgGradient = image.bg_color || defaultGradient;
+        slide.style.background = bgGradient;
 
+        // Determinar color de texto desde la BD (o auto-detectar si no está configurado)
+        const savedTextColor = image.text_color || null;
+        const isLightBg = bgGradient.includes('#f0f9ff') || bgGradient.includes('#e0f2fe') || bgGradient.includes('ffffff');
+        const resolvedTextColor = savedTextColor || (isLightBg ? '#0f172a' : '#ffffff');
+        const isDark = resolvedTextColor === '#ffffff' || resolvedTextColor.toLowerCase() === 'white' ||
+            (resolvedTextColor.startsWith('#') && parseInt(resolvedTextColor.slice(1), 16) > 0x888888 === false);
+        const textColor = `color: ${resolvedTextColor};`;
+        const subtitleColor = `color: ${resolvedTextColor}; opacity: 0.9;`;
+        const badgeBg = (resolvedTextColor === '#ffffff' || resolvedTextColor === 'white')
+            ? 'background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);'
+            : '';
+        const accentColor = (resolvedTextColor === '#ffffff' || resolvedTextColor === 'white')
+            ? '#fbbf24' : 'var(--color-primary)';
+
+        // Si hay imagen real (no placeholder), se aplica como fondo sutil encima del gradiente
+        const hasRealImage = image.image_path && image.image_path !== 'placeholder.jpg';
+
+        // Misma estructura HTML exacta del slider estático aprobado
         slide.innerHTML = `
-            
             <div class="slide-content">
                 <div class="hero-content">
-                    <!-- 
-                    <div class="hero-badge">
-                        <span style="width: 8px; height: 8px; background: var(--color-primary); border-radius: 50%; animation: pulse 2s infinite;" aria-hidden="true"></span>
-                        ${image.title || 'VIITS INVIAS'}
+                    <div class="hero-badge" style="${badgeBg}">
+                        <span style="width: 8px; height: 8px; background: ${(resolvedTextColor === '#ffffff' || resolvedTextColor === 'white') ? '#10b981' : 'var(--color-primary)'}; border-radius: 50%; animation: pulse 2s infinite;" aria-hidden="true"></span>
+                        ${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}
                     </div>
-                    -->
 
-                    <h1 class="hero-title">
+                    <h1 class="hero-title" style="${textColor}">
                         ${image.title || 'Sistema de Vigilancia Inteligente'}<br>
-                        <span style="color: var(--color-primary);">${image.alt_text || 'de Infraestructura Vial'}</span>
+                        <span style="color: ${accentColor};">${image.alt_text || 'de Infraestructura Vial'}</span>
                     </h1>
 
-                    <p class="hero-subtitle">
-                        ${image.description || 'Transformando la gestión del tráfico en Colombia mediante tecnología de punta y análisis de datos en tiempo real'}
+                    <p class="hero-subtitle" style="${subtitleColor}">
+                        ${image.description || 'Accede a dashboards, reportes y microdatos para tomar decisiones informadas.'}
                     </p>
                 </div>
             </div>
-            
-            <!-- Imagen de fondo del slide -->
-            <div class="slide-background" style="
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-image: url('${imageUrl}');
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                z-index: -1;
-                opacity: 0.5;
-            "></div>
+            ${hasRealImage ? `<div class="slide-background" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('/uploads/slider/${image.image_path}');background-size:cover;background-position:center;z-index:-1;opacity:${(image.image_opacity !== undefined && image.image_opacity !== null) ? image.image_opacity : 0.35};" aria-hidden="true"></div>` : ''}
         `;
-
-        // Agregar evento de carga de imagen para debugging
-        const img = new Image();
-        img.onload = function() {
-            console.log(`✅ Imagen cargada correctamente: ${imageUrl}`);
-        };
-        img.onerror = function() {
-            console.error(`❌ Error al cargar imagen: ${imageUrl}`);
-        };
-        img.src = imageUrl;
 
         sliderWrapper.appendChild(slide);
     });
@@ -582,7 +576,7 @@ function scrollToSection(sectionId) {
     const mobileMenu = document.getElementById('mobileMenu');
     mobileMenu.classList.remove('active');
     document.body.style.overflow = '';
-    
+
     let targetElement;
     if (sectionId === 'inicio') {
         targetElement = document.querySelector('.hero');
@@ -591,11 +585,11 @@ function scrollToSection(sectionId) {
     } else {
         targetElement = document.getElementById(sectionId);
     }
-    
+
     if (targetElement) {
         const navbarHeight = document.querySelector('.navbar').offsetHeight;
         const targetPosition = targetElement.offsetTop - navbarHeight;
-        
+
         window.scrollTo({
             top: targetPosition,
             behavior: 'smooth'
@@ -610,29 +604,29 @@ function goToDashboard() {
 function initScrollFeatures() {
     const scrollProgress = document.getElementById('scrollProgress');
     const scrollToTopBtn = document.getElementById('scrollToTop');
-    
+
     let ticking = false;
-    
+
     window.addEventListener('scroll', () => {
         if (!ticking) {
             window.requestAnimationFrame(() => {
                 const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
                 const scrolled = (window.scrollY / windowHeight) * 100;
                 scrollProgress.style.width = scrolled + '%';
-                
+
                 if (window.scrollY > 300) {
                     scrollToTopBtn.classList.add('visible');
                 } else {
                     scrollToTopBtn.classList.remove('visible');
                 }
-                
+
                 ticking = false;
             });
-            
+
             ticking = true;
         }
     });
-    
+
     scrollToTopBtn.addEventListener('click', () => {
         window.scrollTo({
             top: 0,
@@ -643,29 +637,29 @@ function initScrollFeatures() {
 
 function initWhatsApp() {
     const whatsappButton = document.getElementById('whatsappButton');
-    
+
     if (!whatsappButton) return;
-    
+
     const CONFIG = {
         phoneNumber: '573017057400',
         message: '¡Hola! Vi el Sistema VIITS de INVIAS y me gustaría obtener más información.',
         isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     };
-    
-    whatsappButton.addEventListener('click', function(e) {
+
+    whatsappButton.addEventListener('click', function (e) {
         e.preventDefault();
         const encodedMessage = encodeURIComponent(CONFIG.message);
         let whatsappURL;
-        
+
         if (CONFIG.isMobile) {
             whatsappURL = `whatsapp://send?phone=${CONFIG.phoneNumber}&text=${encodedMessage}`;
         } else {
             whatsappURL = `https://wa.me/${CONFIG.phoneNumber}?text=${encodedMessage}`;
         }
-        
+
         window.open(whatsappURL, '_blank');
     });
-    
+
     setTimeout(() => {
         whatsappButton.style.opacity = '0';
         whatsappButton.style.display = 'flex';
@@ -745,7 +739,7 @@ function getDateRange() {
     yesterday.setDate(yesterday.getDate() - 1);
     const endDate = new Date(yesterday);
     const startDate = new Date(yesterday);
-    
+
     switch (periodSelector) {
         case 'last7days':
             const today = new Date();
@@ -985,7 +979,7 @@ function calcularTendencia(valorHoy, valorAyer) {
 function updateKPIElements(velocidad, volumen, exceso, velocidadTrend, volumenTrend, excesoTrend, velocidadTrend8, volumenTrend8, excesoTrend8) {
     const ayer = new Date();
     ayer.setDate(ayer.getDate() - 1);
-    const dia =ayer.toLocaleDateString('es-ES', { weekday: 'long' });
+    const dia = ayer.toLocaleDateString('es-ES', { weekday: 'long' });
     // Actualizar KPIs por volumen
     updateDataKPIs(1, volumen, volumenTrend, volumenTrend8, dia, 'vehículos/día');
     // Actualizar KPIs por velocidad
@@ -1002,12 +996,12 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
         const kpiValue = elementKpiCart.querySelector('.kpi-value');
         if (kpiValue) {
             let kpi = data.toLocaleString('es-CO');
-            if (i == 2 ) {
-                kpi = data.toLocaleString('es-CO', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            if (i == 2) {
+                kpi = data.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             }
             kpiValue.innerHTML = `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`;
         }
-        
+
         // KPI 2: promedio vs anteayer
         const kpiTrend = elementKpiCart.querySelector('.kpi-trend');
         if (kpiTrend && dataTrend) {
@@ -1195,10 +1189,10 @@ function updateTrafficChart() {
         color = '#10b981';
         bgColor = 'rgba(16, 185, 129, 0.7)';
         metricKey = vehicleType === 'all' ? 'volumen' :
-                    vehicleType === 'motorcycles' ? 'volumen' : 'volumen'; // Adaptar según datos disponibles
+            vehicleType === 'motorcycles' ? 'volumen' : 'volumen'; // Adaptar según datos disponibles
         metricLabel = vehicleType === 'all' ? 'Volumen promedio (vehículos/día)' :
-                        vehicleType === 'motorcycles' ? 'Volumen promedio (vehículos/día)' :
-                        'Volumen promedio (vehículos/día)';
+            vehicleType === 'motorcycles' ? 'Volumen promedio (vehículos/día)' :
+                'Volumen promedio (vehículos/día)';
     } else if (metricType === 'excess') {
         color = '#ef4444';
         bgColor = 'rgba(239, 68, 68, 0.7)';
@@ -1220,7 +1214,7 @@ function updateTrafficChart() {
     const sortedPrAprox = sortedData.map(s => s.pr_aprox);
     const sortedDevices = sortedData.map(s => s.dispositivo);
     const sortedCodigoTramo = sortedData.map(s => s.codigo_tramo);
-    
+
     if (trafficChart) {
         trafficChart.destroy();
     }
@@ -1243,7 +1237,7 @@ function updateTrafficChart() {
             indexAxis: 'y', // 🔄 Cambia los ejes (barras horizontales)
             responsive: true,
             maintainAspectRatio: false,
-            onClick: function(event, elements) {
+            onClick: function (event, elements) {
                 if (elements.length > 0) {
                     const index = elements[0].index;
                     selectedDeviceData = sortedData[index];
@@ -1272,11 +1266,11 @@ function updateTrafficChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        title: function(context) {
+                        title: function (context) {
                             const index = context[0].dataIndex;
                             return 'Código tramo: ' + sortedCodigoTramo[index] + '\nPR: ' + sortedPrAprox[index] + '\nSector: ' + sortedSectors[index];
                         },
-                        label: function(context) {
+                        label: function (context) {
                             const value = context.parsed.x; // 👈 si inviertes los ejes, ahora el valor está en X
                             if (metricType === 'speed') {
                                 return metricLabel + ': ' + value + ' km/h';
@@ -1297,7 +1291,7 @@ function updateTrafficChart() {
                     beginAtZero: true,
                     grid: { color: 'rgba(0, 0, 0, 0.1)' },
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             if (metricType === 'speed') {
                                 return value;
                             }
@@ -1456,9 +1450,9 @@ function showDailyChart() {
                 const fechaStr = formatDate(currentDate);
                 if (!datosPorFecha[fechaStr]) {
                     datosPorFecha[fechaStr] = {
-                    velocidad: 0,
-                    volumen: 0,
-                    exceso: 0
+                        velocidad: 0,
+                        volumen: 0,
+                        exceso: 0
                     };
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -1466,11 +1460,11 @@ function showDailyChart() {
 
             // (Opcional) Ordenar las fechas
             const datosOrdenados = Object.keys(datosPorFecha)
-            .sort((a, b) => new Date(a) - new Date(b))
-            .map(fecha => ({
-                fecha,
-                ...datosPorFecha[fecha]
-            }));
+                .sort((a, b) => new Date(a) - new Date(b))
+                .map(fecha => ({
+                    fecha,
+                    ...datosPorFecha[fecha]
+                }));
         }
 
         // Convertir a arrays ordenados por fecha
@@ -1499,21 +1493,21 @@ function showDailyChart() {
             color = '#3b82f6';
             bgColor = 'rgba(59, 130, 246, 0.7)';
             yAxisTitle = 'Velocidad promedio (km/h)';
-            yAxisCallback = function(value) { return value + ' km/h'; };
+            yAxisCallback = function (value) { return value + ' km/h'; };
         } else if (metricType === 'volume') {
             data = volumenes;
             label = 'Volumen de tráfico (# vehículos)';
             color = '#10b981';
             bgColor = 'rgba(16, 185, 129, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         } else if (metricType === 'excess') {
             data = excesos;
             label = 'Vehículos con velocidad mayor a 80km/h';
             color = '#ef4444';
             bgColor = 'rgba(239, 68, 68, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         }
 
         // Actualizar título
@@ -1553,7 +1547,7 @@ function showDailyChart() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    onClick: function(event, elements) {
+                    onClick: function (event, elements) {
                         if (elements.length > 0) {
                             const index = elements[0].index;
                             selectedSectorCharthour = fechas[index];
@@ -1579,7 +1573,7 @@ function showDailyChart() {
                             cornerRadius: 8,
                             displayColors: true,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const fechaIndex = context[0].dataIndex;
                                     return new Date(fechas[fechaIndex] + 'T00:00:00').toLocaleDateString('es-CO', {
                                         weekday: 'long',
@@ -1588,7 +1582,7 @@ function showDailyChart() {
                                         day: 'numeric'
                                     });
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed.y;
                                     if (metricType === 'speed') {
                                         return `${label}: ${value.toFixed(1)} km/h`;
@@ -1665,7 +1659,7 @@ function showDailyChart() {
 async function showHoursChart() {
     try {
         console.log('Mostrando gráfica por hora para fecha:', selectedSectorCharthour, ' y tramo', selectedSectorChartdays);
-        
+
         // Ocultar contenedor
         const container = document.getElementById('hourChartContainer');
         if (container) {
@@ -1701,7 +1695,7 @@ async function showHoursChart() {
         if (loadingSpinner) {
             loadingSpinner.style.display = 'none';
         }
-        
+
         if (!response.ok) {
             throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
         }
@@ -1736,21 +1730,21 @@ async function showHoursChart() {
             color = '#3b82f6';
             bgColor = 'rgba(59, 130, 246, 0.7)';
             yAxisTitle = 'Velocidad promedio (km/h)';
-            yAxisCallback = function(value) { return value.toFixed(1) + ' km/h'; };
+            yAxisCallback = function (value) { return value.toFixed(1) + ' km/h'; };
         } else if (metricType === 'volume') {
             dataArray = totalRegistros;
             label = 'Volumen de tráfico (# vehículos)';
             color = '#10b981';
             bgColor = 'rgba(16, 185, 129, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         } else if (metricType === 'excess') {
             dataArray = registrosMayor80;
             label = 'Vehículos con velocidad mayor a 80km/h';
             color = '#ef4444';
             bgColor = 'rgba(239, 68, 68, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         }
 
         // Crear gráfica
@@ -1797,11 +1791,11 @@ async function showHoursChart() {
                             cornerRadius: 8,
                             displayColors: true,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const horaIndex = context[0].dataIndex;
                                     return `Hora: ${horas[horaIndex]}`;
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed.y;
                                     if (metricType === 'speed') {
                                         return `${label}: ${value.toFixed(1)} km/h`;
@@ -1888,7 +1882,7 @@ function formatHora(hora24) {
 
     // Si termina en ":00", lo quitamos
     horaFormateada = horaFormateada.replace(':00', '');
-    
+
     // Normalizar el texto para evitar espacios o caracteres invisibles
     horaFormateada = horaFormateada
         .replace(/\s*a\.?\s*m\.?/i, ' a.m')  // reemplaza "a. m." / "a.m." / "a. m."
@@ -1990,42 +1984,42 @@ function updateKPIsByDepartment() {
 function initPeriodSelector() {
     const selector = document.getElementById('periodSelector');
     if (!selector) return;
-    
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const last7DaysStart = new Date(yesterday);
     last7DaysStart.setDate(last7DaysStart.getDate() - 6);
-    
+
     const formatDate = (date) => {
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         return `${date.getDate()} ${months[date.getMonth()]}`;
     };
-    
+
     const options = [
         { value: 'last7days', text: `Últimos 7 días (${formatDate(last7DaysStart)} - ${formatDate(yesterday)})`, selected: true }
     ];
-    
+
     for (let i = 0; i < 7; i++) {
         const date = new Date(yesterday);
         date.setDate(date.getDate() - i);
-        
+
         const dayLabel = i === 0 ? 'Ayer' : formatDate(date);
         const fullDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        
+
         options.push({
             value: `day-${i}`,
             text: `${dayLabel} (${fullDate})`,
             selected: false
         });
     }
-    
+
     // options.push(
     //     { value: 'lastMonth', text: 'Último mes', selected: false },
     //     { value: 'lastQuarter', text: 'Último trimestre', selected: false },
     //     { value: 'lastYear', text: 'Último año', selected: false }
     // );
-    
+
     selector.innerHTML = '';
     options.forEach(opt => {
         const option = document.createElement('option');

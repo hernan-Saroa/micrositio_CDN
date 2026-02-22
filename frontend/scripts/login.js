@@ -8,7 +8,7 @@ const DEMO_MODE = false;
 
 function showAlert(message, type = 'error') {
     alert.className = `alert alert-${type} show`;
-    alert.querySelector('.material-icons').textContent = 
+    alert.querySelector('.material-icons').textContent =
         type === 'error' ? 'error' : 'check_circle';
     alertMessage.textContent = message;
 }
@@ -20,27 +20,27 @@ function hideAlert() {
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideAlert();
-    
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     console.log('Email:', email);
     console.log('Contraseña:', password);
-    
+
     // Validaciones básicas
     if (!email || !password) {
         showAlert('Por favor completa todos los campos');
         return;
     }
-    
+
     if (!email.includes('@')) {
         showAlert('Por favor ingresa un correo electrónico válido');
         return;
     }
-    
+
     // Mostrar loading
     loginBtn.classList.add('loading');
     loginBtn.disabled = true;
-    
+
     // MODO DE DEMOSTRACIÓN - Sin backend
     if (DEMO_MODE) {
         setTimeout(() => {
@@ -48,9 +48,9 @@ loginForm.addEventListener('submit', async (e) => {
             sessionStorage.setItem('demoUser', email);
             sessionStorage.setItem('isAuthenticated', 'true');
             sessionStorage.setItem('loginTime', new Date().toISOString());
-            
+
             showAlert('Inicio de sesión exitoso. Redirigiendo...', 'success');
-            
+
             // Redirigir directamente al panel administrativo
             setTimeout(() => {
                 window.location.href = 'admin-panel.html';
@@ -58,7 +58,7 @@ loginForm.addEventListener('submit', async (e) => {
         }, 800);
         return;
     }
-    
+
     // MODO PRODUCCIÓN - Con backend
     try {
         const response = await fetch('/api/auth/login', {

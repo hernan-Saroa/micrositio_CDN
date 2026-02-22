@@ -1,0 +1,3443 @@
+/* ════════════════════════════════════════════════════════════
+   DAI MODULE — WORLD-CLASS SPLIT-PANE ALERT CENTER
+   Inspired by: Datadog · PagerDuty · Linear · Grafana
+   Layout: stat bar ▸ controls ▸ [list  |  detail panel]
+   ════════════════════════════════════════════════════════════ */
+
+/* container fills the entire content area */
+.dai-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f1f5f9;
+    font-family: var(--font, 'Work Sans', sans-serif);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ── 1. Stat Bar ────────────────────────────────────────────── */
+.dai-stat-bar {
+    display: flex;
+    gap: 10px;
+    padding: 14px 20px 0;
+    flex-shrink: 0;
+}
+
+.dai-stat-card {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all .22s cubic-bezier(.4, 0, .2, 1);
+    user-select: none;
+    animation: dai-stat-in .4s cubic-bezier(.4, 0, .2, 1) both;
+    animation-delay: calc(var(--card-i, 0) * 60ms);
+}
+
+@keyframes dai-stat-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dai-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.dai-stat-card.active-filter {
+    border-color: currentColor;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .08), 0 0 0 3px var(--sev-bg, #eef2ff);
+}
+
+/* Trend indicator in stat label */
+.dai-stat-trend {
+    display: inline-flex;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.dai-stat-trend i {
+    font-size: 13px;
+}
+
+.dai-stat-trend.up i {
+    color: #ef4444;
+}
+
+.dai-stat-trend.down i {
+    color: #22c55e;
+}
+
+/* Pulse animation for pending card when lots of alerts */
+.dai-stat-card.has-pulse .dai-stat-icon {
+    animation: dai-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dai-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: .7;
+    }
+}
+
+.dai-stat-card.sev-total {
+    --sev-c: #6366f1;
+    --sev-bg: #eef2ff;
+    color: var(--sev-c);
+}
+
+.dai-stat-card.sev-critica {
+    --sev-c: #dc2626;
+    --sev-bg: #fef2f2;
+    color: var(--sev-c);
+}
+
+.dai-stat-card.sev-alta {
+    --sev-c: #ea580c;
+    --sev-bg: #fff7ed;
+    color: var(--sev-c);
+}
+
+.dai-stat-card.sev-media {
+    --sev-c: #ca8a04;
+    --sev-bg: #fefce8;
+    color: var(--sev-c);
+}
+
+.dai-stat-card.sev-baja {
+    --sev-c: #16a34a;
+    --sev-bg: #f0fdf4;
+    color: var(--sev-c);
+}
+
+.dai-stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--sev-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dai-stat-icon .material-icons {
+    font-size: 20px;
+    color: var(--sev-c);
+}
+
+.dai-stat-num {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--gray-900, #1e293b);
+    line-height: 1;
+}
+
+.dai-stat-lbl {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--gray-400, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-top: 2px;
+}
+
+/* ── 1b. Collapsible Latency Dashboard Section ──────────────── */
+.dai-latency-section {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.dai-latency-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf4 100%);
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .2s;
+}
+
+.dai-latency-toggle:hover {
+    background: linear-gradient(135deg, #e8ecf8 0%, #dee4f0 100%);
+}
+
+.dai-latency-toggle-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.dai-latency-toggle-left>.material-icons {
+    font-size: 18px;
+    color: #6366f1;
+}
+
+.dai-latency-challenge {
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+}
+
+.dai-latency-challenge.badge-ok {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.dai-latency-challenge.badge-warn {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.dai-latency-challenge.badge-fail {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.dai-latency-chevron {
+    font-size: 22px;
+    color: #64748b;
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+}
+
+.dai-latency-collapsible {
+    max-height: 600px;
+    overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4, 0, .2, 1), opacity .25s;
+    opacity: 1;
+}
+
+.dai-latency-collapsible.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* ── 2. Controls Bar ────────────────────────────────────────── */
+.dai-controls {
+    padding: 12px 20px 0;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.dai-smart-search {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 8px 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: all .18s;
+    max-width: 480px;
+}
+
+.dai-smart-search:focus-within {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 3px var(--brand-orange-glow, rgba(249, 115, 22, .15));
+}
+
+.dai-smart-search .material-icons {
+    font-size: 18px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.dai-smart-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: .85rem;
+    color: #1e293b;
+    flex: 1;
+    padding: 0;
+    font-family: inherit;
+    box-shadow: none;
+}
+
+.dai-smart-search input::placeholder {
+    color: #94a3b8;
+}
+
+.dai-controls-right {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+/* ── 3. Chip Filters + Status Tabs ──────────────────────────── */
+.dai-filter-row {
+    padding: 10px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.dai-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-size: .74rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    font-family: inherit;
+}
+
+.dai-chip:hover {
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
+}
+
+.dai-chip.active {
+    background: var(--brand-orange);
+    border-color: var(--brand-orange);
+    color: white;
+}
+
+.dai-chip .material-icons {
+    font-size: 13px;
+}
+
+.dai-divider-v {
+    width: 1px;
+    height: 18px;
+    background: #e2e8f0;
+    margin: 0 2px;
+}
+
+.dai-status-tabs {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.dai-status-tab {
+    padding: 4px 12px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    font-size: .76rem;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.dai-status-tab:hover {
+    color: #1e293b;
+    background: #f1f5f9;
+}
+
+.dai-status-tab.active {
+    background: white;
+    color: var(--brand-orange);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+}
+
+.dai-status-tab .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    font-size: .6rem;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #64748b;
+    margin-left: 3px;
+    padding: 0 3px;
+}
+
+.dai-status-tab.active .tab-count {
+    background: var(--brand-orange-glow, rgba(249, 115, 22, .15));
+    color: var(--brand-orange);
+}
+
+/* ── 4. Results Header ──────────────────────────────────────── */
+.dai-results-header {
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.dai-results-count {
+    font-size: .76rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.dai-results-count strong {
+    color: #1e293b;
+}
+
+.dai-sort-select {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .74rem;
+    color: #64748b;
+}
+
+.dai-sort-select select {
+    width: auto;
+    padding: 3px 6px;
+    font-size: .74rem;
+    border-radius: 6px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5. SPLIT PANE — List (left) + Detail Panel (right)
+   ══════════════════════════════════════════════════════════════ */
+.dai-split-pane {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+    min-height: 0;
+    /* crucial for flex overflow */
+}
+
+/* ── 5a. Left: Alert Table ──────────────────────────────────── */
+.dai-list-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* Table-style header */
+.dai-table-header {
+    display: grid;
+    grid-template-columns: 6px 60px 28px 1fr 120px 130px 110px 80px 42px 30px;
+    gap: 0;
+    padding: 0 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.dai-th {
+    padding: 8px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Scrollable rows */
+.dai-table-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.dai-table-body::-webkit-scrollbar {
+    width: 5px;
+}
+
+.dai-table-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+}
+
+/* Each alert row */
+.dai-row {
+    display: grid;
+    grid-template-columns: 6px 60px 28px 1fr 120px 130px 110px 80px 42px 30px;
+    gap: 0;
+    align-items: center;
+    background: white;
+    border-radius: 10px;
+    margin: 4px 0;
+    cursor: pointer;
+    transition: all .18s cubic-bezier(.4, 0, .2, 1);
+    border: 1.5px solid transparent;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+    animation: dai-row-in .35s cubic-bezier(.4, 0, .2, 1) both;
+    animation-delay: calc(var(--row-i, 0) * 20ms);
+}
+
+@keyframes dai-row-in {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.dai-row:hover {
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .08);
+    transform: translateY(-1px);
+    border-color: #e2e8f0;
+}
+
+.dai-row.is-selected {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 2px var(--brand-orange-glow, rgba(249, 115, 22, .15));
+    background: #fffbf5;
+}
+
+/* Severity strip (first col) */
+.dai-row-strip {
+    width: 6px;
+    align-self: stretch;
+    border-radius: 0;
+}
+
+.dai-row-strip.critica {
+    background: #dc2626;
+}
+
+.dai-row-strip.alta {
+    background: #f97316;
+}
+
+.dai-row-strip.media {
+    background: #eab308;
+}
+
+.dai-row-strip.baja {
+    background: #22c55e;
+}
+
+/* Severity badge */
+.dai-row-sev {
+    text-align: center;
+    padding: 8px 4px;
+}
+
+.sev-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: .63rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.sev-pill.critica {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.sev-pill.alta {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.sev-pill.media {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.sev-pill.baja {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* Tipo icon column */
+.dai-row-tipo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+}
+
+.dai-row-tipo-icon i {
+    font-size: 18px;
+    color: #64748b;
+    opacity: .7;
+}
+
+.dai-row:hover .dai-row-tipo-icon i {
+    opacity: 1;
+    color: #334155;
+}
+
+/* Video indicator */
+.dai-row-vid-icon {
+    font-size: 11px !important;
+    color: #6366f1 !important;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Inline latency badge */
+.dai-row-lat {
+    font-size: .65rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    padding: 4px 6px;
+    border-radius: 6px;
+}
+
+.dai-row-lat.lat-excellent {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.dai-row-lat.lat-ok {
+    color: #65a30d;
+    background: #ecfccb;
+}
+
+.dai-row-lat.lat-warn {
+    color: #c2410c;
+    background: #ffedd5;
+}
+
+.dai-row-lat.lat-critical {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+/* Alert info cell */
+.dai-row-info {
+    padding: 8px 6px;
+    min-width: 0;
+}
+
+.dai-row-tipo {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dai-row-id {
+    font-family: 'Courier New', monospace;
+    font-size: .6rem;
+    color: var(--brand-orange);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Other cells */
+.dai-row-cell {
+    padding: 8px 6px;
+    font-size: .74rem;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dai-row-cell .cell-label {
+    display: block;
+    font-size: .58rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 1px;
+}
+
+.dai-row-cell .cell-value {
+    display: block;
+    font-weight: 500;
+}
+
+.dai-row-cell .cell-value.mono {
+    font-family: 'Courier New', monospace;
+    font-size: .68rem;
+}
+
+/* Status pill */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: .65rem;
+    font-weight: 700;
+}
+
+.status-pill.creado {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.status-pill.activa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-pill.en_revision {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.status-pill.resuelta {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Arrow button */
+.dai-row-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.dai-row-arrow .material-icons {
+    font-size: 18px;
+    color: #cbd5e1;
+    transition: color .15s;
+}
+
+.dai-row:hover .dai-row-arrow .material-icons,
+.dai-row.is-selected .dai-row-arrow .material-icons {
+    color: var(--brand-orange);
+}
+
+/* Empty state */
+.dai-empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.dai-empty-state .material-icons {
+    font-size: 48px;
+    margin-bottom: .75rem;
+}
+
+.dai-empty-state h4 {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.dai-empty-state p {
+    font-size: .82rem;
+}
+
+/* Load more */
+.dai-load-more {
+    padding: 8px 20px 14px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dai-load-more button {
+    flex: 1;
+    padding: 8px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.dai-load-more button:hover {
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
+}
+
+.dai-page-info {
+    font-size: .74rem;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+/* ── 5b. Right: Detail Panel — ALWAYS a fixed drawer ────────── */
+.dai-detail-pane {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(420px, 92vw);
+    z-index: 1000;
+    background: white;
+    box-shadow: -6px 0 32px rgba(0, 0, 0, .18);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transform: translateX(0);
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1);
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.dai-detail-pane::-webkit-scrollbar {
+    width: 5px;
+}
+
+.dai-detail-pane::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 5px;
+}
+
+.dai-detail-pane::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dai-detail-pane.collapsed {
+    transform: translateX(105%);
+    pointer-events: none;
+}
+
+/* Detail header */
+.dai-detail-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+
+.dai-detail-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.dai-detail-id {
+    font-family: 'Courier New', monospace;
+    font-size: .66rem;
+    color: var(--brand-orange);
+    font-weight: 700;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dai-detail-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: all .15s;
+    flex-shrink: 0;
+}
+
+.dai-detail-close:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.dai-detail-close .material-icons {
+    font-size: 16px;
+}
+
+.dai-detail-tipo {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.dai-detail-pills {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.dai-pill-tag {
+    font-size: .66rem;
+    color: #64748b;
+    padding: 2px 7px;
+    background: #f1f5f9;
+    border-radius: 20px;
+}
+
+.dai-pill-assigned {
+    font-size: .66rem;
+    color: #6366f1;
+    padding: 2px 7px;
+    background: #eef2ff;
+    border-radius: 20px;
+}
+
+/* ── URGENCY BAR — visual pulse for active alerts ────────── */
+.dai-urgency-bar {
+    height: 3px;
+    flex-shrink: 0;
+    transition: all .3s;
+}
+
+.dai-urgency-bar.urg-resolved {
+    background: #22c55e;
+}
+
+.dai-urgency-bar.urg-normal {
+    background: #6366f1;
+}
+
+.dai-urgency-bar.urg-high {
+    background: #f59e0b;
+    animation: urgPulse 2s infinite;
+}
+
+.dai-urgency-bar.urg-critical {
+    background: #ef4444;
+    animation: urgPulse 1s infinite;
+}
+
+@keyframes urgPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .4;
+    }
+}
+
+/* ═══════════ VIDEO EVIDENCE PREVIEW ═══════════ */
+.dai-video-preview {
+    margin: 6px 14px 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.dai-video-preview.dai-no-video {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    color: #94a3b8;
+    font-size: .7rem;
+    font-weight: 600;
+}
+
+.dai-no-video .material-icons {
+    font-size: 18px;
+}
+
+.dai-video-thumb {
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e293b;
+}
+
+.dai-video-thumb canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 7px;
+}
+
+.dai-video-thumb:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dai-video-thumb:hover .dai-video-play-btn i {
+    transform: scale(1.15);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+/* Video overlay */
+.dai-video-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.dai-video-cam-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: .58rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: monospace;
+}
+
+.dai-video-rec {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: #ef4444;
+    font-weight: 900;
+    font-size: .56rem;
+    letter-spacing: 0.05em;
+}
+
+.dai-rec-dot {
+    width: 6px;
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: recPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes recPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.dai-video-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.dai-video-play-btn i {
+    font-size: 48px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    transition: transform .2s, text-shadow .2s;
+}
+
+.dai-video-bottom-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    font-size: .55rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.dai-video-bottom-info span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.dai-video-bottom-info .material-icons {
+    font-size: 12px;
+}
+
+/* ── Inline Video Player ──────────────────── */
+.dai-video-player {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e293b;
+    background: #0f172a;
+}
+
+.dai-vp-screen {
+    position: relative;
+}
+
+.dai-vp-screen canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.dai-vp-hud {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6px 8px;
+}
+
+.dai-vp-hud-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .58rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: monospace;
+}
+
+.dai-vp-cam {
+    font-weight: 600;
+}
+
+.dai-vp-incident-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(239, 68, 68, 0.85);
+    color: white;
+    font-size: .6rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+    align-self: flex-end;
+}
+
+.dai-vp-incident-tag .material-icons {
+    font-size: 13px;
+}
+
+/* Controls bar */
+.dai-vp-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: #1e293b;
+}
+
+.dai-vp-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.dai-vp-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dai-vp-btn.close:hover {
+    color: #ef4444;
+}
+
+.dai-vp-btn i {
+    font-size: 20px;
+}
+
+.dai-vp-progress-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dai-vp-progress {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
+}
+
+.dai-vp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 2px;
+    transition: width .4s linear;
+}
+
+.dai-vp-incident-marker {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 1px;
+    z-index: 1;
+}
+
+.dai-vp-incident-marker::after {
+    content: '⚠';
+    position: absolute;
+    top: -14px;
+    left: -4px;
+    font-size: 8px;
+}
+
+.dai-vp-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: .5rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: monospace;
+    font-weight: 600;
+}
+
+/* ── Fullscreen Modal ─────────────────────── */
+.dai-video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .3s;
+}
+
+.dai-video-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dai-vm-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.dai-vm-container {
+    position: relative;
+    width: 85vw;
+    max-width: 900px;
+    background: #0f172a;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.92);
+    transition: transform .3s;
+}
+
+.dai-video-modal.show .dai-vm-container {
+    transform: scale(1);
+}
+
+.dai-vm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #1e293b;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: .7rem;
+    font-family: monospace;
+}
+
+.dai-vm-header strong {
+    color: white;
+}
+
+.dai-vm-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.dai-vm-close:hover {
+    color: #ef4444;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dai-vm-screen {
+    position: relative;
+}
+
+.dai-vm-screen canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.dai-vm-incident {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.dai-vm-incident .material-icons {
+    font-size: 16px;
+}
+
+.dai-vm-info {
+    display: flex;
+    gap: 16px;
+    padding: 10px 16px;
+    background: #1e293b;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: .62rem;
+    font-weight: 600;
+}
+
+.dai-vm-info span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dai-vm-info .material-icons {
+    font-size: 14px;
+    color: #6366f1;
+}
+
+/* ── TIME TIMELINE — visual step-based flow ────────────────── */
+.dai-time-timeline {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 14px 10px;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    gap: 0;
+}
+
+.dai-tt-step {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 72px;
+}
+
+.dai-tt-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s;
+}
+
+.dai-tt-step.done .dai-tt-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.dai-tt-step.pending .dai-tt-icon {
+    background: #fef3c7;
+    color: #d97706;
+    animation: dai-step-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dai-step-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(217, 119, 6, .3);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(217, 119, 6, 0);
+    }
+}
+
+.dai-tt-icon i {
+    font-size: 16px;
+}
+
+.dai-tt-label {
+    font-size: .55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #94a3b8;
+}
+
+.dai-tt-value {
+    font-size: .68rem;
+    font-weight: 700;
+    color: #1e293b;
+    font-family: 'Courier New', monospace;
+}
+
+/* Connector between steps */
+.dai-tt-connector {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 14px;
+    min-width: 24px;
+}
+
+.dai-tt-connector-line {
+    width: 100%;
+    height: 2px;
+    background: #cbd5e1;
+    border-radius: 1px;
+    position: relative;
+}
+
+.dai-tt-connector-line.animate-pulse {
+    background: linear-gradient(90deg, #cbd5e1 0%, #fbbf24 50%, #cbd5e1 100%);
+    background-size: 200% 100%;
+    animation: dai-connector-flow 1.5s ease-in-out infinite;
+}
+
+@keyframes dai-connector-flow {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+/* Latency badge on connector */
+.dai-tt-latency {
+    font-size: .58rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-top: 1px;
+}
+
+.dai-tt-latency.lat-excellent {
+    color: #15803d;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.dai-tt-latency.lat-ok {
+    color: #65a30d;
+    background: #ecfccb;
+    border: 1px solid #d9f99d;
+}
+
+.dai-tt-latency.lat-warn {
+    color: #c2410c;
+    background: #ffedd5;
+    border: 1px solid #fed7aa;
+}
+
+.dai-tt-latency.lat-critical {
+    color: #dc2626;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+/* Detail pane entrance animation */
+.dai-detail-animate>* {
+    animation: dai-detail-fadein .3s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+@keyframes dai-detail-fadein {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── QUICK ACTIONS — always visible, one-click ────────────── */
+.dai-quick-actions {
+    display: flex;
+    gap: 4px;
+    padding: 8px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    background: white;
+}
+
+.dai-qaction {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-size: .68rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    flex: 1;
+    justify-content: center;
+}
+
+.dai-qaction .material-icons {
+    font-size: 15px;
+}
+
+.dai-qaction:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.dai-qaction.resolve {
+    border-color: #86efac;
+    color: #16a34a;
+}
+
+.dai-qaction.resolve:hover {
+    background: #f0fdf4;
+}
+
+.dai-qaction.review {
+    border-color: #fde68a;
+    color: #a16207;
+}
+
+.dai-qaction.review:hover {
+    background: #fefce8;
+}
+
+.dai-qaction.reopen {
+    border-color: #fed7aa;
+    color: #ea580c;
+}
+
+.dai-qaction.reopen:hover {
+    background: #fff7ed;
+}
+
+.dai-qaction.assign {
+    border-color: #c7d2fe;
+    color: #6366f1;
+}
+
+.dai-qaction.assign:hover {
+    background: #eef2ff;
+}
+
+.dai-qaction.email {
+    border-color: #bfdbfe;
+    color: #3b82f6;
+}
+
+.dai-qaction.email:hover {
+    background: #eff6ff;
+}
+
+.dai-qaction.attach {
+    border-color: #e2e8f0;
+    color: #64748b;
+    flex: 0;
+    padding: 5px 8px;
+}
+
+.dai-qaction.attach:hover {
+    background: #f8fafc;
+}
+
+/* ── Row urgency indicators ────────────────────────────────── */
+.dai-row.row-urgent-critical {
+    background: linear-gradient(90deg, #fef2f2 0%, white 30%);
+    border-left: 3px solid #ef4444;
+}
+
+.dai-row.row-urgent-high {
+    background: linear-gradient(90deg, #fffbeb 0%, white 30%);
+    border-left: 3px solid #f59e0b;
+}
+
+.dai-row-elapsed {
+    display: inline-block;
+    font-size: .6rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    margin-top: 2px;
+}
+
+.dai-row-elapsed.normal {
+    color: #64748b;
+    background: #f1f5f9;
+}
+
+.dai-row-elapsed.high {
+    color: #a16207;
+    background: #fef3c7;
+}
+
+.dai-row-elapsed.critical {
+    color: #dc2626;
+    background: #fee2e2;
+    animation: urgPulse 1.5s infinite;
+}
+
+.dai-row-elapsed.resolved {
+    display: none;
+}
+
+/* ── Additional stat cards ─────────────────────────────────── */
+.dai-stat-card.sev-pending {
+    --sev-c: #ea580c;
+    --sev-bg: #fff7ed;
+    color: var(--sev-c);
+}
+
+.dai-stat-card.sev-speed {
+    --sev-c: #0891b2;
+    --sev-bg: #ecfeff;
+    color: var(--sev-c);
+}
+
+/* ═══════════ LATENCY PERFORMANCE DASHBOARD ═══════════ */
+.dai-latency-dashboard {
+    margin: 0 0 6px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: white;
+}
+
+.dai-lat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    transition: background .2s;
+    user-select: none;
+}
+
+.dai-lat-header:hover {
+    background: #eef2ff;
+}
+
+.dai-lat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dai-lat-header-left>.material-icons {
+    font-size: 20px;
+    color: #6366f1;
+}
+
+.dai-lat-title {
+    font-size: .78rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.dai-lat-badge {
+    font-size: .62rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+}
+
+.dai-lat-badge.badge-ok {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.dai-lat-badge.badge-warn {
+    background: #fef9c3;
+    color: #ca8a04;
+}
+
+.dai-lat-badge.badge-fail {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.dai-lat-toggle {
+    font-size: 20px;
+    color: #94a3b8;
+    transition: transform .3s;
+}
+
+.dai-latency-dashboard.collapsed .dai-lat-toggle {
+    transform: rotate(-90deg);
+}
+
+.dai-latency-dashboard.collapsed .dai-lat-body {
+    max-height: 0;
+    padding: 0 14px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.dai-lat-body {
+    padding: 12px 14px 14px;
+    max-height: 500px;
+    opacity: 1;
+    transition: all .35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.dai-lat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.3fr;
+    gap: 12px;
+}
+
+.dai-lat-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.dai-lat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .68rem;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+
+.dai-lat-card-title .material-icons {
+    font-size: 16px;
+    color: #6366f1;
+}
+
+/* ── Gauge ──────────────────────────────────── */
+.dai-lat-gauge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.dai-lat-gauge {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(var(--gauge-color) 0% calc(var(--pct) * 1%),
+            #e2e8f0 calc(var(--pct) * 1%) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    animation: dai-gauge-spin .8s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+@keyframes dai-gauge-spin {
+    from {
+        transform: rotate(-90deg) scale(.85);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotate(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.dai-lat-gauge-inner {
+    width: 74px;
+    height: 74px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.dai-lat-gauge-num {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #1e293b;
+    line-height: 1;
+}
+
+.dai-lat-gauge-sub {
+    font-size: .52rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.dai-lat-gauge-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dai-lat-gl-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .65rem;
+    color: #64748b;
+}
+
+.dai-lat-gl-row strong {
+    margin-left: auto;
+    color: #1e293b;
+    font-weight: 800;
+}
+
+.dai-lat-gl-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* ── Distribution Bars ─────────────────────── */
+.dai-lat-distrib {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dai-lat-bar-row {
+    display: grid;
+    grid-template-columns: 42px 1fr 32px 38px;
+    gap: 6px;
+    align-items: center;
+}
+
+.dai-lat-bar-label {
+    font-size: .6rem;
+    font-weight: 700;
+    color: #64748b;
+    text-align: right;
+}
+
+.dai-lat-bar-track {
+    height: 16px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dai-lat-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .6s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 2px;
+}
+
+.dai-lat-bar-count {
+    font-size: .62rem;
+    font-weight: 800;
+    color: #334155;
+    text-align: right;
+}
+
+.dai-lat-bar-pct {
+    font-size: .56rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+/* ── Historical Table ──────────────────────── */
+.dai-lat-table-wrap {
+    overflow-x: auto;
+}
+
+.dai-lat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .65rem;
+}
+
+.dai-lat-table th {
+    text-align: left;
+    padding: 4px 6px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: .56rem;
+    border-bottom: 1.5px solid #e2e8f0;
+}
+
+.dai-lat-table td {
+    padding: 5px 6px;
+    color: #334155;
+    font-weight: 600;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dai-lat-table td:first-child {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+}
+
+.dai-lat-table td:first-child .material-icons {
+    font-size: 14px;
+    color: #6366f1;
+}
+
+.dai-lat-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Compliance pill */
+.dai-lat-comp {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: .58rem;
+}
+
+.dai-lat-comp.comp-ok {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.dai-lat-comp.comp-warn {
+    background: #fef9c3;
+    color: #ca8a04;
+}
+
+.dai-lat-comp.comp-fail {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ── Latency Color Classes ─────────────────── */
+.lat-excellent {
+    color: #16a34a !important;
+    font-weight: 800;
+}
+
+.lat-ok {
+    color: #84cc16 !important;
+    font-weight: 800;
+}
+
+.lat-warn {
+    color: #f97316 !important;
+    font-weight: 800;
+}
+
+.lat-critical {
+    color: #ef4444 !important;
+    font-weight: 800;
+}
+
+/* Latency in detail header — enhanced with colors */
+.dai-latency.lat-excellent {
+    background: #dcfce7;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.dai-latency.lat-ok {
+    background: #f7fee7;
+    color: #65a30d;
+    border-color: #d9f99d;
+}
+
+.dai-latency.lat-warn {
+    background: #fff7ed;
+    color: #ea580c;
+    border-color: #fed7aa;
+}
+
+.dai-latency.lat-critical {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* Detail tabs */
+
+.dai-detail-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #f1f5f9;
+    flex-shrink: 0;
+    padding: 0 18px;
+    background: #fcfcfd;
+}
+
+.dai-detail-tab {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    font-size: .72rem;
+    font-weight: 600;
+    color: #94a3b8;
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -2px;
+    transition: all .15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.dai-detail-tab:hover {
+    color: #475569;
+}
+
+.dai-detail-tab.active {
+    color: var(--brand-orange, #ea580c);
+    border-bottom-color: var(--brand-orange, #ea580c);
+}
+
+.dai-detail-tab .material-icons {
+    font-size: 15px;
+}
+
+.dai-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    font-size: .62rem;
+    font-weight: 700;
+    color: #64748b;
+    line-height: 1;
+}
+
+.dai-detail-tab.active .dai-tab-badge {
+    background: #fff7ed;
+    color: var(--brand-orange, #ea580c);
+}
+
+/* ── Management sections ──────────────────────────────────── */
+.dai-mgmt-section {
+    margin: 12px 16px 0;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+}
+
+.dai-mgmt-section:first-child {
+    margin-top: 14px;
+}
+
+.dai-mgmt-section:last-child {
+    margin-bottom: 16px;
+}
+
+.dai-mgmt-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #f8fafc;
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #475569;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dai-mgmt-title .material-icons {
+    font-size: 16px;
+    color: #94a3b8;
+}
+
+.dai-mgmt-title .dai-tab-badge {
+    margin-left: auto;
+}
+
+.dai-mgmt-body {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Form rows inside management */
+.dai-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.dai-form-row label {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #64748b;
+}
+
+.dai-form-row label .req {
+    color: #ef4444;
+}
+
+.dai-form-row select,
+.dai-form-row input[type="email"],
+.dai-form-row input[type="text"],
+.dai-form-row textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: .78rem;
+    font-family: inherit;
+    color: #1e293b;
+    background: white;
+    resize: vertical;
+    transition: border-color .15s;
+}
+
+.dai-form-row select:focus,
+.dai-form-row input:focus,
+.dai-form-row textarea:focus {
+    outline: none;
+    border-color: var(--brand-orange, #ea580c);
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, .1);
+}
+
+/* Management action buttons */
+.dai-mgmt-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: .74rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    width: 100%;
+}
+
+.dai-mgmt-btn .material-icons {
+    font-size: 15px;
+}
+
+.dai-mgmt-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .12);
+}
+
+.dai-mgmt-btn.primary {
+    background: #f59e0b;
+    color: white;
+}
+
+.dai-mgmt-btn.primary:hover {
+    background: #d97706;
+}
+
+.dai-mgmt-btn.indigo {
+    background: #6366f1;
+    color: white;
+}
+
+.dai-mgmt-btn.indigo:hover {
+    background: #4f46e5;
+}
+
+.dai-mgmt-btn.blue {
+    background: #3b82f6;
+    color: white;
+}
+
+.dai-mgmt-btn.blue:hover {
+    background: #2563eb;
+}
+
+.dai-mgmt-btn.amber {
+    background: #ca8a04;
+    color: white;
+}
+
+.dai-mgmt-btn.amber:hover {
+    background: #a16207;
+}
+
+/* ── Attachment list ──────────────────────────────────────── */
+.dai-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dai-attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    background: #f8fafc;
+    border-radius: 7px;
+    border: 1px solid #f1f5f9;
+}
+
+.dai-attachment-item .material-icons {
+    font-size: 18px;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.dai-att-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.dai-att-name {
+    display: block;
+    font-size: .74rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dai-att-meta {
+    font-size: .64rem;
+    color: #94a3b8;
+}
+
+.dai-att-remove {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: all .15s;
+    flex-shrink: 0;
+}
+
+.dai-att-remove:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.dai-att-remove .material-icons {
+    font-size: 14px;
+    color: inherit;
+}
+
+.dai-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
+    font-size: .74rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.dai-upload-btn:hover {
+    border-color: var(--brand-orange, #ea580c);
+    color: var(--brand-orange, #ea580c);
+    background: #fff7ed;
+}
+
+.dai-upload-btn .material-icons {
+    font-size: 16px;
+}
+
+/* ── No items placeholder ─────────────────────────────────── */
+.dai-no-items {
+    text-align: center;
+    padding: 14px 10px;
+    color: #94a3b8;
+    font-size: .74rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #e2e8f0;
+}
+
+.dai-no-items .material-icons {
+    display: block;
+    font-size: 22px;
+    margin: 0 auto 4px;
+}
+
+/* ── Notes list ───────────────────────────────────────────── */
+.dai-notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.dai-note-item {
+    padding: 8px 10px;
+    background: #fffbeb;
+    border-radius: 8px;
+    border: 1px solid #fde68a;
+}
+
+.dai-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.dai-note-header strong {
+    font-size: .68rem;
+    color: #92400e;
+}
+
+.dai-note-header span {
+    font-size: .62rem;
+    color: #a16207;
+}
+
+.dai-note-item p {
+    font-size: .76rem;
+    color: #78350f;
+    margin: 0;
+    line-height: 1.35;
+}
+
+/* ── Timeline (historial) ─────────────────────────────────── */
+.dai-timeline {
+    padding: 0 18px 18px;
+    position: relative;
+}
+
+.dai-timeline::before {
+    content: '';
+    position: absolute;
+    left: 32px;
+    top: 0;
+    bottom: 18px;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.dai-timeline-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    position: relative;
+}
+
+.dai-tl-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+    box-shadow: 0 0 0 3px white;
+}
+
+.dai-tl-dot .material-icons {
+    font-size: 14px;
+    color: white;
+}
+
+.dai-tl-content {
+    flex: 1;
+    min-width: 0;
+    padding-top: 3px;
+}
+
+.dai-tl-title {
+    font-size: .76rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.dai-tl-comment {
+    font-size: .72rem;
+    color: #64748b;
+    font-style: italic;
+    margin-top: 2px;
+    padding: 4px 8px;
+    background: #f8fafc;
+    border-radius: 5px;
+    border-left: 3px solid #e2e8f0;
+}
+
+/* Timeline detail badge (resolution method) */
+.dai-tl-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: .68rem;
+    font-weight: 600;
+    color: #16a34a;
+    background: #f0fdf4;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid #bbf7d0;
+    margin-top: 3px;
+    width: fit-content;
+}
+
+.dai-tl-detail .material-icons {
+    font-size: 12px;
+}
+
+/* ── Resolution Info Banner (header) ──────────────────────── */
+.dai-resolution-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+}
+
+.dai-resolution-info>.material-icons {
+    font-size: 18px;
+    color: #16a34a;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.dai-resolution-method {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #15803d;
+}
+
+.dai-resolution-comment {
+    font-size: .68rem;
+    color: #4ade80;
+    margin-top: 1px;
+    font-style: italic;
+}
+
+/* ── Inline Resolve Panel ─────────────────────────────────── */
+.dai-resolve-panel {
+    background: white;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 10px;
+    margin: 0 14px 0;
+    padding: 12px;
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.08);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dai-resolve-panel.show {
+    max-height: 500px;
+    opacity: 1;
+    padding: 12px;
+    margin: 6px 14px 2px;
+}
+
+.dai-resolve-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #15803d;
+    margin-bottom: 10px;
+}
+
+.dai-resolve-title .material-icons {
+    font-size: 18px;
+}
+
+.dai-resolve-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.dai-resolve-opt {
+    cursor: pointer;
+    display: block;
+    margin: 0;
+}
+
+.dai-resolve-opt input[type="radio"] {
+    display: none;
+}
+
+.dai-resolve-opt-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    border: 1.5px solid #e2e8f0;
+    font-size: .68rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: all .15s;
+    background: white;
+}
+
+.dai-resolve-opt-inner .material-icons {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.dai-resolve-opt:hover .dai-resolve-opt-inner {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.dai-resolve-opt input:checked+.dai-resolve-opt-inner {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #15803d;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15);
+}
+
+.dai-resolve-comment {
+    margin-bottom: 8px;
+}
+
+.dai-resolve-comment textarea {
+    width: 100%;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: .72rem;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color .15s;
+}
+
+.dai-resolve-comment textarea:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+}
+
+.dai-resolve-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.dai-resolve-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: none;
+    font-size: .72rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.dai-resolve-btn .material-icons {
+    font-size: 16px;
+}
+
+.dai-resolve-btn.confirm {
+    background: #16a34a;
+    color: white;
+    flex: 1;
+    justify-content: center;
+}
+
+.dai-resolve-btn.confirm:hover {
+    background: #15803d;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+    transform: translateY(-1px);
+}
+
+.dai-resolve-btn.cancel {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.dai-resolve-btn.cancel:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* ── Shared Inline Panel (assign, email — same pattern as resolve) ── */
+.dai-inline-panel {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    margin: 0 14px 0;
+    padding: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dai-inline-panel.show {
+    max-height: 600px;
+    opacity: 1;
+    padding: 12px;
+    margin: 6px 14px 2px;
+    overflow: visible;
+}
+
+.dai-inline-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.dai-inline-title .material-icons {
+    font-size: 18px;
+}
+
+.dai-inline-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.dai-inline-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: none;
+    font-size: .72rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.dai-inline-btn .material-icons {
+    font-size: 16px;
+}
+
+.dai-inline-btn.confirm {
+    color: white;
+    flex: 1;
+    justify-content: center;
+}
+
+.dai-inline-btn.confirm:hover {
+    filter: brightness(0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+.dai-inline-btn.cancel {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+}
+
+.dai-inline-btn.cancel:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* ── Assign User Cards ────────────────────────────────────────── */
+.dai-assign-users {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 6px;
+}
+
+.dai-assign-user-card {
+    cursor: pointer;
+    display: block;
+    margin: 0;
+}
+
+.dai-assign-user-card input[type="radio"] {
+    display: none;
+}
+
+.dai-assign-card-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 7px;
+    border: 1.5px solid #e2e8f0;
+    transition: all .15s;
+    background: white;
+}
+
+.dai-assign-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .58rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+}
+
+.dai-assign-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.dai-assign-name {
+    font-size: .7rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.dai-assign-role {
+    font-size: .6rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.dai-assign-user-card:hover .dai-assign-card-inner {
+    border-color: #a5b4fc;
+    background: #eef2ff;
+}
+
+.dai-assign-user-card input:checked+.dai-assign-card-inner {
+    border-color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+.dai-assign-user-card.current .dai-assign-card-inner {
+    border-color: #c7d2fe;
+    background: #f5f3ff;
+}
+
+.dai-assign-user-card.current .dai-assign-name::after {
+    content: ' (actual)';
+    font-weight: 500;
+    color: #a5b4fc;
+    font-size: .6rem;
+}
+
+/* ── Email Form ───────────────────────────────────────────────── */
+.dai-email-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.dai-email-field label {
+    display: block;
+    font-size: .65rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+}
+
+.dai-email-field input,
+.dai-email-field textarea {
+    width: 100%;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: .72rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s;
+    box-sizing: border-box;
+}
+
+.dai-email-field input:focus,
+.dai-email-field textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.dai-email-field textarea {
+    resize: vertical;
+}
+
+.dai-tl-meta {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.dai-tl-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: .64rem;
+    color: #94a3b8;
+}
+
+.dai-tl-meta .material-icons {
+    font-size: 12px;
+}
+
+
+/* Detail body */
+.dai-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+
+/* Map section */
+.dai-detail-map {
+    width: 100%;
+    height: 180px;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.dai-detail-map iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.dai-detail-map-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 2;
+}
+
+.dai-detail-map-overlay a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: white;
+    border-radius: 6px;
+    font-size: .7rem;
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    transition: all .15s;
+}
+
+.dai-detail-map-overlay a:hover {
+    background: #eff6ff;
+}
+
+.dai-detail-map-overlay .material-icons {
+    font-size: 13px;
+}
+
+/* Info grid */
+.dai-detail-info {
+    padding: 14px 18px;
+}
+
+.dai-detail-section-title {
+    font-size: .63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dai-detail-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #f1f5f9;
+}
+
+.dai-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.dai-info-item {
+    padding: 8px 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+}
+
+.dai-info-item label {
+    display: block;
+    font-size: .6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+.dai-info-item span {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #1e293b;
+    word-break: break-word;
+}
+
+.dai-info-item span.mono {
+    font-family: 'Courier New', monospace;
+    font-size: .72rem;
+}
+
+.dai-info-item.full {
+    grid-column: 1/-1;
+}
+
+/* Device card */
+.dai-device-card {
+    margin: 0 18px 14px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px solid #f1f5f9;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dai-device-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dai-device-icon .material-icons {
+    font-size: 18px;
+    color: #3b82f6;
+}
+
+.dai-device-name {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.dai-device-meta {
+    font-size: .68rem;
+    color: #64748b;
+    margin-top: 1px;
+}
+
+/* Elapsed badge */
+.dai-elapsed-badge {
+    margin: 0 18px 10px;
+    padding: 8px 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .76rem;
+    color: #a16207;
+    font-weight: 500;
+}
+
+.dai-elapsed-badge .material-icons {
+    font-size: 16px;
+}
+
+.dai-elapsed-badge strong {
+    font-weight: 700;
+    color: #92400e;
+}
+
+/* Notes section */
+.dai-notes-section {
+    padding: 0 18px 18px;
+}
+
+.dai-no-notes {
+    padding: 12px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: .78rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #e2e8f0;
+}
+
+.dai-no-notes .material-icons {
+    font-size: 20px;
+    display: block;
+    margin: 0 auto 4px;
+}
+
+/* Empty detail state */
+.dai-detail-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #cbd5e1;
+    padding: 2rem;
+}
+
+.dai-detail-empty .material-icons {
+    font-size: 56px;
+    margin-bottom: .75rem;
+}
+
+.dai-detail-empty h4 {
+    font-size: .9rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 4px;
+}
+
+.dai-detail-empty p {
+    font-size: .78rem;
+    color: #94a3b8;
+}
+
+/* ── 6. More Filters Modal ──────────────────────────────────── */
+.dai-filter-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .4);
+    z-index: 1200;
+    backdrop-filter: blur(3px);
+    align-items: center;
+    justify-content: center;
+}
+
+.dai-filter-modal-overlay.open {
+    display: flex;
+}
+
+.dai-filter-modal {
+    background: white;
+    border-radius: 16px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+    animation: daiSlideUp .25s ease;
+}
+
+@keyframes daiSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.dai-filter-modal-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dai-filter-modal-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.dai-filter-modal-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.dai-form-group label {
+    display: block;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #64748b;
+    margin-bottom: 5px;
+}
+
+.dai-form-group select,
+.dai-form-group input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: .82rem;
+    font-family: inherit;
+    color: #1e293b;
+}
+
+.dai-tipos-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.dai-tipo-tag {
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    font-size: .7rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+}
+
+.dai-tipo-tag:hover {
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
+}
+
+.dai-tipo-tag.active {
+    background: var(--brand-orange);
+    border-color: var(--brand-orange);
+    color: white;
+}
+
+.dai-filter-modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    gap: 8px;
+}
+
+/* ── 7. Toast ───────────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    background: #1e293b;
+    color: white;
+    border-radius: 10px;
+    font-size: .82rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all .3s;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast .material-icons {
+    font-size: 18px;
+}
+
+.toast-success {
+    background: #16a34a;
+}
+
+.toast-warning {
+    background: #ca8a04;
+}
+
+.toast-info {
+    background: #2563eb;
+}
+
+/* ── 8. Responsive ──────────────────────────────────────────── */
+
+/* Backdrop — always shown when detail drawer is open */
+.dai-detail-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .25);
+    z-index: 999;
+    opacity: 1;
+    transition: opacity .3s;
+    backdrop-filter: blur(1px);
+}
+
+.dai-detail-backdrop.active {
+    display: block;
+}
+
+.dai-detail-backdrop.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+    .dai-stat-bar {
+        flex-wrap: wrap;
+    }
+
+    .dai-stat-card {
+        min-width: calc(25% - 8px);
+        padding: 8px 10px;
+    }
+
+    .dai-stat-num {
+        font-size: 1.1rem;
+    }
+
+    .dai-stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .dai-stat-icon .material-icons {
+        font-size: 17px;
+    }
+
+    .dai-table-header,
+    .dai-row {
+        grid-template-columns: 5px 50px 24px 1fr 100px 100px 80px 36px 30px;
+    }
+
+    /* hide device column at this width */
+    .dai-table-header .dai-th:nth-child(6),
+    .dai-row .dai-row-cell:nth-of-type(2) {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .dai-stat-bar {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 14px 0;
+    }
+
+    .dai-stat-card {
+        min-width: calc(33.33% - 5px);
+        padding: 8px 8px;
+        gap: 8px;
+    }
+
+    .dai-stat-num {
+        font-size: 1rem;
+    }
+
+    /* Auto-collapse latency dashboard on tablet */
+    .dai-latency-collapsible {
+        max-height: 0;
+        opacity: 0;
+    }
+
+    .dai-latency-toggle {
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 600px) {
+    .dai-stat-card {
+        min-width: 100%;
+    }
+
+    .dai-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dai-status-tabs {
+        margin-left: 0;
+        overflow-x: auto;
+    }
+
+    .dai-table-header {
+        display: none;
+    }
+
+    .dai-row {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 6px;
+        border-radius: 10px;
+    }
+
+    .dai-row-strip {
+        width: 100%;
+        height: 4px;
+        border-radius: 2px;
+    }
+
+    .dai-row-tipo-icon {
+        display: none;
+    }
+
+    .dai-row-lat {
+        align-self: flex-start;
+    }
+}
+
+/* ── 9. Latency bar grow-in animation ──────────────────────── */
+.dai-lat-bar-fill {
+    animation: dai-bar-grow .6s cubic-bezier(.4, 0, .2, 1) both;
+    animation-delay: calc(var(--bar-i, 0) * 80ms);
+}
+
+@keyframes dai-bar-grow {
+    from {
+        width: 0 !important;
+    }
+}

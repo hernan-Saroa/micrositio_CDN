@@ -55,7 +55,8 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://cdn.jsdelivr.net"]
+            connectSrc: ["'self'", "https://cdn.jsdelivr.net"],
+            frameSrc: ["'self'", "https://www.openstreetmap.org"]
         }
     }
 }));

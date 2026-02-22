@@ -56,7 +56,11 @@ const fixImagePath = (filePath) => {
 // Obtener todas las imágenes del slider
 // ========================================
 router.get('/', asyncHandler(async (req, res) => {
-    const result = await query('SELECT * FROM slider_images ORDER BY position ASC');
+    const archived = req.query.archived === '1';
+    const queryStr = archived
+        ? 'SELECT * FROM slider_images WHERE is_archived = 1 ORDER BY position ASC'
+        : 'SELECT * FROM slider_images WHERE is_archived = 0 ORDER BY position ASC';
+    const result = await query(queryStr);
     res.json(result.rows);
 }));
 
@@ -74,12 +78,12 @@ router.post('/', [
         throw new AppError('Datos inválidos', 400);
     }
 
-    if (!req.file) {
-        throw new AppError('Imagen requerida', 400);
+    if (!req.file && !req.body.title) {
+        throw new AppError('Título es requerido', 400);
     }
 
     // Obtener valores del body (FormData)
-    const { title, subtitle, description, position = 0, link_url } = req.body;
+    const { title, subtitle, description, position = 0, link_url, bg_color, image_opacity, text_color } = req.body;
 
     // Validaciones básicas
     if (!title || title.trim() === '') {
@@ -93,19 +97,27 @@ router.post('/', [
         finalPosition = maxPosResult.rows[0].next_pos;
     }
 
+    // image_path: si no hay archivo, usar 'placeholder.jpg'
+    const imagePath = req.file ? req.file.filename : 'placeholder.jpg';
+    const opacityVal = parseFloat(image_opacity);
+    const finalOpacity = (!isNaN(opacityVal) && opacityVal >= 0 && opacityVal <= 1) ? opacityVal : 0.35;
+
     const result = await query(
         `INSERT INTO slider_images (
-            title, description, image_path, alt_text, position, is_active, link_url, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            title, description, image_path, alt_text, position, is_active, link_url, bg_color, image_opacity, text_color, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *`,
         [
             title.trim(),
             description ? description.trim() : null,
-            req.file.filename, // Solo el nombre del archivo, no la ruta completa
-            subtitle.trim(), // alt_text = title por defecto
+            imagePath,
+            subtitle ? subtitle.trim() : title.trim(),
             finalPosition,
-            true, // is_active por defecto
+            true,
             link_url ? link_url.trim() : null,
+            bg_color || 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%)',
+            finalOpacity,
+            text_color || '#ffffff',
             req.user.id
         ]
     );
@@ -220,6 +232,24 @@ router.put('/:id', [
         updates.push(`link_url = $${params.length}`);
         hasUpdates = true;
     }
+    if (req.body.bg_color !== undefined && req.body.bg_color !== null && req.body.bg_color !== '') {
+        params.push(req.body.bg_color);
+        updates.push(`bg_color = $${params.length}`);
+        hasUpdates = true;
+    }
+    if (req.body.image_opacity !== undefined && req.body.image_opacity !== '') {
+        const op = parseFloat(req.body.image_opacity);
+        if (!isNaN(op) && op >= 0 && op <= 1) {
+            params.push(op);
+            updates.push(`image_opacity = $${params.length}`);
+            hasUpdates = true;
+        }
+    }
+    if (req.body.text_color !== undefined && req.body.text_color !== null && req.body.text_color !== '') {
+        params.push(req.body.text_color);
+        updates.push(`text_color = $${params.length}`);
+        hasUpdates = true;
+    }
 
     // Si no hay actualizaciones, devolver error
     if (!hasUpdates) {
@@ -249,6 +279,58 @@ router.put('/:id', [
 }));
 
 // ========================================
+// PATCH /api/slider/:id/archive
+// Archivar imagen del slider (soft-delete)
+// ========================================
+router.patch('/:id/archive', [
+    authenticateToken,
+    authorizeRole(['admin', 'editor'])
+], asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const exists = await query('SELECT id FROM slider_images WHERE id = $1', [id]);
+    if (exists.rows.length === 0) throw new AppError('Imagen no encontrada', 404);
+    await query(`UPDATE slider_images SET is_archived = 1, is_active = 0 WHERE id = $1`, [id]);
+    const updated = await query('SELECT * FROM slider_images WHERE id = $1', [id]);
+    logger.info(`Usuario ${req.user.email} archivó imagen del slider ID: ${id}`);
+    res.json(updated.rows[0]);
+}));
+
+// ========================================
+// PATCH /api/slider/:id/restore
+// Restaurar imagen archivada
+// ========================================
+router.patch('/:id/restore', [
+    authenticateToken,
+    authorizeRole(['admin', 'editor'])
+], asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const exists = await query('SELECT id FROM slider_images WHERE id = $1', [id]);
+    if (exists.rows.length === 0) throw new AppError('Imagen no encontrada', 404);
+    await query(`UPDATE slider_images SET is_archived = 0 WHERE id = $1`, [id]);
+    const updated = await query('SELECT * FROM slider_images WHERE id = $1', [id]);
+    logger.info(`Usuario ${req.user.email} restauró imagen del slider ID: ${id}`);
+    res.json(updated.rows[0]);
+}));
+
+// ========================================
+// PATCH /api/slider/:id/visibility
+// Toggle is_active del slider
+// ========================================
+router.patch('/:id/visibility', [
+    authenticateToken,
+    authorizeRole(['admin', 'editor'])
+], asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const current = await query('SELECT is_active FROM slider_images WHERE id = $1', [id]);
+    if (current.rows.length === 0) throw new AppError('Imagen no encontrada', 404);
+    const newValue = !current.rows[0].is_active;
+    await query(`UPDATE slider_images SET is_active = $1 WHERE id = $2`, [newValue, id]);
+    const updated = await query('SELECT * FROM slider_images WHERE id = $1', [id]);
+    logger.info(`Usuario ${req.user.email} cambió visibilidad del slider ID: ${id} a ${newValue}`);
+    res.json(updated.rows[0]);
+}));
+
+// ========================================
 // DELETE /api/slider/:id
 // Eliminar imagen del slider
 // ========================================
@@ -268,7 +350,8 @@ router.delete('/:id', [
 
     // Eliminar archivo físico
     try {
-        await fs.unlink(image.image_path);
+        const fullPath = path.join(__dirname, '../uploads/slider', image.image_path);
+        await fs.unlink(fullPath);
     } catch (error) {
         logger.warn(`No se pudo eliminar archivo de imagen: ${image.image_path}`);
     }

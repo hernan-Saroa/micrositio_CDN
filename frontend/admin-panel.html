@@ -1,267 +1,812 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrativo - VIITS INVIAS</title>
+    <title>Panel Administrativo — VIITS INVIAS</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    
-    <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Gov.co Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-     <!-- JavaScript Externo -->
-     <script src="scripts/admin-panel.js?v=1.1"></script>
-
-    <!-- CSS Externo -->
+    <script src="scripts/admin-panel.js?v=2.1" defer></script>
+    <script src="scripts/dai-module.js?v=2.0" defer></script>
+    <script src="admin-panel-functions.js?v=1.0" defer></script>
     <link rel="stylesheet" href="styles/admin-panel.css">
-
+    <link rel="stylesheet" href="styles/dai-module.css">
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">VIITS Admin</h2>
-            <p style="opacity: 0.8; font-size: 0.875rem;">Panel de Administración</p>
-            <a href="../index.html" style="color: white; background: rgba(255,255,255,0.15); font-size: 0.875rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding: 0.625rem 1rem; border-radius: 6px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                <i class="material-icons" style="font-size: 18px;">arrow_back</i>
-                Volver al Inicio
-            </a>
+            <img src="images/VIITS-LOGO.png" alt="VIITS" class="sidebar-logo"
+                onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
+            <div id="logoFallback"
+                style="display:none;width:40px;height:40px;background:var(--brand-orange);border-radius:10px;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1rem;flex-shrink:0;">
+                V</div>
+            <div class="sidebar-brand">
+                <h2>VIITS Admin</h2>
+                <p>Panel de Administración</p>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Colapsar menú">
+                <i class="material-icons">chevron_left</i>
+            </button>
         </div>
+
+        <a href="../index.html" class="sidebar-back">
+            <i class="material-icons">home</i>
+            <span class="sidebar-back-text">Volver al Inicio</span>
+        </a>
+
         <nav class="sidebar-menu">
-            <a class="menu-item active" onclick="showSection('dashboard')">
+            <div class="menu-section-label">Principal</div>
+            <a class="menu-item active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
                 <i class="material-icons">dashboard</i>
-                Dashboard
+                <span class="menu-item-text">Dashboard</span>
             </a>
-            <a class="menu-item" onclick="showSection('reports')">
+
+            <div class="menu-section-label">Contenido</div>
+            <a class="menu-item" onclick="showSection('reports')" data-tooltip="Gestión de Reportes">
                 <i class="material-icons">description</i>
-                Gestión de Reportes
+                <span class="menu-item-text">Gestión de Reportes</span>
             </a>
-            <a class="menu-item" onclick="showSection('slider')">
+            <a class="menu-item" onclick="showSection('slider')" data-tooltip="Slider de Imágenes">
                 <i class="material-icons">image</i>
-                Slider de Imágenes
+                <span class="menu-item-text">Slider de Imágenes</span>
             </a>
-            <a class="menu-item" onclick="showSection('users')">
+
+            <div class="menu-section-label">Monitoreo</div>
+            <a class="menu-item" onclick="showSection('alertas-dai')" data-tooltip="Alertas DAI (CDN)">
+                <i class="material-icons" style="color:#f59e0b;">warning_amber</i>
+                <span class="menu-item-text">Alertas DAI (CDN)</span>
+            </a>
+
+            <div class="menu-section-label">Sistema</div>
+            <a class="menu-item" onclick="showSection('users')" data-tooltip="Usuarios">
                 <i class="material-icons">people</i>
-                Usuarios
+                <span class="menu-item-text">Usuarios</span>
             </a>
-            <a class="menu-item" onclick="showSection('downloads')">
+            <a class="menu-item" onclick="showSection('downloads')" data-tooltip="Descargas">
                 <i class="material-icons">download</i>
-                Descargas
+                <span class="menu-item-text">Descargas</span>
             </a>
-            <a class="menu-item" onclick="showSection('audit')">
+            <a class="menu-item" onclick="showSection('audit')" data-tooltip="Auditoría">
                 <i class="material-icons">security</i>
-                Auditoría
+                <span class="menu-item-text">Auditoría</span>
             </a>
-            <a class="menu-item" onclick="showSection('settings')">
+            <a class="menu-item" onclick="showSection('settings')" data-tooltip="Configuración">
                 <i class="material-icons">settings</i>
-                Configuración
+                <span class="menu-item-text">Configuración</span>
             </a>
         </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar" id="sidebarAvatar">AD</div>
+                <div class="sidebar-user-info">
+                    <strong id="sidebarUserName">Administrador</strong>
+                    <span id="sidebarUserRole">admin@invias.gov.co</span>
+                </div>
+            </div>
+        </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
+    <!-- ══ MAIN CONTENT ═════════════════════════════════════════ -->
+    <main class="main-content" id="mainContent">
+
         <!-- Topbar -->
         <div class="topbar">
-            <div>
-                <h1 style="font-size: 1.5rem; color: var(--dark-gray);">Panel de Control</h1>
-                <p style="color: #6b7280; font-size: 0.875rem;">Bienvenido, Funcionario INVIAS</p>
+            <div style="display:flex;align-items:center;gap:0.875rem;">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="openMobileSidebar()">
+                    <i class="material-icons">menu</i>
+                </button>
+                <div class="topbar-left">
+                    <h1 id="topbarTitle">Panel de Control</h1>
+                    <p id="topbarSubtitle">Bienvenido, Funcionario INVIAS</p>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <span class="badge badge-success">Sistema Operativo</span>
-                <button class="btn btn-primary" onclick="showLogoutConfirm()">
-                    <i class="material-icons">logout</i>
-                    Cerrar Sesión
+            <div class="topbar-right">
+                <div class="topbar-search">
+                    <i class="material-icons">search</i>
+                    <input type="text" placeholder="Buscar...">
+                </div>
+                <div class="topbar-icon-btn">
+                    <i class="material-icons">notifications_none</i>
+                    <span class="notif-dot"></span>
+                </div>
+                <span class="badge badge-success">
+                    <i class="material-icons" style="font-size:10px;">circle</i>
+                    Sistema Operativo
+                </span>
+                <button class="btn btn-danger btn-sm" onclick="showLogoutConfirm()">
+                    <i class="material-icons">logout</i>Salir
                 </button>
             </div>
         </div>
 
-        <!-- Content -->
-        <div class="content">
-            <!-- Dashboard Section -->
+        <!-- ── CONTENT ────────────────────────────────────────── -->
+        <div class="content" id="contentWrapper">
+
+            <!-- ================================================ DASHBOARD ================================================ -->
             <div id="dashboard" class="tab-content active">
+                <div class="section-header">
+                    <div>
+                        <h2>Panel de Control</h2>
+                        <p>Resumen de actividad del sistema VIITS</p>
+                    </div>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <div>
-                                <div class="stat-value">15</div>
-                                <div class="stat-label">Reportes Cargados Hoy</div>
-                            </div>
+                            <div class="stat-icon" style="background:#fff7ed;"><i class="material-icons"
+                                    style="color:#f97316;">description</i></div>
                             <span class="stat-change positive">+25%</span>
                         </div>
+                        <div class="stat-value">15</div>
+                        <div class="stat-label">Reportes Cargados Hoy</div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <div>
-                                <div class="stat-value">847</div>
-                                <div class="stat-label">Descargas Hoy</div>
-                            </div>
+                            <div class="stat-icon" style="background:#f0fdf4;"><i class="material-icons"
+                                    style="color:#10b981;">download</i></div>
                             <span class="stat-change positive">+12%</span>
                         </div>
+                        <div class="stat-value">847</div>
+                        <div class="stat-label">Descargas Hoy</div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <div>
-                                <div class="stat-value">1,234</div>
-                                <div class="stat-label">Usuarios Activos</div>
-                            </div>
+                            <div class="stat-icon" style="background:#eff6ff;"><i class="material-icons"
+                                    style="color:#3b82f6;">people</i></div>
                             <span class="stat-change negative">-3%</span>
                         </div>
+                        <div class="stat-value">1,234</div>
+                        <div class="stat-label">Usuarios Activos</div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <div>
-                                <div class="stat-value">99.9%</div>
-                                <div class="stat-label">Uptime Sistema</div>
-                            </div>
+                            <div class="stat-icon" style="background:#f0fdf4;"><i class="material-icons"
+                                    style="color:#10b981;">speed</i></div>
                             <span class="badge badge-success">Estable</span>
                         </div>
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">Uptime Sistema</div>
                     </div>
                 </div>
-
-                <!-- Recent Activity -->
                 <div class="data-table">
                     <div class="table-header">
                         <h3>Actividad Reciente</h3>
+                        <button class="btn btn-ghost btn-sm"><i class="material-icons">refresh</i> Actualizar</button>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Acción</th>
-                                <th>Recurso</th>
-                                <th>Fecha/Hora</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>admin@invias.gov.co</td>
-                                <td>Carga de reporte</td>
-                                <td>Informe_Diciembre_2024.pdf</td>
-                                <td>15/12/2024 14:30</td>
-                                <td><span class="badge badge-success">Exitoso</span></td>
-                            </tr>
-                            <tr>
-                                <td>usuario1@example.com</td>
-                                <td>Descarga de datos</td>
-                                <td>Datos_Trafico_Nov.csv</td>
-                                <td>15/12/2024 14:25</td>
-                                <td><span class="badge badge-success">Completado</span></td>
-                            </tr>
-                            <tr>
-                                <td>usuario2@example.com</td>
-                                <td>Login con 2FA</td>
-                                <td>Sistema</td>
-                                <td>15/12/2024 14:20</td>
-                                <td><span class="badge badge-success">Verificado</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Acción</th>
+                                    <th>Recurso</th>
+                                    <th>Fecha/Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>admin@invias.gov.co</td>
+                                    <td>Carga de reporte</td>
+                                    <td>Informe_Diciembre_2024.pdf</td>
+                                    <td>15/12/2024 14:30</td>
+                                    <td><span class="badge badge-success">Exitoso</span></td>
+                                </tr>
+                                <tr>
+                                    <td>usuario1@example.com</td>
+                                    <td>Descarga datos</td>
+                                    <td>Datos_Trafico_Nov.csv</td>
+                                    <td>15/12/2024 14:25</td>
+                                    <td><span class="badge badge-success">Completado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>usuario2@example.com</td>
+                                    <td>Login con 2FA</td>
+                                    <td>Sistema</td>
+                                    <td>15/12/2024 14:20</td>
+                                    <td><span class="badge badge-success">Verificado</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- Reports Management Section -->
+
+            <!-- ================================================ REPORTS ================================================ -->
             <div id="reports" class="tab-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Gestión de Reportes</h2>
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="btn btn-secondary" onclick="loadReports()">
-                            <i class="material-icons">refresh</i>
-                            Actualizar
+
+                <!-- ── STYLES scoped to reports module ───────────────────────── -->
+                <style>
+                    /* ── Stat cards ────────────────── */
+                    .rpt-stats {
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 1rem;
+                        margin-bottom: 1.5rem;
+                    }
+
+                    @media(max-width:900px) {
+                        .rpt-stats {
+                            grid-template-columns: repeat(2, 1fr);
+                        }
+                    }
+
+                    .rpt-stat-card {
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 16px;
+                        padding: 1.1rem 1.25rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+                        transition: box-shadow .2s, transform .2s;
+                    }
+
+                    .rpt-stat-card:hover {
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+                        transform: translateY(-1px);
+                    }
+
+                    .rpt-stat-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                    }
+
+                    .rpt-stat-val {
+                        font-size: 1.6rem;
+                        font-weight: 800;
+                        color: #0f172a;
+                        line-height: 1;
+                    }
+
+                    .rpt-stat-lbl {
+                        font-size: 0.72rem;
+                        color: #94a3b8;
+                        text-transform: uppercase;
+                        letter-spacing: .5px;
+                        margin-top: 3px;
+                    }
+
+                    /* ── Toolbar ────────────────────── */
+                    .rpt-toolbar {
+                        display: flex;
+                        align-items: center;
+                        gap: .75rem;
+                        flex-wrap: wrap;
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 14px;
+                        padding: .875rem 1rem;
+                        margin-bottom: 1rem;
+                    }
+
+                    .rpt-search-wrap {
+                        position: relative;
+                        flex: 1;
+                        min-width: 200px;
+                    }
+
+                    .rpt-search-wrap .material-icons {
+                        position: absolute;
+                        left: 10px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        color: #9ca3af;
+                        font-size: 18px;
+                        pointer-events: none;
+                    }
+
+                    .rpt-search-wrap input {
+                        width: 100%;
+                        padding: .55rem .75rem .55rem 36px;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 10px;
+                        font-size: .875rem;
+                        background: #f8fafc;
+                        outline: none;
+                        transition: border-color .2s, box-shadow .2s;
+                    }
+
+                    .rpt-search-wrap input:focus {
+                        border-color: var(--orange, #ea580c);
+                        box-shadow: 0 0 0 3px rgba(234, 88, 12, .08);
+                    }
+
+                    .rpt-toolbar select {
+                        padding: .55rem .75rem;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 10px;
+                        font-size: .875rem;
+                        background: #f8fafc;
+                        outline: none;
+                        cursor: pointer;
+                        color: #374151;
+                    }
+
+                    .rpt-toolbar select:focus {
+                        border-color: var(--orange, #ea580c);
+                    }
+
+                    /* ── Report rows (card list) ────── */
+                    #reportsCardList {
+                        display: flex;
+                        flex-direction: column;
+                        gap: .625rem;
+                    }
+
+                    .rpt-card {
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 14px;
+                        padding: 1rem 1.25rem;
+                        display: grid;
+                        grid-template-columns: 44px 1fr auto auto auto auto;
+                        align-items: center;
+                        gap: 1rem;
+                        transition: box-shadow .2s, border-color .2s;
+                    }
+
+                    .rpt-card:hover {
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, .07);
+                        border-color: #d1d5db;
+                    }
+
+                    /* file-type icon cell */
+                    .rpt-file-icon {
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                    }
+
+                    /* info cell */
+                    .rpt-info {
+                        min-width: 0;
+                    }
+
+                    .rpt-title {
+                        font-weight: 700;
+                        font-size: .9rem;
+                        color: #0f172a;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin-bottom: 2px;
+                    }
+
+                    .rpt-desc {
+                        font-size: .78rem;
+                        color: #6b7280;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        margin-bottom: 4px;
+                    }
+
+                    .rpt-meta {
+                        display: flex;
+                        align-items: center;
+                        gap: .5rem;
+                        flex-wrap: wrap;
+                    }
+
+                    .rpt-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 3px;
+                        font-size: .68rem;
+                        font-weight: 600;
+                        padding: 2px 8px;
+                        border-radius: 20px;
+                        white-space: nowrap;
+                    }
+
+                    .rpt-badge-public {
+                        background: #f0fdf4;
+                        color: #059669;
+                        border: 1px solid #a7f3d0;
+                    }
+
+                    .rpt-badge-private {
+                        background: #f8fafc;
+                        color: #64748b;
+                        border: 1px solid #e2e8f0;
+                    }
+
+                    .rpt-badge-featured {
+                        background: #fff7ed;
+                        color: #ea580c;
+                        border: 1px solid #fed7aa;
+                    }
+
+                    .rpt-file-meta {
+                        font-size: .7rem;
+                        color: #94a3b8;
+                    }
+
+                    /* date cell */
+                    .rpt-date {
+                        font-size: .8rem;
+                        color: #64748b;
+                        white-space: nowrap;
+                        text-align: right;
+                    }
+
+                    /* counter cell */
+                    .rpt-counter {
+                        text-align: center;
+                        min-width: 42px;
+                    }
+
+                    .rpt-counter-val {
+                        font-size: .95rem;
+                        font-weight: 700;
+                        color: #1e293b;
+                        display: block;
+                    }
+
+                    .rpt-counter-lbl {
+                        font-size: .65rem;
+                        color: #94a3b8;
+                        text-transform: uppercase;
+                        letter-spacing: .3px;
+                    }
+
+                    /* actions cell */
+                    .rpt-actions {
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        flex-shrink: 0;
+                    }
+
+                    .rpt-btn {
+                        width: 34px;
+                        height: 34px;
+                        border: none;
+                        border-radius: 9px;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: transform .15s, box-shadow .15s, filter .15s;
+                        flex-shrink: 0;
+                    }
+
+                    .rpt-btn:hover {
+                        transform: scale(1.1);
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, .14);
+                    }
+
+                    .rpt-btn .material-icons {
+                        font-size: 18px;
+                        pointer-events: none;
+                    }
+
+                    .rpt-btn-vis {
+                        background: #f0fdf4;
+                        color: #059669;
+                    }
+
+                    .rpt-btn-invis {
+                        background: #f8fafc;
+                        color: #94a3b8;
+                    }
+
+                    .rpt-btn-star {
+                        background: #fff7ed;
+                        color: #ea580c;
+                    }
+
+                    .rpt-btn-nostar {
+                        background: #f8fafc;
+                        color: #94a3b8;
+                    }
+
+                    .rpt-btn-down {
+                        background: #eff6ff;
+                        color: #3b82f6;
+                    }
+
+                    .rpt-btn-edit {
+                        background: #fff7ed;
+                        color: #ea580c;
+                    }
+
+                    .rpt-btn-del {
+                        background: #fef2f2;
+                        color: #dc2626;
+                    }
+
+                    /* empty state */
+                    .rpt-empty {
+                        text-align: center;
+                        padding: 4rem 2rem;
+                        background: #fff;
+                        border: 1px solid #e5e7eb;
+                        border-radius: 14px;
+                        color: #9ca3af;
+                    }
+
+                    .rpt-empty .material-icons {
+                        font-size: 56px;
+                        margin-bottom: 1rem;
+                        display: block;
+                        opacity: .3;
+                    }
+                </style>
+
+                <!-- ── Header ──────────────────────────────────────────────── -->
+                <div class="section-header">
+                    <div>
+                        <h2>Gestión de Reportes</h2>
+                        <p>Administra los reportes e informes del sistema</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadReports()">
+                            <i class="material-icons">refresh</i> Actualizar
                         </button>
                         <button class="btn btn-primary" onclick="showModal('uploadModal')">
-                            <i class="material-icons">upload</i>
-                            Cargar Nuevo Reporte
+                            <i class="material-icons">upload_file</i> Cargar Reporte
                         </button>
                     </div>
                 </div>
 
-                <div class="data-table">
-                    <div class="table-header">
-                        <div style="display: flex; gap: 1rem; align-items: center;">
-                            <input type="search" id="reportsSearch" placeholder="Buscar reportes..." style="max-width: 300px;">
-                            <select id="reportsStatusFilter" style="width: auto;">
-                                <option value="">Todos los estados</option>
-                                <option value="true">Público</option>
-                                <option value="false">Privado</option>
-                            </select>
-                            <select id="reportsSortBy" style="width: auto;">
-                                <option value="created_at">Fecha creación</option>
-                                <option value="title">Título</option>
-                                <option value="view_count">Vistas</option>
-                                <option value="download_count">Descargas</option>
-                            </select>
-                            <select id="reportsSortOrder" style="width: auto;">
-                                <option value="DESC">Descendente</option>
-                                <option value="ASC">Ascendente</option>
-                            </select>
-                            <button class="btn btn-secondary" onclick="applyReportsFilters()">Filtrar</button>
+                <!-- ── Stat cards ──────────────────────────────────────────── -->
+                <div class="rpt-stats">
+                    <div class="rpt-stat-card">
+                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#fff7ed,#fed7aa);">
+                            <i class="material-icons" style="color:#ea580c;font-size:24px;">description</i>
+                        </div>
+                        <div>
+                            <div class="rpt-stat-val" id="statTotalReports">—</div>
+                            <div class="rpt-stat-lbl">Total Reportes</div>
                         </div>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Título</th>
-                                <th>Descripción</th>
-                                <th>Archivo</th>
-                                <th>Fecha Carga</th>
-                                <th>Estado</th>
-                                <th>Vistas</th>
-                                <th>Descargas</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reportsTableBody">
-                            <!-- Los reportes se cargarán aquí desde la base de datos -->
-                        </tbody>
-                    </table>
+                    <div class="rpt-stat-card">
+                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#f0fdf4,#a7f3d0);">
+                            <i class="material-icons" style="color:#059669;font-size:24px;">public</i>
+                        </div>
+                        <div>
+                            <div class="rpt-stat-val" id="statPublicReports">—</div>
+                            <div class="rpt-stat-lbl">Públicos</div>
+                        </div>
+                    </div>
+                    <div class="rpt-stat-card">
+                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#fff7ed,#fde68a);">
+                            <i class="material-icons" style="color:#d97706;font-size:24px;">star</i>
+                        </div>
+                        <div>
+                            <div class="rpt-stat-val" id="statFeaturedReports">—</div>
+                            <div class="rpt-stat-lbl">Destacados</div>
+                        </div>
+                    </div>
+                    <div class="rpt-stat-card">
+                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#eff6ff,#bfdbfe);">
+                            <i class="material-icons" style="color:#3b82f6;font-size:24px;">download</i>
+                        </div>
+                        <div>
+                            <div class="rpt-stat-val" id="statTotalDownloads">—</div>
+                            <div class="rpt-stat-lbl">Descargas</div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- ── Toolbar ─────────────────────────────────────────────── -->
+                <div class="rpt-toolbar">
+                    <div class="rpt-search-wrap">
+                        <i class="material-icons">search</i>
+                        <input type="search" id="reportsSearch" placeholder="Buscar por título o descripción…"
+                            oninput="loadReports()">
+                    </div>
+                    <select id="reportsStatusFilter" onchange="loadReports()">
+                        <option value="">Todos los estados</option>
+                        <option value="true">Público</option>
+                        <option value="false">Privado</option>
+                    </select>
+                    <select id="reportsSortBy" onchange="loadReports()">
+                        <option value="created_at">Fecha</option>
+                        <option value="title">Título</option>
+                        <option value="view_count">Vistas</option>
+                        <option value="download_count">Descargas</option>
+                    </select>
+                    <select id="reportsSortOrder" onchange="loadReports()">
+                        <option value="DESC">Más reciente</option>
+                        <option value="ASC">Más antiguo</option>
+                    </select>
+                </div>
+
+                <!-- ── Card list (filled by renderReportsTable) ────────────── -->
+                <div id="reportsCardList">
+                    <div class="rpt-empty">
+                        <i class="material-icons">description</i>
+                        Cargando reportes...
+                    </div>
+                </div>
+
+                <!-- Keep tbody alias for backward-compat -->
+                <table style="display:none;">
+                    <tbody id="reportsTableBody"></tbody>
+                </table>
+
             </div>
 
-            <!-- Slider Management Section -->
-            <div id="slider" class="tab-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Gestión del Slider</h2>
-                    <button class="btn btn-primary" onclick="showModal('sliderModal')">
-                        <i class="material-icons">add_photo_alternate</i>
-                        Agregar Imagen
+
+
+
+
+
+
+        <!-- ================================================ UPLOAD MODAL (Reportes) ================================================ -->
+        <div id="uploadModal" class="modal">
+            <div class="modal-content" style="max-width:560px;">
+                <div class="modal-header">
+                    <h3 style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="material-icons" style="color:var(--orange);">upload_file</i>
+                        Cargar Nuevo Reporte
+                    </h3>
+                    <button onclick="closeModal('uploadModal')"
+                        style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;">
+                        <i class="material-icons">close</i>
                     </button>
                 </div>
+                <div class="modal-body">
+                    <!-- Drop zone -->
+                    <div id="reportDropZone"
+                        style="border:2px dashed #d1d5db;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafafa;margin-bottom:1.25rem;"
+                        onclick="document.getElementById('reportFile').click()"
+                        ondragover="event.preventDefault();this.style.borderColor='var(--orange)';this.style.background='#fff7ed';"
+                        ondragleave="this.style.borderColor='#d1d5db';this.style.background='#fafafa';"
+                        ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='#fafafa';handleReportFileDrop(event);">
+                        <i class="material-icons"
+                            style="font-size:40px;color:#9ca3af;display:block;margin-bottom:0.5rem;">cloud_upload</i>
+                        <p style="font-weight:600;color:#374151;margin:0 0 4px;">Arrastra tu archivo aquí</p>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">o haz clic para seleccionar · PDF,
+                            Excel, CSV, Word · Máx. 50 MB</p>
+                        <div id="reportFileSelectedName"
+                            style="margin-top:0.75rem;font-size:0.85rem;font-weight:600;color:var(--orange);display:none;">
+                        </div>
+                        <input type="file" id="reportFile" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx"
+                            style="display:none;" onchange="onReportFileSelected(this)">
+                    </div>
 
-                <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                    <!-- Las imágenes del slider se cargarán aquí dinámicamente desde la base de datos -->
+                    <div class="form-group">
+                        <label>Título del Reporte *</label>
+                        <input type="text" id="reportTitle" placeholder="Ej: Informe Anual de Tráfico 2024">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="reportDescription" rows="2"
+                            placeholder="Breve descripción del contenido del reporte…"
+                            style="resize:vertical;"></textarea>
+                    </div>
+
+                    <!-- Toggles -->
+                    <div
+                        style="display:flex;gap:2rem;padding:1rem;background:#f8fafc;border-radius:10px;margin-top:0.5rem;">
+                        <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                            <div style="position:relative;width:42px;height:24px;">
+                                <input type="checkbox" id="reportIsPublic" checked
+                                    style="opacity:0;width:0;height:0;position:absolute;">
+                                <span id="reportIsPublicSlider"
+                                    style="position:absolute;inset:0;border-radius:24px;background:#059669;transition:0.2s;cursor:pointer;"
+                                    onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#059669':'#d1d5db';"></span>
+                                <span id="reportIsPublicDot"
+                                    style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
+                            </div>
+                            <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
+                                    style="font-size:16px;vertical-align:middle;color:#059669;">public</i>
+                                Público</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                            <div style="position:relative;width:42px;height:24px;">
+                                <input type="checkbox" id="reportIsFeatured"
+                                    style="opacity:0;width:0;height:0;position:absolute;">
+                                <span id="reportIsFeaturedSlider"
+                                    style="position:absolute;inset:0;border-radius:24px;background:#d1d5db;transition:0.2s;cursor:pointer;"
+                                    onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#ea580c':'#d1d5db';"></span>
+                                <span
+                                    style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
+                            </div>
+                            <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
+                                    style="font-size:16px;vertical-align:middle;color:#ea580c;">star</i>
+                                Destacado</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer"
+                    style="display:flex;justify-content:flex-end;gap:0.75rem;padding:1rem 1.5rem;border-top:1px solid #e5e7eb;">
+                    <button class="btn btn-ghost btn-sm" onclick="closeModal('uploadModal')">Cancelar</button>
+                    <button id="uploadReportBtn" class="btn btn-primary" onclick="uploadReport()">
+                        <i class="material-icons">upload_file</i> Cargar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================ SLIDER ================================================ -->
+        <div id="slider" class="tab-content">
+            <div class="section-header">
+                <div>
+                    <h2>Gestión del Slider</h2>
+                    <p>Administra las imágenes del carrusel principal</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="loadSliderImages()"><i
+                            class="material-icons">refresh</i> Actualizar</button>
+                    <button class="btn btn-primary" onclick="showModal('sliderModal')"><i
+                            class="material-icons">add_photo_alternate</i> Agregar Imagen</button>
+                </div>
+            </div>
+            <!-- Grid de tarjetas del slider — llenado dinámicamente por admin-panel.js -->
+            <div class="grid" id="sliderGrid"
+                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;margin-top:1rem;">
+                <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#9ca3af;">
+                    <i class="material-icons" style="font-size:48px;margin-bottom:1rem;display:block;">image</i>
+                    Cargando imágenes del slider…
                 </div>
             </div>
 
-            <!-- Users Section -->
-            <div id="users" class="tab-content">
-                <h2 style="margin-bottom: 2rem;">Gestión de Usuarios</h2>
-
-                <div class="data-table">
-                    <div class="table-header">
-                        <div style="display: flex; gap: 1rem;">
-                            <select id="roleFilter" style="width: auto;">
-                                <option value="">Todos los roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="editor">Editor</option>
-                                <option value="user">Usuario</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="loadUsers()">
-                                <i class="material-icons">refresh</i>
-                                Actualizar
-                            </button>
-                        </div>
+            <!-- Sección archivados -->
+            <div id="sliderArchivedSection" style="margin-top:2rem;">
+                <button onclick="toggleArchivedSection()"
+                    style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer;font-weight:600;color:#374151;font-size:0.9rem;">
+                    <span style="display:flex;align-items:center;gap:0.5rem;">
+                        <i class="material-icons" style="font-size:20px;color:#6b7280;">inventory_2</i>
+                        Slides Archivados
+                        <span id="archivedCount"
+                            style="background:#e5e7eb;color:#6b7280;border-radius:20px;padding:1px 9px;font-size:0.75rem;font-weight:700;">0</span>
+                    </span>
+                    <i class="material-icons" id="archivedChevron" style="color:#9ca3af;">expand_more</i>
+                </button>
+                <div id="archivedCollapsible" style="display:none;margin-top:0.75rem;">
+                    <div class="grid" id="sliderArchivedGrid"
+                        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================ USUARIOS ================================================ -->
+        <div id="users" class="tab-content">
+            <div class="section-header">
+                <div>
+                    <h2>Gestión de Usuarios</h2>
+                    <p>Administra los usuarios y roles</p>
+                </div>
+                <div class="section-actions">
+                    <select id="roleFilter" style="width:auto;">
+                        <option value="">Todos los roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="editor">Editor</option>
+                        <option value="user">Usuario</option>
+                    </select>
+                    <button class="btn btn-ghost btn-sm" onclick="loadUsers()"><i class="material-icons">refresh</i>
+                        Actualizar</button>
+                </div>
+            </div>
+            <div class="data-table">
+                <div class="table-scroll">
                     <table>
                         <thead>
                             <tr>
@@ -273,33 +818,22 @@
                                 <th>Creado</th>
                             </tr>
                         </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Los usuarios se cargarán aquí desde la base de datos -->
-                        </tbody>
+                        <tbody id="usersTableBody"></tbody>
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Downloads Section -->
-            <div id="downloads" class="tab-content">
-                <h2 style="margin-bottom: 2rem;">Historial de Descargas</h2>
-                
-                <div class="stats-grid" style="margin-bottom: 2rem;">
-                    <div class="stat-card">
-                        <div class="stat-value">324</div>
-                        <div class="stat-label">Descargas Hoy</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">45.2 GB</div>
-                        <div class="stat-label">Datos Descargados</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">89</div>
-                        <div class="stat-label">Usuarios Únicos</div>
-                    </div>
+        <!-- ================================================ DESCARGAS ================================================ -->
+        <div id="downloads" class="tab-content">
+            <div class="section-header">
+                <div>
+                    <h2>Historial de Descargas</h2>
+                    <p>Registro de descargas de datos del sistema</p>
                 </div>
-
-                <div class="data-table">
+            </div>
+            <div class="data-table">
+                <div class="table-scroll">
                     <table>
                         <thead>
                             <tr>
@@ -307,7 +841,7 @@
                                 <th>Dispositivos</th>
                                 <th>Rango de Fechas</th>
                                 <th>Tamaño</th>
-                                <th>Tiempo Proceso</th>
+                                <th>Tiempo</th>
                                 <th>Estado</th>
                                 <th>Fecha Solicitud</th>
                             </tr>
@@ -316,18 +850,18 @@
                             <tr>
                                 <td>usuario1@example.com</td>
                                 <td>WIM, Radares</td>
-                                <td>01/09/2024 - 30/11/2024</td>
+                                <td>01/09/2024 – 30/11/2024</td>
                                 <td>125 MB</td>
-                                <td>2 min 15s</td>
+                                <td>2m 15s</td>
                                 <td><span class="badge badge-success">Completado</span></td>
                                 <td>15/12/2024 14:30</td>
                             </tr>
                             <tr>
                                 <td>usuario2@example.com</td>
                                 <td>Conteos Fijos</td>
-                                <td>01/10/2024 - 31/12/2024</td>
+                                <td>01/10/2024 – 31/12/2024</td>
                                 <td>87 MB</td>
-                                <td>1 min 45s</td>
+                                <td>1m 45s</td>
                                 <td><span class="badge badge-warning">Procesando</span></td>
                                 <td>15/12/2024 14:45</td>
                             </tr>
@@ -335,44 +869,238 @@
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Audit Section -->
-            <div id="audit" class="tab-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Registro de Auditoría</h2>
-                    <button class="btn btn-secondary" onclick="loadAuditLogs()">
-                        <i class="material-icons">refresh</i>
-                        Actualizar
+        <!-- ================================================ ALERTAS DAI — SPLIT-PANE ================================================ -->
+        <div id="alertas-dai" class="tab-content"
+            style="padding:0;height:calc(100vh - 72px);overflow-y:auto;display:none;">
+            <div class="dai-page">
+
+                <!-- 1. Stat Bar -->
+                <div class="dai-stat-bar" id="daiStatBar"></div>
+
+                <!-- 1b. Latency Performance Dashboard (collapsible) -->
+                <div class="dai-latency-section">
+                    <button class="dai-latency-toggle" onclick="daiToggleLatencyDashboard()" id="daiLatencyToggle">
+                        <span class="dai-latency-toggle-left">
+                            <i class="material-icons">speed</i>
+                            <span>Rendimiento de Latencia</span>
+                            <span class="dai-latency-challenge" id="daiLatencyChallenge"></span>
+                        </span>
+                        <i class="material-icons dai-latency-chevron" id="daiLatencyChevron">expand_less</i>
                     </button>
+                    <div class="dai-latency-collapsible" id="daiLatencyCollapsible">
+                        <div id="daiLatencyDashboard" class="dai-latency-dashboard"></div>
+                    </div>
                 </div>
-                <div class="data-table">
-                    <div class="table-header">
-                        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                            <select id="auditActionFilter" style="width: auto;">
-                                <option value="">Todas las acciones</option>
-                                <option value="login">Inicio de Sesión</option>
-                                <option value="logout">Cierre de Sesión</option>
-                                <option value="create_report">Crear Reporte</option>
-                                <option value="update_report">Actualizar Reporte</option>
-                                <option value="delete_report">Eliminar Reporte</option>
-                                <option value="download_report">Descargar Reporte</option>
-                                <option value="download">Descarga</option>
-                                <option value="register">Registro</option>
-                                <option value="verify_code_success">Verificar Código</option>
-                                <option value="send_verification_code">Enviar Código de Verificación</option>
-                            </select>
-                            <select id="auditStatusFilter" style="width: auto;">
-                                <option value="">Todos los estados</option>
-                                <option value="success">Exitoso</option>
-                                <option value="failed">Fallido</option>
-                            </select>
-                            <input type="date" id="auditDateFrom" style="width: auto;" placeholder="Desde">
-                            <input type="date" id="auditDateTo" style="width: auto;" placeholder="Hasta">
-                            <button class="btn btn-secondary" onclick="applyAuditFilters()">Filtrar</button>
-                            <button class="btn btn-secondary" onclick="clearAuditFilters()">Limpiar</button>
+
+                <!-- 2. Smart Search + Controls -->
+                <div class="dai-controls">
+                    <div class="dai-smart-search">
+                        <i class="material-icons">search</i>
+                        <input type="text" id="daiSearchInput"
+                            placeholder="Buscar por ID, tipo, dispositivo, departamento…"
+                            oninput="daiSearch(this.value)">
+                    </div>
+                    <div class="dai-controls-right">
+                        <button class="btn btn-ghost btn-sm" onclick="loadAlertasDAI()" title="Actualizar">
+                            <i class="material-icons">refresh</i>
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="openDaiFilterModal()">
+                            <i class="material-icons">tune</i> Filtros
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="daiExportCSV()">
+                            <i class="material-icons">download</i> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Chip Filters + Status Tabs -->
+                <div class="dai-filter-row">
+                    <button class="dai-chip active" onclick="daiChipAutoMan(this,'Automático')">
+                        <i class="material-icons">auto_awesome</i> Automático
+                    </button>
+                    <button class="dai-chip active" onclick="daiChipAutoMan(this,'Manual')">
+                        <i class="material-icons">person</i> Manual
+                    </button>
+                    <button class="dai-chip" data-date="today" onclick="daiChipDate(this,'today')">
+                        <i class="material-icons">today</i> Hoy
+                    </button>
+                    <button class="dai-chip" data-date="week" onclick="daiChipDate(this,'week')">
+                        <i class="material-icons">date_range</i> Esta semana
+                    </button>
+                    <div class="dai-divider-v"></div>
+                    <div class="dai-status-tabs">
+                        <button class="dai-status-tab active" data-estado="" onclick="daiTabClick(this)">
+                            Todas <span class="tab-count" id="tabCount_all">—</span>
+                        </button>
+                        <button class="dai-status-tab" data-estado="activa" onclick="daiTabClick(this)">
+                            Activas <span class="tab-count" id="tabCount_activa">—</span>
+                        </button>
+                        <button class="dai-status-tab" data-estado="en_revision" onclick="daiTabClick(this)">
+                            En Revisión <span class="tab-count" id="tabCount_en_revision">—</span>
+                        </button>
+                        <button class="dai-status-tab" data-estado="resuelta" onclick="daiTabClick(this)">
+                            Resueltas <span class="tab-count" id="tabCount_resuelta">—</span>
+                        </button>
+                        <button class="dai-status-tab" data-estado="creado" onclick="daiTabClick(this)">
+                            Creadas <span class="tab-count" id="tabCount_creado">—</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. Results header -->
+                <div class="dai-results-header">
+                    <span class="dai-results-count" id="daiResultsCount">Cargando…</span>
+                    <div class="dai-sort-select">
+                        <i class="material-icons" style="font-size:15px;">sort</i>
+                        <span>Ordenar:</span>
+                        <select>
+                            <option>Más reciente</option>
+                            <option>Más antiguo</option>
+                            <option>Severidad</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ═══ SPLIT PANE ═══ -->
+                <div class="dai-split-pane">
+
+                    <!-- LEFT: Table List -->
+                    <div class="dai-list-pane">
+                        <!-- Table Header -->
+                        <div class="dai-table-header">
+                            <div class="dai-th"></div>
+                            <div class="dai-th">Sev.</div>
+                            <div class="dai-th"></div>
+                            <div class="dai-th">Alerta</div>
+                            <div class="dai-th">Departamento</div>
+                            <div class="dai-th">Dispositivo</div>
+                            <div class="dai-th">Fecha</div>
+                            <div class="dai-th">Estado</div>
+                            <div class="dai-th">Lat.</div>
+                            <div class="dai-th"></div>
+                        </div>
+                        <!-- Scrollable Rows -->
+                        <div class="dai-table-body" id="daiTableBody">
+                            <div class="dai-empty-state">
+                                <i class="material-icons">hourglass_empty</i>
+                                <h4>Cargando alertas...</h4>
+                            </div>
+                        </div>
+                        <!-- Load More -->
+                        <div class="dai-load-more">
+                            <button id="daiMoreBtn" onclick="daiLoadMore()" style="display:none;">
+                                <i class="material-icons">expand_more</i> Cargar más
+                            </button>
+                            <span class="dai-page-info" id="daiPageInfo2"></span>
                         </div>
                     </div>
-                    <div id="total-registros" style="text-align: right; padding: 5px"></div>
+
+                    <!-- Backdrop overlay for mobile detail panel -->
+                    <div class="dai-detail-backdrop hidden" id="daiDetailBackdrop" onclick="daiCloseDetail()"></div>
+
+                    <!-- RIGHT: Detail Panel -->
+                    <div class="dai-detail-pane collapsed" id="daiDetailPane">
+                        <div class="dai-detail-empty">
+                            <i class="material-icons">touch_app</i>
+                            <h4>Selecciona una alerta</h4>
+                            <p>Haz clic en cualquier fila para ver el detalle completo con mapa y acciones.</p>
+                        </div>
+                    </div>
+
+                </div><!-- /split-pane -->
+
+            </div><!-- /dai-page -->
+
+            <!-- More Filters Modal -->
+            <div class="dai-filter-modal-overlay" id="daiFilterModalOverlay"
+                onclick="if(event.target===this)closeDaiFilterModal()">
+                <div class="dai-filter-modal">
+                    <div class="dai-filter-modal-header">
+                        <h3>Filtros avanzados</h3>
+                        <button class="dai-detail-close" onclick="closeDaiFilterModal()">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                    <div class="dai-filter-modal-body">
+                        <div class="dai-form-group"><label>Departamento</label><select id="daiModalDep"></select>
+                        </div>
+                        <div class="dai-form-group"><label>Tramo</label><select id="daiModalTramo"></select></div>
+                        <div class="dai-form-group">
+                            <label>Tipo de Dispositivo</label>
+                            <select id="daiModalDisp">
+                                <option value="">Todos</option>
+                                <option value="WIM">WIM — Pesaje en movimiento</option>
+                                <option value="RAD">Radar — Control de velocidad</option>
+                                <option value="CNT">Contador — Aforo fijo</option>
+                                <option value="VID">Video — Cámara DAI</option>
+                            </select>
+                        </div>
+                        <div class="dai-form-group"><label>Fecha desde</label><input type="datetime-local"
+                                id="daiModalDateFrom"></div>
+                        <div class="dai-form-group"><label>Fecha hasta</label><input type="datetime-local"
+                                id="daiModalDateTo"></div>
+                        <div class="dai-form-group">
+                            <label>Tipos de alerta</label>
+                            <div class="dai-tipos-tags" id="daiModalTipos"></div>
+                        </div>
+                    </div>
+                    <div class="dai-filter-modal-footer">
+                        <button class="btn btn-ghost" onclick="daiClearAdvancedFilters()">
+                            <i class="material-icons">clear_all</i> Limpiar todo
+                        </button>
+                        <button class="btn btn-primary" style="margin-left:auto;" onclick="daiApplyFilters()">
+                            <i class="material-icons">filter_list</i> Aplicar filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /#alertas-dai -->
+
+        <!-- ================================================ AUDITORÍA ================================================ -->
+        <div id="audit" class="tab-content">
+            <div class="section-header">
+                <div>
+                    <h2>Registro de Auditoría</h2>
+                    <p>Historial completo de acciones del sistema</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="loadAuditLogs()"><i class="material-icons">refresh</i>
+                        Actualizar</button>
+                </div>
+            </div>
+            <div class="data-table">
+                <div class="table-header">
+                    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                        <select id="auditActionFilter" style="width:auto;">
+                            <option value="">Todas las acciones</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="create_report">Crear Reporte</option>
+                            <option value="update_report">Actualizar Reporte</option>
+                            <option value="delete_report">Eliminar Reporte</option>
+                            <option value="download_report">Descargar Reporte</option>
+                            <option value="download">Descarga</option>
+                            <option value="register">Registro</option>
+                            <option value="verify_code_success">Verificar Código</option>
+                        </select>
+                        <select id="auditStatusFilter" style="width:auto;">
+                            <option value="">Todos los estados</option>
+                            <option value="success">Exitoso</option>
+                            <option value="failed">Fallido</option>
+                        </select>
+                        <input type="date" id="auditDateFrom" style="width:auto;">
+                        <input type="date" id="auditDateTo" style="width:auto;">
+                        <button class="btn btn-ghost btn-sm" onclick="applyAuditFilters()"><i
+                                class="material-icons">filter_list</i> Filtrar</button>
+                        <button class="btn btn-ghost btn-sm" onclick="clearAuditFilters()"><i
+                                class="material-icons">clear</i> Limpiar</button>
+                    </div>
+                </div>
+                <div id="total-registros"
+                    style="text-align:right;padding:6px 1.25rem;font-size:0.78rem;color:var(--gray-400);"></div>
+                <div class="table-scroll">
                     <table>
                         <thead>
                             <tr>
@@ -384,206 +1112,357 @@
                                 <th>IP</th>
                             </tr>
                         </thead>
-                        <tbody id="auditTableBody">
-                            <!-- Los logs de auditoría se cargarán aquí desde la base de datos -->
-                        </tbody>
+                        <tbody id="auditTableBody"></tbody>
                     </table>
                 </div>
-
-                <!-- Paginación -->
-                <div id="auditPagination" style="display: none; margin-top: 2rem; text-align: center;">
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
-                        <button id="auditPrevBtn" class="btn btn-secondary" onclick="changeAuditPage(-1)" disabled>Anterior</button>
-                        <span id="auditPageInfo">Página 1 de 1</span>
-                        <button id="auditNextBtn" class="btn btn-secondary" onclick="changeAuditPage(1)" disabled>Siguiente</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div id="settings" class="tab-content">
-                <h2 style="margin-bottom: 2rem;">Configuración del Sistema</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
-                    <div>
-                        <div class="tabs" style="flex-direction: column; border: none;">
-                            <button class="tab active" style="text-align: left;">General</button>
-                            <button class="tab" style="text-align: left;">Seguridad</button>
-                            <button class="tab" style="text-align: left;">Notificaciones</button>
-                            <button class="tab" style="text-align: left;">API</button>
-                            <button class="tab" style="text-align: left;">Respaldos</button>
-                        </div>
-                    </div>
-                    
-                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <h3 style="margin-bottom: 1.5rem;">Configuración General</h3>
-                        
-                        <div class="form-group">
-                            <label>Nombre del Sistema</label>
-                            <input type="text" value="VIITS - Sistema de Vigilancia Inteligente">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Email de Notificaciones</label>
-                            <input type="email" value="viits@invias.gov.co">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Límite de Descarga (meses)</label>
-                            <input type="number" value="3" min="1" max="12">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Tamaño Máximo de Archivo (MB)</label>
-                            <input type="number" value="100" min="10" max="500">
-                        </div>
-                        
-                        <button class="btn btn-primary">Guardar Cambios</button>
-                    </div>
+                <div id="auditPagination" class="pagination" style="display:none;">
+                    <button id="auditPrevBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(-1)" disabled><i
+                            class="material-icons">chevron_left</i> Anterior</button>
+                    <span id="auditPageInfo" style="font-size:0.82rem;color:var(--gray-400);">Página 1 de 1</span>
+                    <button id="auditNextBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(1)"
+                        disabled>Siguiente <i class="material-icons">chevron_right</i></button>
                 </div>
             </div>
         </div>
+
+        <!-- ================================================ CONFIGURACIÓN ================================================ -->
+        <div id="settings" class="tab-content">
+            <div class="section-header">
+                <div>
+                    <h2>Configuración del Sistema</h2>
+                    <p>Ajustes generales, seguridad y notificaciones</p>
+                </div>
+            </div>
+            <div class="page-card">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Configuración General</h3>
+                <div class="form-group"><label>Nombre del Sistema</label><input type="text"
+                        value="VIITS — Sistema de Vigilancia Inteligente"></div>
+                <div class="form-group"><label>Email de Notificaciones</label><input type="email"
+                        value="viits@invias.gov.co"></div>
+                <div class="form-group"><label>Límite de Descarga (meses)</label><input type="number" value="3" min="1"
+                        max="12"></div>
+                <button class="btn btn-primary"><i class="material-icons">save</i> Guardar Cambios</button>
+            </div>
+        </div>
+
+        </div><!-- /content -->
     </main>
 
-    <!-- Upload Report Modal -->
+    <!-- ══ MODALS ════════════════════════════════════════════════ -->
     <div id="uploadModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Cargar Nuevo Reporte</h3>
-                <button onclick="closeModal('uploadModal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">
-                    <i class="material-icons">close</i>
-                </button>
+                <h3>Cargar Nuevo Reporte</h3><button class="modal-close" onclick="closeModal('uploadModal')"><i
+                        class="material-icons">close</i></button>
             </div>
             <div class="modal-body">
                 <form id="uploadForm" onsubmit="handleUploadFormSubmit(event)">
-                    <div class="form-group">
-                        <label>Título del Reporte *</label>
-                        <input type="text" id="reportTitle" placeholder="Ej: Informe Mensual de Tráfico" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Descripción Corta *</label>
-                        <textarea id="reportDescription" rows="3" placeholder="Breve descripción del contenido del reporte" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Archivo PDF *</label>
-                        <input type="file" id="reportFile" accept=".pdf,application/pdf" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
-                        <small style="color: #6b7280; font-size: 0.75rem;">Máximo 50MB • Solo archivos PDF</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="isPublic" checked> Marcar como público
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="isFeatured"> Marcar como destacado
-                        </label>
+                    <div class="form-group"><label>Título del Reporte *</label><input type="text" id="reportTitle"
+                            required></div>
+                    <div class="form-group"><label>Descripción *</label><textarea id="reportDescription" rows="3"
+                            required></textarea></div>
+                    <div class="form-group"><label>Archivo PDF *</label><input type="file" id="reportFile" accept=".pdf"
+                            required></div>
+                    <div class="form-group" style="display:flex;gap:1.5rem;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox"
+                                id="isPublic" checked style="width:auto;"> Público</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox"
+                                id="isFeatured" style="width:auto;"> Destacado</label>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('uploadModal')">Cancelar</button>
-                <button type="submit" form="uploadForm" class="btn btn-primary">
-                    <i class="material-icons">upload</i>
-                    Cargar Reporte
-                </button>
+                <button class="btn btn-ghost" onclick="closeModal('uploadModal')">Cancelar</button>
+                <button type="submit" form="uploadForm" class="btn btn-primary"><i class="material-icons">upload</i>
+                    Cargar</button>
             </div>
         </div>
     </div>
 
-    <!-- Slider Image Modal -->
     <div id="sliderModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Agregar Imagen al Slider</h3>
-                <button onclick="closeModal('sliderModal')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">
-                    <i class="material-icons">close</i>
-                </button>
+                <h3>Agregar Imagen al Slider</h3><button class="modal-close" onclick="closeModal('sliderModal')"><i
+                        class="material-icons">close</i></button>
             </div>
             <div class="modal-body">
                 <form id="sliderForm" onsubmit="handleSliderFormSubmit(event)">
-                    <div class="form-group">
-                        <label>Título *</label>
-                        <input type="text" id="sliderTitle" placeholder="Ej: Sistema VIITS" required>
+                    <div class="form-group"><label>Título *</label><input type="text" id="sliderTitle" required
+                            oninput="livePreviewSlide('slider')"></div>
+                    <div class="form-group"><label>Subtítulo *</label><input type="text" id="slidersubTitle" required
+                            oninput="livePreviewSlide('slider')">
                     </div>
+                    <div class="form-group"><label>Descripción</label><input type="text" id="sliderDescription"
+                            oninput="livePreviewSlide('slider')"></div>
+                    <div class="form-group"><label>Posición</label><select id="sliderPosition">
+                            <option value="0">Automática</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select></div>
+                    <!-- ── Color de Fondo del Slide ── -->
                     <div class="form-group">
-                        <label>Subtítulo *</label>
-                        <input type="text" id="slidersubTitle" placeholder="Ej: sistema de vigilancia inteligente" required>
-                    </div>
+                        <label style="font-weight:600;">Color de Fondo del Slide</label>
 
-                    <div class="form-group">
-                        <label>Texto Descriptivo</label>
-                        <input type="text" id="sliderDescription" placeholder="Ej: Vigilancia Inteligente de Infraestructura">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Posición en el Slider</label>
-                        <select id="sliderPosition">
-                            <option value="0">Automática (última posición)</option>
-                            <option value="1">1 - Primera</option>
-                            <option value="2">2 - Segunda</option>
-                            <option value="3">3 - Tercera</option>
-                            <option value="4">4 - Cuarta</option>
-                            <option value="5">5 - Quinta</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Imagen (1920x600px recomendado) *</label>
-                        <input type="file" id="sliderImageInput" accept="image/*" required onchange="handleImageSelection(event)">
-                        <div class="upload-area" id="sliderUploadArea">
-                            <i class="material-icons" style="font-size: 48px; color: #9ca3af; margin-bottom: 1rem;">add_photo_alternate</i>
-                            <p style="font-weight: 600;">Seleccionar Imagen</p>
-                            <p style="color: #6b7280; font-size: 0.75rem; margin-top: 1rem;">JPG, PNG, GIF, WebP • Máximo 10MB</p>
-                            <p id="selectedFileName" style="color: var(--success); font-size: 0.875rem; margin-top: 0.5rem; display: none;"></p>
+                        <!-- Swatches preestablecidos -->
+                        <div id="sliderBgColorPicker" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;">
+                            <button type="button" class="slider-color-swatch selected"
+                                data-gradient="linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Azul claro"
+                                style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);width:32px;height:32px;border-radius:6px;border:2px solid var(--orange);cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #004a8f 0%, #003366 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Azul gobierno"
+                                style="background:linear-gradient(135deg,#004a8f,#003366);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #f97316 0%, #ea580c 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Naranja INVIAS"
+                                style="background:linear-gradient(135deg,#f97316,#ea580c);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #069169 0%, #047857 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Verde"
+                                style="background:linear-gradient(135deg,#069169,#047857);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #6366f1 0%, #4338ca 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Índigo"
+                                style="background:linear-gradient(135deg,#6366f1,#4338ca);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Azul cielo"
+                                style="background:linear-gradient(135deg,#0ea5e9,#0284c7);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
+                            <button type="button" class="slider-color-swatch"
+                                data-gradient="linear-gradient(135deg, #d946ef 0%, #a21caf 100%)"
+                                onclick="selectSliderBgColor(this,'sliderBgColor','sliderColorText','sliderColorNative')"
+                                title="Morado"
+                                style="background:linear-gradient(135deg,#d946ef,#a21caf);width:32px;height:32px;border-radius:6px;border:2px solid transparent;cursor:pointer;"></button>
                         </div>
+
+                        <!-- Color personalizado: picker nativo + texto -->
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;">
+                            <label style="font-size:0.8rem;color:#6b7280;white-space:nowrap;margin:0;">Color
+                                personalizado:</label>
+                            <input type="color" id="sliderColorNative" value="#f0f9ff" title="Elegir color sólido"
+                                style="width:36px;height:32px;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;padding:2px;"
+                                oninput="syncColorFromNative('sliderColorNative','sliderBgColor','sliderColorText','sliderBgColorPicker')">
+                            <input type="text" id="sliderColorText"
+                                placeholder="ej: #1e40af o linear-gradient(135deg,#004a8f,#003366)"
+                                value="linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%)"
+                                style="flex:1;min-width:200px;padding:0.35rem 0.6rem;border:1px solid #d1d5db;border-radius:6px;font-size:0.8rem;font-family:monospace;"
+                                oninput="syncColorFromText('sliderColorText','sliderBgColor','sliderBgColorPicker')">
+                        </div>
+                        <input type="hidden" id="sliderBgColor"
+                            value="linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ffffff 100%)">
                     </div>
+
+                    <!-- ── Opacidad de la Imagen de Fondo ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Opacidad de la Imagen de Fondo
+                            <span id="sliderOpacityDisplay"
+                                style="font-weight:400;color:#f97316;margin-left:0.5rem;">35%</span>
+                        </label>
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem;">
+                            <span style="font-size:0.75rem;color:#9ca3af;">0% (invisible)</span>
+                            <input type="range" id="sliderImageOpacity" min="0" max="100" value="35" step="5"
+                                style="flex:1;accent-color:var(--orange);"
+                                oninput="document.getElementById('sliderOpacityDisplay').textContent = this.value + '%'">
+                            <span style="font-size:0.75rem;color:#9ca3af;">100% (sólida)</span>
+                        </div>
+                        <small style="color:#6b7280;font-size:0.75rem;display:block;margin-top:0.4rem;">
+                            Controla qué tan visible es la foto de fondo sobre el color del slide. 0% = solo color, 35%
+                            = sutil (recomendado), 100% = imagen completa.
+                        </small>
+                    </div>
+
+                    <!-- ── Color del Texto ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Color del Texto</label>
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+                            <!-- Presets rápidos -->
+                            <button type="button"
+                                onclick="setTextColor('sliderTextColor','#ffffff');livePreviewSlide('slider')"
+                                title="Blanco"
+                                style="width:28px;height:28px;background:#ffffff;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button"
+                                onclick="setTextColor('sliderTextColor','#0f172a');livePreviewSlide('slider')"
+                                title="Negro"
+                                style="width:28px;height:28px;background:#0f172a;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button"
+                                onclick="setTextColor('sliderTextColor','#f97316');livePreviewSlide('slider')"
+                                title="Naranja"
+                                style="width:28px;height:28px;background:#f97316;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button"
+                                onclick="setTextColor('sliderTextColor','#fbbf24');livePreviewSlide('slider')"
+                                title="Amarillo"
+                                style="width:28px;height:28px;background:#fbbf24;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button"
+                                onclick="setTextColor('sliderTextColor','#e0f2fe');livePreviewSlide('slider')"
+                                title="Azul claro"
+                                style="width:28px;height:28px;background:#e0f2fe;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <label style="font-size:0.8rem;color:#6b7280;margin:0 0.25rem;">o personalizado:</label>
+                            <input type="color" id="sliderTextColor" value="#ffffff"
+                                style="width:36px;height:32px;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;padding:2px;"
+                                oninput="livePreviewSlide('slider')">
+                        </div>
+                        <small style="color:#6b7280;font-size:0.75rem;margin-top:0.4rem;display:block;">Color que
+                            tendrán el título y el texto del slide.</small>
+                    </div>
+
+                    <!-- ── Imagen + Vista Previa ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Imagen (opcional)</label>
+                        <input type="file" id="sliderImageInput" accept="image/*"
+                            onchange="handleImageSelection(event);livePreviewSlide('slider')">
+                    </div>
+
+                    <!-- ── VISTA PREVIA EN VIVO ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Vista Previa del Slide</label>
+                        <div id="sliderLivePreview"
+                            style="position:relative;height:180px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);display:flex;align-items:center;justify-content:center;margin-top:0.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
+                            <!-- Capa de imagen -->
+                            <div id="sliderPreviewImg"
+                                style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.35;display:none;">
+                            </div>
+                            <!-- Contenido de texto -->
+                            <div id="sliderPreviewContent"
+                                style="position:relative;z-index:1;text-align:center;padding:1rem;color:#0f172a;">
+                                <div
+                                    style="font-size:0.65rem;font-weight:600;letter-spacing:0.05em;opacity:0.8;margin-bottom:0.5rem;">
+                                    ⬤ Sistema en línea • Monitoreo 24/7</div>
+                                <div id="sliderPreviewTitle"
+                                    style="font-size:1rem;font-weight:700;line-height:1.2;margin-bottom:0.3rem;">Título
+                                    del slide</div>
+                                <div id="sliderPreviewSub" style="font-size:0.75rem;opacity:0.85;">Subtítulo aquí</div>
+                            </div>
+                        </div>
+                        <small style="color:#6b7280;font-size:0.75rem;margin-top:0.4rem;display:block;">La vista previa
+                            refleja el fondo, la imagen y los colores del texto configurados arriba.</small>
+                    </div>
+
+                    <p id="selectedFileName" style="color:var(--success);font-size:0.875rem;display:none;"></p>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('sliderModal')">Cancelar</button>
-                <button type="submit" form="sliderForm" class="btn btn-primary">
-                    <i class="material-icons">add_photo_alternate</i>
-                    Agregar Imagen
-                </button>
+                <button class="btn btn-ghost" onclick="closeModal('sliderModal')">Cancelar</button>
+                <button type="submit" form="sliderForm" class="btn btn-primary"><i
+                        class="material-icons">add_photo_alternate</i> Agregar</button>
             </div>
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div id="successModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-body" style="text-align: center; padding: 2rem;">
-                <div style="color: var(--success); margin-bottom: 1rem;">
-                    <i class="material-icons" style="font-size: 64px;">check_circle</i>
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-body" style="text-align:center;padding:2.5rem;">
+                <div
+                    style="width:64px;height:64px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                    <i class="material-icons" style="font-size:32px;color:var(--success);">check</i>
                 </div>
-                <h3 style="color: var(--success); margin-bottom: 1rem;">¡Éxito!</h3>
-                <p id="successMessage" style="color: #374151; font-size: 1.1rem; margin-bottom: 1.5rem;">Operación completada exitosamente</p>
+                <h3 style="margin-bottom:.75rem;">¡Operación exitosa!</h3>
+                <p id="successMessage" style="color:var(--gray-500);margin-bottom:1.5rem;">Completada exitosamente</p>
                 <button class="btn btn-primary" onclick="closeModal('successModal')">Aceptar</button>
             </div>
         </div>
     </div>
 
-    <!-- Logout Confirmation Modal -->
     <div id="logoutConfirmModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-body" style="text-align: center; padding: 2rem;">
-                <div style="color: var(--warning); margin-bottom: 1rem;">
-                    <i class="material-icons" style="font-size: 64px;">help_outline</i>
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-body" style="text-align:center;padding:2.5rem;">
+                <div
+                    style="width:64px;height:64px;background:#fef9c3;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+                    <i class="material-icons" style="font-size:32px;color:var(--warning);">logout</i>
                 </div>
-                <h3 style="color: var(--dark-gray); margin-bottom: 1rem;">Confirmar Cierre de Sesión</h3>
-                <p style="color: #374151; font-size: 1.1rem; margin-bottom: 1.5rem;">¿Está seguro que desea cerrar sesión?</p>
-                <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="btn btn-secondary" onclick="closeModal('logoutConfirmModal')">No</button>
-                    <button class="btn btn-danger" onclick="confirmLogout()">Sí, Cerrar Sesión</button>
+                <h3 style="margin-bottom:.75rem;">Cerrar Sesión</h3>
+                <p style="color:var(--gray-500);margin-bottom:1.75rem;">¿Estás seguro que deseas salir?</p>
+                <div style="display:flex;gap:.75rem;justify-content:center;">
+                    <button class="btn btn-ghost" onclick="closeModal('logoutConfirmModal')">Cancelar</button>
+                    <button class="btn btn-danger" onclick="confirmLogout()"><i class="material-icons">logout</i> Sí,
+                        salir</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="toast-container"></div>
+
+    <script>
+        // ── Sidebar ──────────────────────────────────────────────────────────
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            s.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', s.classList.contains('collapsed'));
+        }
+        function openMobileSidebar() {
+            document.getElementById('sidebar').classList.add('mobile-open');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        }
+        function closeMobileSidebar() {
+            document.getElementById('sidebar').classList.remove('mobile-open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+        (function () {
+            if (localStorage.getItem('sidebarCollapsed') === 'true')
+                document.getElementById('sidebar').classList.add('collapsed');
+        })();
+
+        // ── Section titles ────────────────────────────────────────────────────
+        const SECTION_META = {
+            dashboard: { title: 'Panel de Control', sub: 'Resumen de actividad del sistema VIITS' },
+            reports: { title: 'Gestión de Reportes', sub: 'Administra los reportes e informes del sistema' },
+            slider: { title: 'Slider de Imágenes', sub: 'Administra el carrusel de la página principal' },
+            'alertas-dai': { title: 'Alertas DAI (CDN)', sub: 'Dispositivo de Aforo Inteligente — Red CDN INVIAS' },
+            users: { title: 'Gestión de Usuarios', sub: 'Administra los usuarios y roles del sistema' },
+            downloads: { title: 'Historial de Descargas', sub: 'Registro de descargas de datos del sistema' },
+            audit: { title: 'Registro de Auditoría', sub: 'Historial completo de acciones del sistema' },
+            settings: { title: 'Configuración', sub: 'Ajustes generales, seguridad y notificaciones' }
+        };
+
+        window._updateTopbar = function (sectionId) {
+            const m = SECTION_META[sectionId];
+            if (m) {
+                document.getElementById('topbarTitle').textContent = m.title;
+                document.getElementById('topbarSubtitle').textContent = m.sub;
+            }
+            const cw = document.getElementById('contentWrapper');
+            const daiEl = document.getElementById('alertas-dai');
+            if (sectionId === 'alertas-dai') {
+                cw.style.padding = '0';
+                cw.style.overflow = 'hidden';
+                if (daiEl) daiEl.style.display = 'block';
+            } else {
+                cw.style.padding = '2rem';
+                cw.style.overflow = '';
+                if (daiEl) daiEl.style.display = '';
+            }
+            // Auto-cargar datos al cambiar de sección
+            if (sectionId === 'reports' && typeof loadReports === 'function') loadReports();
+            if (sectionId === 'slider' && typeof loadSliderImages === 'function') loadSliderImages();
+            if (sectionId === 'users' && typeof loadUsers === 'function') loadUsers();
+            if (sectionId === 'audit' && typeof loadAuditLogs === 'function') loadAuditLogs();
+        };
+
+        // ── Logout helpers ────────────────────────────────────────────────────
+        function showLogoutConfirm() { showModal('logoutConfirmModal'); }
+        function confirmLogout() { closeModal('logoutConfirmModal'); handleLogout(); }
+
+        // ── Sort (DAI bridge for missing daiSortChange) ───────────────────────
+        window.daiSortChange = function (val) {
+            if (!window.DAI) return;
+            if (val === 'fecha_desc') DAI.all.sort((a, b) => b.fecha - a.fecha);
+            if (val === 'fecha_asc') DAI.all.sort((a, b) => a.fecha - b.fecha);
+            if (val === 'sev') {
+                const o = { critica: 0, alta: 1, media: 2, baja: 3 };
+                DAI.all.sort((a, b) => o[a.sev] - o[b.sev]);
+            }
+            if (typeof _applyFilters === 'function') { _applyFilters(); _renderCards(); }
+        };
+    </script>
+
 </body>
+
 </html>
