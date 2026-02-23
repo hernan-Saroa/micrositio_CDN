@@ -467,15 +467,21 @@ function _renderLatencyDashboard() {
         </div>
     `;
 
-    // Auto-collapse on small screens on first load
-    if (window.innerWidth <= 900) {
+    // Auto-collapse on small screens (width ≤ 900) OR limited height (≤ 850px)
+    function _daiCheckLatencySpace() {
         const collapsible = document.getElementById('daiLatencyCollapsible');
         const chevron = document.getElementById('daiLatencyChevron');
-        if (collapsible && !collapsible.dataset.init) {
+        if (!collapsible) return;
+        const tooSmall = window.innerWidth <= 900 || window.innerHeight <= 850;
+        if (tooSmall && !collapsible.classList.contains('collapsed')) {
             collapsible.classList.add('collapsed');
             if (chevron) chevron.textContent = 'expand_more';
-            collapsible.dataset.init = '1';
         }
+    }
+    _daiCheckLatencySpace();
+    if (!window._daiResizeListenerAdded) {
+        window._daiResizeListenerAdded = true;
+        window.addEventListener('resize', _daiCheckLatencySpace);
     }
 }
 
@@ -488,6 +494,8 @@ function daiToggleLatencyDashboard() {
     if (chevron) chevron.textContent = isCollapsed ? 'expand_more' : 'expand_less';
     // Save preference
     try { localStorage.setItem('dai-lat-collapsed', isCollapsed ? '1' : '0'); } catch (e) { }
+    // Recalcular altura del split-pane tras la transición CSS (0.35s)
+    setTimeout(() => { if (typeof _daiFixHeight === 'function') _daiFixHeight(); }, 360);
 }
 // ── Filters ───────────────────────────────────────────────────────────
 window.daiApplyFilters = function () { _applyFilters(); _renderRows(); closeDaiFilterModal(); };
@@ -498,7 +506,6 @@ function _applyFilters() {
     let data = DAI.all;
     if (f.quickDate === 'today') data = data.filter(a => a.fecha >= todayStart);
     if (f.quickDate === 'week') data = data.filter(a => a.fecha >= weekStart);
-    data = data.filter(a => f.autoMan.has(a.tipo_registro));
     data = data.filter(a => f.severidad.has(a.sev));
     const activeTab = document.querySelector('.dai-status-tab.active');
     const tabVal = activeTab?.dataset.estado || '';
@@ -519,11 +526,7 @@ function _applyFilters() {
     Object.entries(c).forEach(([k, v]) => { const el = document.getElementById(`tabCount_${k}`); if (el) el.textContent = v; });
 }
 window.daiSearch = function (v) { DAI.f.search = v; _applyFilters(); _renderRows(); };
-window.daiChipAutoMan = function (el, t) {
-    el.classList.toggle('active');
-    if (el.classList.contains('active')) DAI.f.autoMan.add(t); else DAI.f.autoMan.delete(t);
-    _applyFilters(); _renderRows();
-};
+
 window.daiChipDate = function (el, v) {
     document.querySelectorAll('.dai-chip[data-date]').forEach(c => c.classList.remove('active'));
     if (DAI.f.quickDate === v) { DAI.f.quickDate = ''; } else { DAI.f.quickDate = v; el.classList.add('active'); }
@@ -551,13 +554,21 @@ function _renderRows() {
     if (pgEl) pgEl.textContent = `${slice.length}/${total}`;
     if (moreBtn) moreBtn.style.display = hasMore ? 'flex' : 'none';
     if (!slice.length) { list.innerHTML = `<div class="dai-empty-state"><i class="material-icons">search_off</i><h4>Sin resultados</h4><p>Ajusta los filtros</p></div>`; return; }
-    list.innerHTML = slice.map((a, i) => _rowHTML(a, i)).join('');
+    // Marcar las primeras 5 alertas NO resueltas para animación de pulso
+    const unresolved = slice.filter(a => a.estado !== 'resuelta');
+    const pulseIds = new Set(unresolved.slice(0, 5).map(a => a.id));
+    list.innerHTML = slice.map((a, i) => _rowHTML(a, i, pulseIds.has(a.id))).join('');
+    // Actualizar urgencia sonora según alertas activas sin resolver
+    const activeCount = DAI.all.filter(a => a.estado === 'activa' || a.estado === 'creado').length;
+    DAI_SOUND.updateUrgency(activeCount);
 }
 
-function _rowHTML(a, idx = 0) {
+function _rowHTML(a, idx = 0, isPulsing = false) {
     const sel = a.id === DAI.selected ? 'is-selected' : '';
     const urg = _urgency(a);
     const urgCls = urg === 'critical' ? 'row-urgent-critical' : urg === 'high' ? 'row-urgent-high' : '';
+    // Clase de pulso solo si la alerta no está resuelta
+    const pulseCls = isPulsing && a.estado !== 'resuelta' ? `dai-row-new-${a.sev}` : '';
     const elapsed = a.estado !== 'resuelta' ? `<span class="dai-row-elapsed ${urg}">${_elapsed(a.fecha)}</span>` : '';
     const assignIcon = a.assignedTo ? `<i class="material-icons" style="font-size:11px;color:#6366f1;margin-left:3px" title="→ ${a.assignedTo}">person</i>` : '';
     const latSec = (a.latencia_ms / 1000).toFixed(1);
@@ -565,7 +576,7 @@ function _rowHTML(a, idx = 0) {
     const tipoIc = _tipoIcon(a.tipo);
     const hasVid = a.evidencia ? '<i class="material-icons dai-row-vid-icon" title="Video disponible">videocam</i>' : '';
     return `
-    <div class="dai-row ${sel} ${urgCls}" onclick="daiSelectAlert('${a.id}')" style="--row-i:${idx}">
+    <div class="dai-row ${sel} ${urgCls} ${pulseCls}" onclick="daiSelectAlert('${a.id}')" style="--row-i:${idx}">
         <div class="dai-row-strip ${a.sev}"></div>
         <div class="dai-row-sev"><span class="sev-pill ${a.sev}">${_sevLabel[a.sev]}</span></div>
         <div class="dai-row-tipo-icon"><i class="material-icons">${tipoIc}</i></div>
@@ -725,27 +736,15 @@ function _renderDetail(a) {
         </div>
     </div>
 
-    <!-- ★ QUICK ACTIONS — always visible, one-click response ★ -->
+    <!-- ★ QUICK ACTIONS — solo acción de estado ★ -->
     <div class="dai-quick-actions">
         ${a.estado !== 'resuelta' ? `
         <button class="dai-qaction resolve" onclick="daiQuickResolve()" title="Marcar como resuelta">
             <i class="material-icons">check_circle</i><span>Resolver</span>
-        </button>
-        <button class="dai-qaction review" onclick="daiQuickReview()" title="Pasar a revisión">
-            <i class="material-icons">visibility</i><span>Revisar</span>
         </button>` : `
         <button class="dai-qaction reopen" onclick="daiQuickReopen()" title="Reabrir alerta">
             <i class="material-icons">replay</i><span>Reabrir</span>
         </button>`}
-        <button class="dai-qaction assign" onclick="daiQuickAssign()" title="Asignar a usuario">
-            <i class="material-icons">person_add</i><span>Asignar</span>
-        </button>
-        <button class="dai-qaction email" onclick="daiQuickEmail()" title="Enviar por correo">
-            <i class="material-icons">email</i><span>Email</span>
-        </button>
-        <button class="dai-qaction attach" onclick="daiSwitchTab('gestion');document.getElementById('daiFileInput')?.click()" title="Adjuntar archivo">
-            <i class="material-icons">attach_file</i>
-        </button>
     </div>
 
     <!-- TABS -->
@@ -1630,3 +1629,151 @@ function _toast(msg, icon = 'info', type = 'info') {
     setTimeout(() => t.classList.add('show'), 10);
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
+
+// ════════════════════════════════════════════════════════════════════════
+//  DAI SOUND ENGINE — urgencia sonora dinámica
+//  Web Audio API (sin archivos externos)
+//  Velocidad de pitido crece con el número de alertas activas
+// ════════════════════════════════════════════════════════════════════════
+const DAI_SOUND = {
+    _ctx: null,
+    _timer: null,
+    _activeCount: 0,
+    _initialized: false,
+
+    // Inicializar el AudioContext (requiere gesto del usuario)
+    _init() {
+        if (this._ctx) return;
+        try {
+            this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) { }
+    },
+
+    // Generar un pitido corto (beep sinusoidal con fade)
+    beep(freq = 880, dur = 0.08, vol = 0.25) {
+        if (!this._ctx) return;
+        try {
+            const osc = this._ctx.createOscillator();
+            const gain = this._ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this._ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol, this._ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this._ctx.currentTime + dur);
+            osc.start(this._ctx.currentTime);
+            osc.stop(this._ctx.currentTime + dur + 0.01);
+        } catch (e) { }
+    },
+
+    // Calcular intervalo en ms según cantidad de alertas activas
+    // 0 → silencio  |  1 → 8s  |  4 → 2s  |  8+ → 400ms
+    _interval(count) {
+        if (count <= 0) return 0;
+        const ms = Math.max(400, 8000 / (1 + (count - 1) * 0.9));
+        return ms;
+    },
+
+    // Pitch aumenta con la urgencia (440hz base → hasta 1320hz)
+    _freq(count) {
+        return Math.min(1320, 440 + (count - 1) * 110);
+    },
+
+    // Parar el timer actual
+    _stop() {
+        if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    },
+
+    // Actualizar urgencia — llamado en cada renderizado de filas
+    updateUrgency(activeCount) {
+        if (activeCount === this._activeCount) return; // sin cambio
+        this._activeCount = activeCount;
+        this._stop();
+        if (activeCount <= 0) return;
+
+        const interval = this._interval(activeCount);
+        const freq = this._freq(activeCount);
+
+        // Primer pitido inmediato si acaba de aparecer una alerta nueva
+        if (this._ctx) this.beep(freq);
+
+        this._timer = setInterval(() => {
+            if (!this._ctx) return;
+            this.beep(freq);
+            // Si es crítico (muchas alertas) hacer doble pitido
+            if (activeCount >= 5) {
+                setTimeout(() => this.beep(freq * 1.2, 0.06, 0.18), 120);
+            }
+        }, interval);
+    },
+
+    // Activar el motor con el primer clic del usuario
+    enable() {
+        this._init();
+        this._initialized = true;
+        // Reproducir un pitido de prueba silencioso para desbloquear el contexto
+        if (this._ctx && this._ctx.state === 'suspended') {
+            this._ctx.resume();
+        }
+        this.beep(660, 0.05, 0.1);
+    }
+};
+
+// Inicializar el contexto de audio en el primer clic del usuario
+// (requisito de los navegadores para autoplay)
+document.addEventListener('click', function _daiSoundInit() {
+    DAI_SOUND.enable();
+    document.removeEventListener('click', _daiSoundInit);
+}, { once: true });
+
+// ── Mute toggle — expuesto globalmente para el botón de la topbar ─────
+DAI_SOUND._muted = false;
+
+// Parchea beep() para respetar el estado mute
+const _origBeep = DAI_SOUND.beep.bind(DAI_SOUND);
+DAI_SOUND.beep = function (freq, dur, vol) {
+    if (this._muted) return;
+    _origBeep(freq, dur, vol);
+};
+
+window.daiToggleMute = function () {
+    DAI_SOUND._muted = !DAI_SOUND._muted;
+    const icon = document.getElementById('daiMuteIcon');
+    const btn = document.getElementById('daiMuteBtn');
+    if (!icon || !btn) return;
+    if (DAI_SOUND._muted) {
+        icon.textContent = 'volume_off';
+        btn.style.color = '#ef4444';
+        btn.title = 'Activar alertas sonoras';
+        DAI_SOUND._stop(); // Para el timer mientras esté silenciado
+    } else {
+        icon.textContent = 'volume_up';
+        btn.style.color = '';
+        btn.title = 'Silenciar alertas sonoras';
+        // Reinicia el sonido según urgencia actual
+        const activeCount = DAI.all.filter(a => a.estado === 'activa' || a.estado === 'creado').length;
+        DAI_SOUND._activeCount = 0; // fuerza reinicio
+        DAI_SOUND.updateUrgency(activeCount);
+    }
+};
+
+// ── Fix dinámico de altura del split-pane ─────────────────────────────
+// Mide dónde empieza el split-pane en el viewport y le asigna
+// exactamente la altura que queda. Bypasea cualquier problema de
+// cadena CSS (padding, margin, flex) de los contenedores padre.
+function _daiFixHeight() {
+    const splitPane = document.querySelector('.dai-split-pane');
+    if (!splitPane) return;
+    const rect = splitPane.getBoundingClientRect();
+    const available = window.innerHeight - rect.top - 2; // 2px buffer
+    if (available > 120) {
+        splitPane.style.height = available + 'px';
+        splitPane.style.flex = 'none';
+    }
+}
+
+// Exponer para que el admin panel lo llame cuando cambia de tab
+window.daiFixHeight = _daiFixHeight;
+
+// Llamar cada vez que cambia el tamaño de la ventana
+window.addEventListener('resize', _daiFixHeight);

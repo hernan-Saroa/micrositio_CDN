@@ -119,6 +119,10 @@
                     <i class="material-icons">notifications_none</i>
                     <span class="notif-dot"></span>
                 </div>
+                <div class="topbar-icon-btn" id="daiMuteBtn" onclick="daiToggleMute()" title="Silenciar alertas sonoras"
+                    style="position:relative;">
+                    <i class="material-icons" id="daiMuteIcon">volume_up</i>
+                </div>
                 <span class="badge badge-success">
                     <i class="material-icons" style="font-size:10px;">circle</i>
                     Sistema Operativo
@@ -657,493 +661,488 @@
 
 
 
-        <!-- ================================================ UPLOAD MODAL (Reportes) ================================================ -->
-        <div id="uploadModal" class="modal">
-            <div class="modal-content" style="max-width:560px;">
-                <div class="modal-header">
-                    <h3 style="display:flex;align-items:center;gap:0.5rem;">
-                        <i class="material-icons" style="color:var(--orange);">upload_file</i>
-                        Cargar Nuevo Reporte
-                    </h3>
-                    <button onclick="closeModal('uploadModal')"
-                        style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;">
-                        <i class="material-icons">close</i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Drop zone -->
-                    <div id="reportDropZone"
-                        style="border:2px dashed #d1d5db;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafafa;margin-bottom:1.25rem;"
-                        onclick="document.getElementById('reportFile').click()"
-                        ondragover="event.preventDefault();this.style.borderColor='var(--orange)';this.style.background='#fff7ed';"
-                        ondragleave="this.style.borderColor='#d1d5db';this.style.background='#fafafa';"
-                        ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='#fafafa';handleReportFileDrop(event);">
-                        <i class="material-icons"
-                            style="font-size:40px;color:#9ca3af;display:block;margin-bottom:0.5rem;">cloud_upload</i>
-                        <p style="font-weight:600;color:#374151;margin:0 0 4px;">Arrastra tu archivo aquí</p>
-                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">o haz clic para seleccionar · PDF,
-                            Excel, CSV, Word · Máx. 50 MB</p>
-                        <div id="reportFileSelectedName"
-                            style="margin-top:0.75rem;font-size:0.85rem;font-weight:600;color:var(--orange);display:none;">
-                        </div>
-                        <input type="file" id="reportFile" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx"
-                            style="display:none;" onchange="onReportFileSelected(this)">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Título del Reporte *</label>
-                        <input type="text" id="reportTitle" placeholder="Ej: Informe Anual de Tráfico 2024">
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea id="reportDescription" rows="2"
-                            placeholder="Breve descripción del contenido del reporte…"
-                            style="resize:vertical;"></textarea>
-                    </div>
-
-                    <!-- Toggles -->
-                    <div
-                        style="display:flex;gap:2rem;padding:1rem;background:#f8fafc;border-radius:10px;margin-top:0.5rem;">
-                        <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
-                            <div style="position:relative;width:42px;height:24px;">
-                                <input type="checkbox" id="reportIsPublic" checked
-                                    style="opacity:0;width:0;height:0;position:absolute;">
-                                <span id="reportIsPublicSlider"
-                                    style="position:absolute;inset:0;border-radius:24px;background:#059669;transition:0.2s;cursor:pointer;"
-                                    onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#059669':'#d1d5db';"></span>
-                                <span id="reportIsPublicDot"
-                                    style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
-                            </div>
-                            <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
-                                    style="font-size:16px;vertical-align:middle;color:#059669;">public</i>
-                                Público</span>
-                        </label>
-                        <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
-                            <div style="position:relative;width:42px;height:24px;">
-                                <input type="checkbox" id="reportIsFeatured"
-                                    style="opacity:0;width:0;height:0;position:absolute;">
-                                <span id="reportIsFeaturedSlider"
-                                    style="position:absolute;inset:0;border-radius:24px;background:#d1d5db;transition:0.2s;cursor:pointer;"
-                                    onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#ea580c':'#d1d5db';"></span>
-                                <span
-                                    style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
-                            </div>
-                            <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
-                                    style="font-size:16px;vertical-align:middle;color:#ea580c;">star</i>
-                                Destacado</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer"
-                    style="display:flex;justify-content:flex-end;gap:0.75rem;padding:1rem 1.5rem;border-top:1px solid #e5e7eb;">
-                    <button class="btn btn-ghost btn-sm" onclick="closeModal('uploadModal')">Cancelar</button>
-                    <button id="uploadReportBtn" class="btn btn-primary" onclick="uploadReport()">
-                        <i class="material-icons">upload_file</i> Cargar Reporte
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================================ SLIDER ================================================ -->
-        <div id="slider" class="tab-content">
-            <div class="section-header">
-                <div>
-                    <h2>Gestión del Slider</h2>
-                    <p>Administra las imágenes del carrusel principal</p>
-                </div>
-                <div class="section-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="loadSliderImages()"><i
-                            class="material-icons">refresh</i> Actualizar</button>
-                    <button class="btn btn-primary" onclick="showModal('sliderModal')"><i
-                            class="material-icons">add_photo_alternate</i> Agregar Imagen</button>
-                </div>
-            </div>
-            <!-- Grid de tarjetas del slider — llenado dinámicamente por admin-panel.js -->
-            <div class="grid" id="sliderGrid"
-                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;margin-top:1rem;">
-                <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#9ca3af;">
-                    <i class="material-icons" style="font-size:48px;margin-bottom:1rem;display:block;">image</i>
-                    Cargando imágenes del slider…
-                </div>
-            </div>
-
-            <!-- Sección archivados -->
-            <div id="sliderArchivedSection" style="margin-top:2rem;">
-                <button onclick="toggleArchivedSection()"
-                    style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer;font-weight:600;color:#374151;font-size:0.9rem;">
-                    <span style="display:flex;align-items:center;gap:0.5rem;">
-                        <i class="material-icons" style="font-size:20px;color:#6b7280;">inventory_2</i>
-                        Slides Archivados
-                        <span id="archivedCount"
-                            style="background:#e5e7eb;color:#6b7280;border-radius:20px;padding:1px 9px;font-size:0.75rem;font-weight:700;">0</span>
-                    </span>
-                    <i class="material-icons" id="archivedChevron" style="color:#9ca3af;">expand_more</i>
-                </button>
-                <div id="archivedCollapsible" style="display:none;margin-top:0.75rem;">
-                    <div class="grid" id="sliderArchivedGrid"
-                        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================================ USUARIOS ================================================ -->
-        <div id="users" class="tab-content">
-            <div class="section-header">
-                <div>
-                    <h2>Gestión de Usuarios</h2>
-                    <p>Administra los usuarios y roles</p>
-                </div>
-                <div class="section-actions">
-                    <select id="roleFilter" style="width:auto;">
-                        <option value="">Todos los roles</option>
-                        <option value="admin">Admin</option>
-                        <option value="editor">Editor</option>
-                        <option value="user">Usuario</option>
-                    </select>
-                    <button class="btn btn-ghost btn-sm" onclick="loadUsers()"><i class="material-icons">refresh</i>
-                        Actualizar</button>
-                </div>
-            </div>
-            <div class="data-table">
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Último Acceso</th>
-                                <th>Creado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================================ DESCARGAS ================================================ -->
-        <div id="downloads" class="tab-content">
-            <div class="section-header">
-                <div>
-                    <h2>Historial de Descargas</h2>
-                    <p>Registro de descargas de datos del sistema</p>
-                </div>
-            </div>
-            <div class="data-table">
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Dispositivos</th>
-                                <th>Rango de Fechas</th>
-                                <th>Tamaño</th>
-                                <th>Tiempo</th>
-                                <th>Estado</th>
-                                <th>Fecha Solicitud</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>usuario1@example.com</td>
-                                <td>WIM, Radares</td>
-                                <td>01/09/2024 – 30/11/2024</td>
-                                <td>125 MB</td>
-                                <td>2m 15s</td>
-                                <td><span class="badge badge-success">Completado</span></td>
-                                <td>15/12/2024 14:30</td>
-                            </tr>
-                            <tr>
-                                <td>usuario2@example.com</td>
-                                <td>Conteos Fijos</td>
-                                <td>01/10/2024 – 31/12/2024</td>
-                                <td>87 MB</td>
-                                <td>1m 45s</td>
-                                <td><span class="badge badge-warning">Procesando</span></td>
-                                <td>15/12/2024 14:45</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================================================ ALERTAS DAI — SPLIT-PANE ================================================ -->
-        <div id="alertas-dai" class="tab-content"
-            style="padding:0;height:calc(100vh - 72px);overflow-y:auto;display:none;">
-            <div class="dai-page">
-
-                <!-- 1. Stat Bar -->
-                <div class="dai-stat-bar" id="daiStatBar"></div>
-
-                <!-- 1b. Latency Performance Dashboard (collapsible) -->
-                <div class="dai-latency-section">
-                    <button class="dai-latency-toggle" onclick="daiToggleLatencyDashboard()" id="daiLatencyToggle">
-                        <span class="dai-latency-toggle-left">
-                            <i class="material-icons">speed</i>
-                            <span>Rendimiento de Latencia</span>
-                            <span class="dai-latency-challenge" id="daiLatencyChallenge"></span>
-                        </span>
-                        <i class="material-icons dai-latency-chevron" id="daiLatencyChevron">expand_less</i>
-                    </button>
-                    <div class="dai-latency-collapsible" id="daiLatencyCollapsible">
-                        <div id="daiLatencyDashboard" class="dai-latency-dashboard"></div>
-                    </div>
-                </div>
-
-                <!-- 2. Smart Search + Controls -->
-                <div class="dai-controls">
-                    <div class="dai-smart-search">
-                        <i class="material-icons">search</i>
-                        <input type="text" id="daiSearchInput"
-                            placeholder="Buscar por ID, tipo, dispositivo, departamento…"
-                            oninput="daiSearch(this.value)">
-                    </div>
-                    <div class="dai-controls-right">
-                        <button class="btn btn-ghost btn-sm" onclick="loadAlertasDAI()" title="Actualizar">
-                            <i class="material-icons">refresh</i>
-                        </button>
-                        <button class="btn btn-ghost btn-sm" onclick="openDaiFilterModal()">
-                            <i class="material-icons">tune</i> Filtros
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="daiExportCSV()">
-                            <i class="material-icons">download</i> Exportar
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3. Chip Filters + Status Tabs -->
-                <div class="dai-filter-row">
-                    <button class="dai-chip active" onclick="daiChipAutoMan(this,'Automático')">
-                        <i class="material-icons">auto_awesome</i> Automático
-                    </button>
-                    <button class="dai-chip active" onclick="daiChipAutoMan(this,'Manual')">
-                        <i class="material-icons">person</i> Manual
-                    </button>
-                    <button class="dai-chip" data-date="today" onclick="daiChipDate(this,'today')">
-                        <i class="material-icons">today</i> Hoy
-                    </button>
-                    <button class="dai-chip" data-date="week" onclick="daiChipDate(this,'week')">
-                        <i class="material-icons">date_range</i> Esta semana
-                    </button>
-                    <div class="dai-divider-v"></div>
-                    <div class="dai-status-tabs">
-                        <button class="dai-status-tab active" data-estado="" onclick="daiTabClick(this)">
-                            Todas <span class="tab-count" id="tabCount_all">—</span>
-                        </button>
-                        <button class="dai-status-tab" data-estado="activa" onclick="daiTabClick(this)">
-                            Activas <span class="tab-count" id="tabCount_activa">—</span>
-                        </button>
-                        <button class="dai-status-tab" data-estado="en_revision" onclick="daiTabClick(this)">
-                            En Revisión <span class="tab-count" id="tabCount_en_revision">—</span>
-                        </button>
-                        <button class="dai-status-tab" data-estado="resuelta" onclick="daiTabClick(this)">
-                            Resueltas <span class="tab-count" id="tabCount_resuelta">—</span>
-                        </button>
-                        <button class="dai-status-tab" data-estado="creado" onclick="daiTabClick(this)">
-                            Creadas <span class="tab-count" id="tabCount_creado">—</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 4. Results header -->
-                <div class="dai-results-header">
-                    <span class="dai-results-count" id="daiResultsCount">Cargando…</span>
-                    <div class="dai-sort-select">
-                        <i class="material-icons" style="font-size:15px;">sort</i>
-                        <span>Ordenar:</span>
-                        <select>
-                            <option>Más reciente</option>
-                            <option>Más antiguo</option>
-                            <option>Severidad</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- ═══ SPLIT PANE ═══ -->
-                <div class="dai-split-pane">
-
-                    <!-- LEFT: Table List -->
-                    <div class="dai-list-pane">
-                        <!-- Table Header -->
-                        <div class="dai-table-header">
-                            <div class="dai-th"></div>
-                            <div class="dai-th">Sev.</div>
-                            <div class="dai-th"></div>
-                            <div class="dai-th">Alerta</div>
-                            <div class="dai-th">Departamento</div>
-                            <div class="dai-th">Dispositivo</div>
-                            <div class="dai-th">Fecha</div>
-                            <div class="dai-th">Estado</div>
-                            <div class="dai-th">Lat.</div>
-                            <div class="dai-th"></div>
-                        </div>
-                        <!-- Scrollable Rows -->
-                        <div class="dai-table-body" id="daiTableBody">
-                            <div class="dai-empty-state">
-                                <i class="material-icons">hourglass_empty</i>
-                                <h4>Cargando alertas...</h4>
-                            </div>
-                        </div>
-                        <!-- Load More -->
-                        <div class="dai-load-more">
-                            <button id="daiMoreBtn" onclick="daiLoadMore()" style="display:none;">
-                                <i class="material-icons">expand_more</i> Cargar más
-                            </button>
-                            <span class="dai-page-info" id="daiPageInfo2"></span>
-                        </div>
-                    </div>
-
-                    <!-- Backdrop overlay for mobile detail panel -->
-                    <div class="dai-detail-backdrop hidden" id="daiDetailBackdrop" onclick="daiCloseDetail()"></div>
-
-                    <!-- RIGHT: Detail Panel -->
-                    <div class="dai-detail-pane collapsed" id="daiDetailPane">
-                        <div class="dai-detail-empty">
-                            <i class="material-icons">touch_app</i>
-                            <h4>Selecciona una alerta</h4>
-                            <p>Haz clic en cualquier fila para ver el detalle completo con mapa y acciones.</p>
-                        </div>
-                    </div>
-
-                </div><!-- /split-pane -->
-
-            </div><!-- /dai-page -->
-
-            <!-- More Filters Modal -->
-            <div class="dai-filter-modal-overlay" id="daiFilterModalOverlay"
-                onclick="if(event.target===this)closeDaiFilterModal()">
-                <div class="dai-filter-modal">
-                    <div class="dai-filter-modal-header">
-                        <h3>Filtros avanzados</h3>
-                        <button class="dai-detail-close" onclick="closeDaiFilterModal()">
+            <!-- ================================================ UPLOAD MODAL (Reportes) ================================================ -->
+            <div id="uploadModal" class="modal">
+                <div class="modal-content" style="max-width:560px;">
+                    <div class="modal-header">
+                        <h3 style="display:flex;align-items:center;gap:0.5rem;">
+                            <i class="material-icons" style="color:var(--orange);">upload_file</i>
+                            Cargar Nuevo Reporte
+                        </h3>
+                        <button onclick="closeModal('uploadModal')"
+                            style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;">
                             <i class="material-icons">close</i>
                         </button>
                     </div>
-                    <div class="dai-filter-modal-body">
-                        <div class="dai-form-group"><label>Departamento</label><select id="daiModalDep"></select>
+                    <div class="modal-body">
+                        <!-- Drop zone -->
+                        <div id="reportDropZone"
+                            style="border:2px dashed #d1d5db;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafafa;margin-bottom:1.25rem;"
+                            onclick="document.getElementById('reportFile').click()"
+                            ondragover="event.preventDefault();this.style.borderColor='var(--orange)';this.style.background='#fff7ed';"
+                            ondragleave="this.style.borderColor='#d1d5db';this.style.background='#fafafa';"
+                            ondrop="event.preventDefault();this.style.borderColor='#d1d5db';this.style.background='#fafafa';handleReportFileDrop(event);">
+                            <i class="material-icons"
+                                style="font-size:40px;color:#9ca3af;display:block;margin-bottom:0.5rem;">cloud_upload</i>
+                            <p style="font-weight:600;color:#374151;margin:0 0 4px;">Arrastra tu archivo aquí</p>
+                            <p style="font-size:0.82rem;color:#9ca3af;margin:0;">o haz clic para seleccionar · PDF,
+                                Excel, CSV, Word · Máx. 50 MB</p>
+                            <div id="reportFileSelectedName"
+                                style="margin-top:0.75rem;font-size:0.85rem;font-weight:600;color:var(--orange);display:none;">
+                            </div>
+                            <input type="file" id="reportFile" accept=".pdf,.xls,.xlsx,.csv,.doc,.docx"
+                                style="display:none;" onchange="onReportFileSelected(this)">
                         </div>
-                        <div class="dai-form-group"><label>Tramo</label><select id="daiModalTramo"></select></div>
-                        <div class="dai-form-group">
-                            <label>Tipo de Dispositivo</label>
-                            <select id="daiModalDisp">
-                                <option value="">Todos</option>
-                                <option value="WIM">WIM — Pesaje en movimiento</option>
-                                <option value="RAD">Radar — Control de velocidad</option>
-                                <option value="CNT">Contador — Aforo fijo</option>
-                                <option value="VID">Video — Cámara DAI</option>
+
+                        <div class="form-group">
+                            <label>Título del Reporte *</label>
+                            <input type="text" id="reportTitle" placeholder="Ej: Informe Anual de Tráfico 2024">
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="reportDescription" rows="2"
+                                placeholder="Breve descripción del contenido del reporte…"
+                                style="resize:vertical;"></textarea>
+                        </div>
+
+                        <!-- Toggles -->
+                        <div
+                            style="display:flex;gap:2rem;padding:1rem;background:#f8fafc;border-radius:10px;margin-top:0.5rem;">
+                            <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                                <div style="position:relative;width:42px;height:24px;">
+                                    <input type="checkbox" id="reportIsPublic" checked
+                                        style="opacity:0;width:0;height:0;position:absolute;">
+                                    <span id="reportIsPublicSlider"
+                                        style="position:absolute;inset:0;border-radius:24px;background:#059669;transition:0.2s;cursor:pointer;"
+                                        onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#059669':'#d1d5db';"></span>
+                                    <span id="reportIsPublicDot"
+                                        style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
+                                </div>
+                                <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
+                                        style="font-size:16px;vertical-align:middle;color:#059669;">public</i>
+                                    Público</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+                                <div style="position:relative;width:42px;height:24px;">
+                                    <input type="checkbox" id="reportIsFeatured"
+                                        style="opacity:0;width:0;height:0;position:absolute;">
+                                    <span id="reportIsFeaturedSlider"
+                                        style="position:absolute;inset:0;border-radius:24px;background:#d1d5db;transition:0.2s;cursor:pointer;"
+                                        onclick="this.previousElementSibling.checked=!this.previousElementSibling.checked;this.style.background=this.previousElementSibling.checked?'#ea580c':'#d1d5db';"></span>
+                                    <span
+                                        style="position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:white;transition:0.2s;pointer-events:none;"></span>
+                                </div>
+                                <span style="font-weight:500;font-size:0.9rem;"><i class="material-icons"
+                                        style="font-size:16px;vertical-align:middle;color:#ea580c;">star</i>
+                                    Destacado</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer"
+                        style="display:flex;justify-content:flex-end;gap:0.75rem;padding:1rem 1.5rem;border-top:1px solid #e5e7eb;">
+                        <button class="btn btn-ghost btn-sm" onclick="closeModal('uploadModal')">Cancelar</button>
+                        <button id="uploadReportBtn" class="btn btn-primary" onclick="uploadReport()">
+                            <i class="material-icons">upload_file</i> Cargar Reporte
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================ SLIDER ================================================ -->
+            <div id="slider" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Gestión del Slider</h2>
+                        <p>Administra las imágenes del carrusel principal</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadSliderImages()"><i
+                                class="material-icons">refresh</i> Actualizar</button>
+                        <button class="btn btn-primary" onclick="showModal('sliderModal')"><i
+                                class="material-icons">add_photo_alternate</i> Agregar Imagen</button>
+                    </div>
+                </div>
+                <!-- Grid de tarjetas del slider — llenado dinámicamente por admin-panel.js -->
+                <div class="grid" id="sliderGrid"
+                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;margin-top:1rem;">
+                    <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#9ca3af;">
+                        <i class="material-icons" style="font-size:48px;margin-bottom:1rem;display:block;">image</i>
+                        Cargando imágenes del slider…
+                    </div>
+                </div>
+
+                <!-- Sección archivados -->
+                <div id="sliderArchivedSection" style="margin-top:2rem;">
+                    <button onclick="toggleArchivedSection()"
+                        style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1.25rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;cursor:pointer;font-weight:600;color:#374151;font-size:0.9rem;">
+                        <span style="display:flex;align-items:center;gap:0.5rem;">
+                            <i class="material-icons" style="font-size:20px;color:#6b7280;">inventory_2</i>
+                            Slides Archivados
+                            <span id="archivedCount"
+                                style="background:#e5e7eb;color:#6b7280;border-radius:20px;padding:1px 9px;font-size:0.75rem;font-weight:700;">0</span>
+                        </span>
+                        <i class="material-icons" id="archivedChevron" style="color:#9ca3af;">expand_more</i>
+                    </button>
+                    <div id="archivedCollapsible" style="display:none;margin-top:0.75rem;">
+                        <div class="grid" id="sliderArchivedGrid"
+                            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================ USUARIOS ================================================ -->
+            <div id="users" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Gestión de Usuarios</h2>
+                        <p>Administra los usuarios y roles</p>
+                    </div>
+                    <div class="section-actions">
+                        <select id="roleFilter" style="width:auto;">
+                            <option value="">Todos los roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="editor">Editor</option>
+                            <option value="user">Usuario</option>
+                        </select>
+                        <button class="btn btn-ghost btn-sm" onclick="loadUsers()"><i class="material-icons">refresh</i>
+                            Actualizar</button>
+                    </div>
+                </div>
+                <div class="data-table">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Último Acceso</th>
+                                    <th>Creado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================ DESCARGAS ================================================ -->
+            <div id="downloads" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Historial de Descargas</h2>
+                        <p>Registro de descargas de datos del sistema</p>
+                    </div>
+                </div>
+                <div class="data-table">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Dispositivos</th>
+                                    <th>Rango de Fechas</th>
+                                    <th>Tamaño</th>
+                                    <th>Tiempo</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Solicitud</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>usuario1@example.com</td>
+                                    <td>WIM, Radares</td>
+                                    <td>01/09/2024 – 30/11/2024</td>
+                                    <td>125 MB</td>
+                                    <td>2m 15s</td>
+                                    <td><span class="badge badge-success">Completado</span></td>
+                                    <td>15/12/2024 14:30</td>
+                                </tr>
+                                <tr>
+                                    <td>usuario2@example.com</td>
+                                    <td>Conteos Fijos</td>
+                                    <td>01/10/2024 – 31/12/2024</td>
+                                    <td>87 MB</td>
+                                    <td>1m 45s</td>
+                                    <td><span class="badge badge-warning">Procesando</span></td>
+                                    <td>15/12/2024 14:45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================================================ ALERTAS DAI — SPLIT-PANE ================================================ -->
+            <div id="alertas-dai" class="tab-content"
+                style="padding:0;height:calc(100vh - 72px);overflow:hidden;display:none;">
+                <div class="dai-page">
+
+                    <!-- 1. Stat Bar -->
+                    <div class="dai-stat-bar" id="daiStatBar"></div>
+
+                    <!-- 1b. Latency Performance Dashboard (collapsible) -->
+                    <div class="dai-latency-section">
+                        <button class="dai-latency-toggle" onclick="daiToggleLatencyDashboard()" id="daiLatencyToggle">
+                            <span class="dai-latency-toggle-left">
+                                <i class="material-icons">speed</i>
+                                <span>Rendimiento de Latencia</span>
+                                <span class="dai-latency-challenge" id="daiLatencyChallenge"></span>
+                            </span>
+                            <i class="material-icons dai-latency-chevron" id="daiLatencyChevron">expand_less</i>
+                        </button>
+                        <div class="dai-latency-collapsible" id="daiLatencyCollapsible">
+                            <div id="daiLatencyDashboard" class="dai-latency-dashboard"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Smart Search + Controls -->
+                    <div class="dai-controls">
+                        <div class="dai-smart-search">
+                            <i class="material-icons">search</i>
+                            <input type="text" id="daiSearchInput"
+                                placeholder="Buscar por ID, tipo, dispositivo, departamento…"
+                                oninput="daiSearch(this.value)">
+                        </div>
+                        <div class="dai-controls-right">
+                            <button class="btn btn-ghost btn-sm" onclick="loadAlertasDAI()" title="Actualizar">
+                                <i class="material-icons">refresh</i>
+                            </button>
+                            <button class="btn btn-ghost btn-sm" onclick="openDaiFilterModal()">
+                                <i class="material-icons">tune</i> Filtros
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="daiExportCSV()">
+                                <i class="material-icons">download</i> Exportar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Chip Filters + Status Tabs -->
+                    <div class="dai-filter-row">
+                        <button class="dai-chip" data-date="today" onclick="daiChipDate(this,'today')">
+                            <i class="material-icons">today</i> Hoy
+                        </button>
+                        <button class="dai-chip" data-date="week" onclick="daiChipDate(this,'week')">
+                            <i class="material-icons">date_range</i> Esta semana
+                        </button>
+                        <div class="dai-divider-v"></div>
+                        <div class="dai-status-tabs">
+                            <button class="dai-status-tab active" data-estado="" onclick="daiTabClick(this)">
+                                Todas <span class="tab-count" id="tabCount_all">—</span>
+                            </button>
+                            <button class="dai-status-tab" data-estado="activa" onclick="daiTabClick(this)">
+                                Activas <span class="tab-count" id="tabCount_activa">—</span>
+                            </button>
+                            <button class="dai-status-tab" data-estado="en_revision" onclick="daiTabClick(this)">
+                                En Revisión <span class="tab-count" id="tabCount_en_revision">—</span>
+                            </button>
+                            <button class="dai-status-tab" data-estado="resuelta" onclick="daiTabClick(this)">
+                                Resueltas <span class="tab-count" id="tabCount_resuelta">—</span>
+                            </button>
+                            <button class="dai-status-tab" data-estado="creado" onclick="daiTabClick(this)">
+                                Creadas <span class="tab-count" id="tabCount_creado">—</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Results header -->
+                    <div class="dai-results-header">
+                        <span class="dai-results-count" id="daiResultsCount">Cargando…</span>
+                        <div class="dai-sort-select">
+                            <i class="material-icons" style="font-size:15px;">sort</i>
+                            <span>Ordenar:</span>
+                            <select>
+                                <option>Más reciente</option>
+                                <option>Más antiguo</option>
+                                <option>Severidad</option>
                             </select>
                         </div>
-                        <div class="dai-form-group"><label>Fecha desde</label><input type="datetime-local"
-                                id="daiModalDateFrom"></div>
-                        <div class="dai-form-group"><label>Fecha hasta</label><input type="datetime-local"
-                                id="daiModalDateTo"></div>
-                        <div class="dai-form-group">
-                            <label>Tipos de alerta</label>
-                            <div class="dai-tipos-tags" id="daiModalTipos"></div>
+                    </div>
+
+                    <!-- ═══ SPLIT PANE ═══ -->
+                    <div class="dai-split-pane">
+
+                        <!-- LEFT: Table List -->
+                        <div class="dai-list-pane">
+                            <!-- Table Header -->
+                            <div class="dai-table-header">
+                                <div class="dai-th"></div>
+                                <div class="dai-th">Sev.</div>
+                                <div class="dai-th"></div>
+                                <div class="dai-th">Alerta</div>
+                                <div class="dai-th">Departamento</div>
+                                <div class="dai-th">Dispositivo</div>
+                                <div class="dai-th">Fecha</div>
+                                <div class="dai-th">Estado</div>
+                                <div class="dai-th">Lat.</div>
+                                <div class="dai-th"></div>
+                            </div>
+                            <!-- Scrollable Rows -->
+                            <div class="dai-table-body" id="daiTableBody">
+                                <div class="dai-empty-state">
+                                    <i class="material-icons">hourglass_empty</i>
+                                    <h4>Cargando alertas...</h4>
+                                </div>
+                            </div>
+                            <!-- Load More -->
+                            <div class="dai-load-more">
+                                <button id="daiMoreBtn" onclick="daiLoadMore()" style="display:none;">
+                                    <i class="material-icons">expand_more</i> Cargar más
+                                </button>
+                                <span class="dai-page-info" id="daiPageInfo2"></span>
+                            </div>
+                        </div>
+
+                        <!-- Backdrop overlay for mobile detail panel -->
+                        <div class="dai-detail-backdrop hidden" id="daiDetailBackdrop" onclick="daiCloseDetail()"></div>
+
+                        <!-- RIGHT: Detail Panel -->
+                        <div class="dai-detail-pane collapsed" id="daiDetailPane">
+                            <div class="dai-detail-empty">
+                                <i class="material-icons">touch_app</i>
+                                <h4>Selecciona una alerta</h4>
+                                <p>Haz clic en cualquier fila para ver el detalle completo con mapa y acciones.</p>
+                            </div>
+                        </div>
+
+                    </div><!-- /split-pane -->
+
+                </div><!-- /dai-page -->
+
+                <!-- More Filters Modal -->
+                <div class="dai-filter-modal-overlay" id="daiFilterModalOverlay"
+                    onclick="if(event.target===this)closeDaiFilterModal()">
+                    <div class="dai-filter-modal">
+                        <div class="dai-filter-modal-header">
+                            <h3>Filtros avanzados</h3>
+                            <button class="dai-detail-close" onclick="closeDaiFilterModal()">
+                                <i class="material-icons">close</i>
+                            </button>
+                        </div>
+                        <div class="dai-filter-modal-body">
+                            <div class="dai-form-group"><label>Departamento</label><select id="daiModalDep"></select>
+                            </div>
+                            <div class="dai-form-group"><label>Tramo</label><select id="daiModalTramo"></select></div>
+                            <div class="dai-form-group">
+                                <label>Tipo de Dispositivo</label>
+                                <select id="daiModalDisp">
+                                    <option value="">Todos</option>
+                                    <option value="WIM">WIM — Pesaje en movimiento</option>
+                                    <option value="RAD">Radar — Control de velocidad</option>
+                                    <option value="CNT">Contador — Aforo fijo</option>
+                                    <option value="VID">Video — Cámara DAI</option>
+                                </select>
+                            </div>
+                            <div class="dai-form-group"><label>Fecha desde</label><input type="datetime-local"
+                                    id="daiModalDateFrom"></div>
+                            <div class="dai-form-group"><label>Fecha hasta</label><input type="datetime-local"
+                                    id="daiModalDateTo"></div>
+                            <div class="dai-form-group">
+                                <label>Tipos de alerta</label>
+                                <div class="dai-tipos-tags" id="daiModalTipos"></div>
+                            </div>
+                        </div>
+                        <div class="dai-filter-modal-footer">
+                            <button class="btn btn-ghost" onclick="daiClearAdvancedFilters()">
+                                <i class="material-icons">clear_all</i> Limpiar todo
+                            </button>
+                            <button class="btn btn-primary" style="margin-left:auto;" onclick="daiApplyFilters()">
+                                <i class="material-icons">filter_list</i> Aplicar filtros
+                            </button>
                         </div>
                     </div>
-                    <div class="dai-filter-modal-footer">
-                        <button class="btn btn-ghost" onclick="daiClearAdvancedFilters()">
-                            <i class="material-icons">clear_all</i> Limpiar todo
-                        </button>
-                        <button class="btn btn-primary" style="margin-left:auto;" onclick="daiApplyFilters()">
-                            <i class="material-icons">filter_list</i> Aplicar filtros
-                        </button>
+                </div>
+            </div><!-- /#alertas-dai -->
+
+            <!-- ================================================ AUDITORÍA ================================================ -->
+            <div id="audit" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Registro de Auditoría</h2>
+                        <p>Historial completo de acciones del sistema</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="loadAuditLogs()"><i
+                                class="material-icons">refresh</i>
+                            Actualizar</button>
+                    </div>
+                </div>
+                <div class="data-table">
+                    <div class="table-header">
+                        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                            <select id="auditActionFilter" style="width:auto;">
+                                <option value="">Todas las acciones</option>
+                                <option value="login">Login</option>
+                                <option value="logout">Logout</option>
+                                <option value="create_report">Crear Reporte</option>
+                                <option value="update_report">Actualizar Reporte</option>
+                                <option value="delete_report">Eliminar Reporte</option>
+                                <option value="download_report">Descargar Reporte</option>
+                                <option value="download">Descarga</option>
+                                <option value="register">Registro</option>
+                                <option value="verify_code_success">Verificar Código</option>
+                            </select>
+                            <select id="auditStatusFilter" style="width:auto;">
+                                <option value="">Todos los estados</option>
+                                <option value="success">Exitoso</option>
+                                <option value="failed">Fallido</option>
+                            </select>
+                            <input type="date" id="auditDateFrom" style="width:auto;">
+                            <input type="date" id="auditDateTo" style="width:auto;">
+                            <button class="btn btn-ghost btn-sm" onclick="applyAuditFilters()"><i
+                                    class="material-icons">filter_list</i> Filtrar</button>
+                            <button class="btn btn-ghost btn-sm" onclick="clearAuditFilters()"><i
+                                    class="material-icons">clear</i> Limpiar</button>
+                        </div>
+                    </div>
+                    <div id="total-registros"
+                        style="text-align:right;padding:6px 1.25rem;font-size:0.78rem;color:var(--gray-400);"></div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Acción</th>
+                                    <th>Recurso</th>
+                                    <th>Estado</th>
+                                    <th>Fecha/Hora</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="auditPagination" class="pagination" style="display:none;">
+                        <button id="auditPrevBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(-1)" disabled><i
+                                class="material-icons">chevron_left</i> Anterior</button>
+                        <span id="auditPageInfo" style="font-size:0.82rem;color:var(--gray-400);">Página 1 de 1</span>
+                        <button id="auditNextBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(1)"
+                            disabled>Siguiente <i class="material-icons">chevron_right</i></button>
                     </div>
                 </div>
             </div>
-        </div><!-- /#alertas-dai -->
 
-        <!-- ================================================ AUDITORÍA ================================================ -->
-        <div id="audit" class="tab-content">
-            <div class="section-header">
-                <div>
-                    <h2>Registro de Auditoría</h2>
-                    <p>Historial completo de acciones del sistema</p>
-                </div>
-                <div class="section-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="loadAuditLogs()"><i class="material-icons">refresh</i>
-                        Actualizar</button>
-                </div>
-            </div>
-            <div class="data-table">
-                <div class="table-header">
-                    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                        <select id="auditActionFilter" style="width:auto;">
-                            <option value="">Todas las acciones</option>
-                            <option value="login">Login</option>
-                            <option value="logout">Logout</option>
-                            <option value="create_report">Crear Reporte</option>
-                            <option value="update_report">Actualizar Reporte</option>
-                            <option value="delete_report">Eliminar Reporte</option>
-                            <option value="download_report">Descargar Reporte</option>
-                            <option value="download">Descarga</option>
-                            <option value="register">Registro</option>
-                            <option value="verify_code_success">Verificar Código</option>
-                        </select>
-                        <select id="auditStatusFilter" style="width:auto;">
-                            <option value="">Todos los estados</option>
-                            <option value="success">Exitoso</option>
-                            <option value="failed">Fallido</option>
-                        </select>
-                        <input type="date" id="auditDateFrom" style="width:auto;">
-                        <input type="date" id="auditDateTo" style="width:auto;">
-                        <button class="btn btn-ghost btn-sm" onclick="applyAuditFilters()"><i
-                                class="material-icons">filter_list</i> Filtrar</button>
-                        <button class="btn btn-ghost btn-sm" onclick="clearAuditFilters()"><i
-                                class="material-icons">clear</i> Limpiar</button>
+            <!-- ================================================ CONFIGURACIÓN ================================================ -->
+            <div id="settings" class="tab-content">
+                <div class="section-header">
+                    <div>
+                        <h2>Configuración del Sistema</h2>
+                        <p>Ajustes generales, seguridad y notificaciones</p>
                     </div>
                 </div>
-                <div id="total-registros"
-                    style="text-align:right;padding:6px 1.25rem;font-size:0.78rem;color:var(--gray-400);"></div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Acción</th>
-                                <th>Recurso</th>
-                                <th>Estado</th>
-                                <th>Fecha/Hora</th>
-                                <th>IP</th>
-                            </tr>
-                        </thead>
-                        <tbody id="auditTableBody"></tbody>
-                    </table>
-                </div>
-                <div id="auditPagination" class="pagination" style="display:none;">
-                    <button id="auditPrevBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(-1)" disabled><i
-                            class="material-icons">chevron_left</i> Anterior</button>
-                    <span id="auditPageInfo" style="font-size:0.82rem;color:var(--gray-400);">Página 1 de 1</span>
-                    <button id="auditNextBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(1)"
-                        disabled>Siguiente <i class="material-icons">chevron_right</i></button>
+                <div class="page-card">
+                    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Configuración General</h3>
+                    <div class="form-group"><label>Nombre del Sistema</label><input type="text"
+                            value="VIITS — Sistema de Vigilancia Inteligente"></div>
+                    <div class="form-group"><label>Email de Notificaciones</label><input type="email"
+                            value="viits@invias.gov.co"></div>
+                    <div class="form-group"><label>Límite de Descarga (meses)</label><input type="number" value="3"
+                            min="1" max="12"></div>
+                    <button class="btn btn-primary"><i class="material-icons">save</i> Guardar Cambios</button>
                 </div>
             </div>
-        </div>
-
-        <!-- ================================================ CONFIGURACIÓN ================================================ -->
-        <div id="settings" class="tab-content">
-            <div class="section-header">
-                <div>
-                    <h2>Configuración del Sistema</h2>
-                    <p>Ajustes generales, seguridad y notificaciones</p>
-                </div>
-            </div>
-            <div class="page-card">
-                <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Configuración General</h3>
-                <div class="form-group"><label>Nombre del Sistema</label><input type="text"
-                        value="VIITS — Sistema de Vigilancia Inteligente"></div>
-                <div class="form-group"><label>Email de Notificaciones</label><input type="email"
-                        value="viits@invias.gov.co"></div>
-                <div class="form-group"><label>Límite de Descarga (meses)</label><input type="number" value="3" min="1"
-                        max="12"></div>
-                <button class="btn btn-primary"><i class="material-icons">save</i> Guardar Cambios</button>
-            </div>
-        </div>
 
         </div><!-- /content -->
     </main>
@@ -1434,6 +1433,11 @@
                 cw.style.padding = '0';
                 cw.style.overflow = 'hidden';
                 if (daiEl) daiEl.style.display = 'block';
+                // Ajuste dinámico de altura tras render
+                requestAnimationFrame(() => {
+                    if (typeof daiFixHeight === 'function') daiFixHeight();
+                    setTimeout(() => { if (typeof daiFixHeight === 'function') daiFixHeight(); }, 50);
+                });
             } else {
                 cw.style.padding = '2rem';
                 cw.style.overflow = '';

@@ -11,8 +11,7 @@
     height: 100%;
     background: #f1f5f9;
     font-family: var(--font, 'Work Sans', sans-serif);
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 /* ── 1. Stat Bar ────────────────────────────────────────────── */
@@ -230,10 +229,11 @@
 }
 
 .dai-latency-collapsible {
-    max-height: 600px;
+    max-height: 280px;
     overflow: hidden;
     transition: max-height .35s cubic-bezier(.4, 0, .2, 1), opacity .25s;
     opacity: 1;
+    flex-shrink: 0;
 }
 
 .dai-latency-collapsible.collapsed {
@@ -441,6 +441,8 @@
     overflow: hidden;
     min-height: 0;
     /* crucial for flex overflow */
+    min-height: 220px;
+    /* fallback when flex height collapses */
 }
 
 /* ── 5a. Left: Alert Table ──────────────────────────────────── */
@@ -1769,8 +1771,9 @@
 
 .dai-lat-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.3fr;
+    grid-template-columns: 1fr 1fr 1.4fr;
     gap: 12px;
+    align-items: stretch;
 }
 
 .dai-lat-card {
@@ -1800,13 +1803,17 @@
 /* ── Gauge ──────────────────────────────────── */
 .dai-lat-gauge-wrap {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 14px;
+    height: 100%;
+    padding-bottom: 4px;
 }
 
 .dai-lat-gauge {
-    width: 100px;
-    height: 100px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
     background: conic-gradient(var(--gauge-color) 0% calc(var(--pct) * 1%),
             #e2e8f0 calc(var(--pct) * 1%) 100%);
@@ -1831,8 +1838,8 @@
 }
 
 .dai-lat-gauge-inner {
-    width: 74px;
-    height: 74px;
+    width: 98px;
+    height: 98px;
     background: white;
     border-radius: 50%;
     display: flex;
@@ -1843,21 +1850,22 @@
 }
 
 .dai-lat-gauge-num {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-weight: 900;
     color: #1e293b;
     line-height: 1;
 }
 
 .dai-lat-gauge-sub {
-    font-size: .52rem;
+    font-size: .58rem;
     color: #94a3b8;
     font-weight: 600;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 .dai-lat-gauge-legend {
     display: flex;
+    justify-content: center;
     flex-direction: column;
     gap: 6px;
 }
@@ -3433,8 +3441,92 @@
     animation-delay: calc(var(--bar-i, 0) * 80ms);
 }
 
+
 @keyframes dai-bar-grow {
     from {
         width: 0 !important;
     }
+}
+
+/* ── 10. Alert Pulse Animations (últimas 5 alertas no resueltas) ─── */
+@keyframes dai-pulse-critica {
+
+    0%,
+    100% {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+        border-color: transparent;
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, .35), 0 4px 18px rgba(220, 38, 38, .25);
+        border-color: rgba(220, 38, 38, .7);
+    }
+}
+
+@keyframes dai-pulse-alta {
+
+    0%,
+    100% {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+        border-color: transparent;
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, .35), 0 4px 18px rgba(249, 115, 22, .25);
+        border-color: rgba(249, 115, 22, .7);
+    }
+}
+
+@keyframes dai-pulse-media {
+
+    0%,
+    100% {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+        border-color: transparent;
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px rgba(234, 179, 8, .35), 0 4px 18px rgba(234, 179, 8, .25);
+        border-color: rgba(234, 179, 8, .7);
+    }
+}
+
+@keyframes dai-pulse-baja {
+
+    0%,
+    100% {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+        border-color: transparent;
+    }
+
+    50% {
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, .35), 0 4px 18px rgba(34, 197, 94, .2);
+        border-color: rgba(34, 197, 94, .7);
+    }
+}
+
+.dai-row-new-critica {
+    animation: dai-pulse-critica 1.8s ease-in-out infinite;
+}
+
+.dai-row-new-alta {
+    animation: dai-pulse-alta 1.8s ease-in-out infinite;
+}
+
+.dai-row-new-media {
+    animation: dai-pulse-media 1.8s ease-in-out infinite;
+}
+
+.dai-row-new-baja {
+    animation: dai-pulse-baja 1.8s ease-in-out infinite;
+}
+
+/* When a row is selected while pulsing, keep selection style */
+.dai-row-new-critica.is-selected,
+.dai-row-new-alta.is-selected,
+.dai-row-new-media.is-selected,
+.dai-row-new-baja.is-selected {
+    animation: none;
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 2px var(--brand-orange-glow, rgba(249, 115, 22, .15));
 }
