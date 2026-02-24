@@ -1,216 +1,256 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Panel Administrativo VIITS</title>
+    <title>Iniciar Sesión — VIITS Admin</title>
+    <meta name="description" content="Panel Administrativo VIITS – INVIAS Colombia. Inicia sesión de forma segura.">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    
-    <!-- Material Icons -->
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Gov.co Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    <!-- CSS Externo -->
+    <!-- CSS -->
     <link rel="stylesheet" href="styles/login.css">
-
 </head>
+
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>🔐 Panel Administrativo</h1>
-            <p>Sistema VIITS - INVIAS</p>
-        </div>
-        
-        <div class="login-body">
-            <div id="alert" class="alert">
-                <i class="material-icons"></i>
-                <span id="alert-message"></span>
+
+    <div class="login-page">
+
+        <!-- ═══════════ PANEL IZQUIERDO: BRANDING ═══════════ -->
+        <aside class="login-brand">
+            <div class="login-brand-content">
+                <div class="login-brand-logo">
+                    <span style="font-size:2.2rem">🛡️</span>
+                </div>
+                <h1>VIITS Admin</h1>
+                <p>Plataforma centralizada de gestión y monitoreo del Instituto Nacional de Vías — INVIAS Colombia.</p>
+                <ul class="login-features">
+                    <li><i class="material-icons">verified_user</i> Autenticación segura de doble factor</li>
+                    <li><i class="material-icons">speed</i> Monitoreo de infraestructura en tiempo real</li>
+                    <li><i class="material-icons">description</i> Gestión centralizada de reportes</li>
+                    <li><i class="material-icons">admin_panel_settings</i> Administración de usuarios y roles</li>
+                    <li><i class="material-icons">lock</i> Encriptación SSL de extremo a extremo</li>
+                </ul>
             </div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Correo Electrónico</label>
-                    <div class="input-group">
-                        <i class="material-icons input-icon">email</i>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email"
-                            placeholder="admin@invias.gov.co"
-                            required
-                            autocomplete="email"
-                        >
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <div class="input-group">
-                        <i class="material-icons input-icon">lock</i>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password"
-                            placeholder="••••••••"
-                            required
-                            autocomplete="current-password"
-                        >
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary" id="loginBtn">
-                    <div class="spinner"></div>
-                    <i class="material-icons">login</i>
-                    Iniciar sesión
-                </button>
+        </aside>
 
-                <!-- Enlace para restablecer contraseña -->
-                <div class="forgot-password-link">
-                    <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
+        <!-- ═══════════ PANEL DERECHO: FORMULARIO ═══════════ -->
+        <main class="login-form-panel">
+            <div class="login-form-wrap">
+
+                <!-- Header -->
+                <div class="login-form-header">
+                    <h2>Iniciar sesión</h2>
+                    <p>Ingresa tus credenciales para acceder al panel</p>
                 </div>
 
-            </form>
+                <!-- Alert -->
+                <div id="alert" class="alert">
+                    <i class="material-icons"></i>
+                    <span id="alert-message"></span>
+                </div>
 
-            <!-- Formulario de restablecimiento - Paso 1: Email -->
-            <div id="forgotPasswordStep1" class="forgot-password-form" style="display: none;">
-                <h3>Restablecer contraseña</h3>
-                <p>Ingresa tu correo electrónico y te enviaremos un código de verificación.</p>
-
-                <form id="forgotPasswordForm">
+                <!-- ═══════════ FORMULARIO LOGIN ═══════════ -->
+                <form id="loginForm">
+                    <!-- Email -->
                     <div class="form-group">
-                        <label for="resetEmail">Correo Electrónico</label>
+                        <label for="email">Correo Electrónico</label>
                         <div class="input-group">
-                            <i class="material-icons input-icon">email</i>
-                            <input
-                                type="email"
-                                id="resetEmail"
-                                name="resetEmail"
-                                placeholder="tu@email.com"
-                                required
-                            >
+                            <i class="material-icons input-icon">mail</i>
+                            <input type="email" id="email" placeholder="usuario@invias.gov.co" required
+                                autocomplete="email">
                         </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="backToLoginBtn">
-                            <i class="material-icons">arrow_back</i>
-                            Volver
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="sendResetCodeBtn">
-                            <div class="spinner"></div>
-                            <i class="material-icons">send</i>
-                            Enviar código
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Formulario de restablecimiento - Paso 2: Token -->
-            <div id="forgotPasswordStep2" class="forgot-password-form" style="display: none;">
-                <h3>Verificar Código</h3>
-                <p>Ingresa el código de 6 dígitos que enviamos a tu correo electrónico.</p>
-
-                <form id="verifyTokenForm">
+                    <!-- Password -->
                     <div class="form-group">
-                        <label for="resetToken">Código de Verificación</label>
-                        <div class="input-group">
-                            <i class="material-icons input-icon">security</i>
-                            <input
-                                type="text"
-                                id="resetToken"
-                                name="resetToken"
-                                placeholder="123456"
-                                maxlength="6"
-                                pattern="[0-9]{6}"
-                                required
-                            >
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="backToEmailBtn">
-                            <i class="material-icons">arrow_back</i>
-                            Volver
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="verifyTokenBtn">
-                            <div class="spinner"></div>
-                            <span class="btn-text">
-                                <i class="material-icons">check</i>
-                                Verificar
-                            </span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Formulario de restablecimiento - Paso 3: Nueva Contraseña -->
-            <div id="forgotPasswordStep3" class="forgot-password-form" style="display: none;">
-                <h3>Nueva Contraseña</h3>
-                <p>Ingresa tu nueva contraseña.</p>
-
-                <form id="resetPasswordForm">
-                    <div class="form-group">
-                        <label for="newPassword">Nueva Contraseña</label>
-                        <div class="input-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-group input-group--password">
                             <i class="material-icons input-icon">lock</i>
-                            <input
-                                type="password"
-                                id="newPassword"
-                                name="newPassword"
-                                placeholder="••••••••"
-                                minlength="8"
-                                required
-                            >
+                            <input type="password" id="password" placeholder="••••••••" required minlength="8"
+                                autocomplete="current-password">
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="Mostrar contraseña">
+                                <i class="material-icons">visibility</i>
+                            </button>
                         </div>
+                        <!-- Strength indicator (visible only on reset/new password forms) -->
                     </div>
 
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirmar Contraseña</label>
-                        <div class="input-group">
-                            <i class="material-icons input-icon">lock</i>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="••••••••"
-                                minlength="8"
-                                required
-                            >
-                        </div>
-                    </div>
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <div class="spinner"></div>
+                        <i class="material-icons">login</i>
+                        <span>Iniciar sesión</span>
+                    </button>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="backToTokenBtn">
-                            <i class="material-icons">arrow_back</i>
-                            Volver
-                        </button>
-                        <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
-                            <div class="spinner"></div>
-                            <span class="btn-text">
-                                <i class="material-icons">save</i>
-                                Restablecer
-                            </span>
-                        </button>
+                    <!-- Forgot password -->
+                    <div class="forgot-password-link">
+                        <a href="#" id="forgotPasswordLink">¿Olvidaste tu contraseña?</a>
                     </div>
                 </form>
-            </div>
 
-            <div class="security-badge">
-                <i class="material-icons" style="color: var(--orange);">security</i>
-                <span>Autenticación de doble factor habilitada</span>
+                <!-- ═══════════ PASO 2FA ═══════════ -->
+                <div id="twoFactorStep">
+                    <div class="tfa-icon">
+                        <i class="material-icons">security</i>
+                    </div>
+                    <h3 class="tfa-title">Verificación de dos factores</h3>
+                    <p class="tfa-subtitle">Ingresa el código de 6 dígitos de tu aplicación de autenticación</p>
+
+                    <div class="tfa-code-inputs" id="tfaCodeInputs">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                            autocomplete="one-time-code" data-index="0">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"
+                            data-index="1">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"
+                            data-index="2">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"
+                            data-index="3">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"
+                            data-index="4">
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off"
+                            data-index="5">
+                    </div>
+
+                    <label class="tfa-trust-label">
+                        <input type="checkbox" id="trustDevice" checked>
+                        Confiar en este dispositivo (no volver a pedir código)
+                    </label>
+
+                    <button type="button" class="btn btn-primary" id="verify2faBtn">
+                        <div class="spinner"></div>
+                        <i class="material-icons">verified_user</i>
+                        <span>Verificar código</span>
+                    </button>
+
+                    <div class="tfa-resend">
+                        <a id="backToLogin">← Volver al inicio de sesión</a>
+                    </div>
+                </div>
+
+                <!-- ═══════════ RESET PASSWORD — Step 1: Email ═══════════ -->
+                <div id="forgotPasswordStep1" class="forgot-password-form">
+                    <h3>Restablecer contraseña</h3>
+                    <p>Ingresa tu correo electrónico y te enviaremos un código de verificación.</p>
+                    <form id="forgotPasswordForm">
+                        <div class="form-group">
+                            <label for="resetEmail">Correo Electrónico</label>
+                            <div class="input-group">
+                                <i class="material-icons input-icon">mail</i>
+                                <input type="email" id="resetEmail" placeholder="usuario@invias.gov.co" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="backToLoginBtn">
+                                <i class="material-icons">arrow_back</i>
+                                Volver
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="sendResetCodeBtn">
+                                <div class="spinner"></div>
+                                <span><i class="material-icons">send</i> Enviar código</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ═══════════ RESET PASSWORD — Step 2: Token ═══════════ -->
+                <div id="forgotPasswordStep2" class="forgot-password-form">
+                    <h3>Verificar Código</h3>
+                    <p>Ingresa el código de 6 dígitos que enviamos a tu correo electrónico.</p>
+                    <form id="verifyTokenForm">
+                        <div class="form-group">
+                            <label for="resetToken">Código de Verificación</label>
+                            <div class="input-group">
+                                <i class="material-icons input-icon">pin</i>
+                                <input type="text" id="resetToken" placeholder="123456" maxlength="6" pattern="[0-9]{6}"
+                                    required inputmode="numeric">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="backToEmailBtn">
+                                <i class="material-icons">arrow_back</i>
+                                Volver
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="verifyTokenBtn">
+                                <div class="spinner"></div>
+                                <span><i class="material-icons">check</i> Verificar</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ═══════════ RESET PASSWORD — Step 3: New Password ═══════════ -->
+                <div id="forgotPasswordStep3" class="forgot-password-form">
+                    <h3>Nueva Contraseña</h3>
+                    <p>Ingresa tu nueva contraseña.</p>
+                    <form id="resetPasswordForm">
+                        <div class="form-group">
+                            <label for="newPassword">Nueva Contraseña</label>
+                            <div class="input-group input-group--password">
+                                <i class="material-icons input-icon">lock</i>
+                                <input type="password" id="newPassword" placeholder="••••••••" minlength="8" required>
+                                <button type="button" class="toggle-password" data-target="newPassword"
+                                    aria-label="Mostrar contraseña">
+                                    <i class="material-icons">visibility</i>
+                                </button>
+                            </div>
+                            <!-- Strength indicator for new password -->
+                            <div class="password-strength" id="newPasswordStrength">
+                                <div class="strength-bar">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <div class="strength-label"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Contraseña</label>
+                            <div class="input-group input-group--password">
+                                <i class="material-icons input-icon">lock</i>
+                                <input type="password" id="confirmPassword" placeholder="••••••••" minlength="8"
+                                    required>
+                                <button type="button" class="toggle-password" data-target="confirmPassword"
+                                    aria-label="Mostrar contraseña">
+                                    <i class="material-icons">visibility</i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="backToTokenBtn">
+                                <i class="material-icons">arrow_back</i>
+                                Volver
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="resetPasswordBtn">
+                                <div class="spinner"></div>
+                                <span><i class="material-icons">save</i> Restablecer</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security badge -->
+                <div class="security-badge">
+                    <i class="material-icons">verified_user</i>
+                    Autenticación de doble factor habilitada
+                </div>
+
+                <!-- Footer -->
+                <div class="login-footer">
+                    INVIAS — Instituto Nacional de Vías<br>
+                    Sistema protegido con encriptación SSL
+                </div>
+
             </div>
-            
-            <div class="footer-text">
-                INVIAS - Instituto Nacional de Vías<br>
-                Sistema protegido con encriptación SSL
-            </div>
-        </div>
+        </main>
+
     </div>
-    
-    <!-- JavaScript Externo -->
-    <script src="scripts/login.js"></script>
 
+    <script src="scripts/login.js"></script>
 </body>
+
 </html>

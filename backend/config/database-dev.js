@@ -34,7 +34,16 @@ console.log(`✅ [DEV] Base de datos SQLite conectada: ${DB_PATH}`);
  */
 
 // Convierte placeholders de PostgreSQL ($1, $2...) a SQLite (?, ?, ...)
+// Returns { query, paramOrder } where paramOrder maps positional ? to original $N index
 function convertQuery(text) {
+    // Extract the order of $N placeholders as they appear in the query
+    const paramOrder = [];
+    const paramRegex = /\$(\d+)/g;
+    let match;
+    while ((match = paramRegex.exec(text)) !== null) {
+        paramOrder.push(parseInt(match[1], 10) - 1); // $1 -> index 0, $2 -> index 1, etc.
+    }
+
     let q = text
         .replace(/\$\d+/g, '?')                          // $1, $2... -> ?
         .replace(/::uuid/gi, '')                          // quitar casts de pg
@@ -49,14 +58,10 @@ function convertQuery(text) {
         .replace(/\bCURRENT_DATE\b/gi, "date('now')")
         .replace(/uuid_generate_v4\s*\(\s*\)/gi, "(lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-a' || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6))))");
 
-    // ON CONFLICT (col) DO UPDATE SET ... -> ON CONFLICT (col) DO UPDATE SET ...
-    // SQLite soporta esta sintaxis, solo necesitamos quitar EXCLUDED. references problemáticas
-    // Dejar el ON CONFLICT DO UPDATE intacto (SQLite lo soporta desde 3.24)
-
     // ON CONFLICT DO NOTHING -> OR IGNORE (solo cuando no hay columna especificada)
     q = q.replace(/\bON CONFLICT\s+DO\s+NOTHING\b/gi, 'OR IGNORE INTO -- placeholder');
 
-    return q;
+    return { query: q, paramOrder };
 }
 
 // Función auxiliar para manejar RETURNING en SQLite (no soportado antes de 3.35)
@@ -97,8 +102,17 @@ function sanitizeParams(params) {
 // Función principal query (imita pg.query)
 async function query(text, params = []) {
     try {
-        let convertedQuery = convertQuery(text);
-        const safeParams = sanitizeParams(params);
+        const { query: convertedQuery, paramOrder } = convertQuery(text);
+        let safeParams = sanitizeParams(params);
+
+        // Reorder params to match SQLite positional ? order
+        // PostgreSQL $1 can appear anywhere, but SQLite ? is strictly positional
+        if (paramOrder.length > 0 && safeParams.length > 0) {
+            const reordered = paramOrder.map(idx => safeParams[idx] !== undefined ? safeParams[idx] : null);
+            // Keep the original first param reference for RETURNING lookups
+            reordered._originalFirst = safeParams[0];
+            safeParams = reordered;
+        }
 
         // ── Detectar si tiene RETURNING ──────────────────────────────────────
         const hasReturning = /\bRETURNING\b/i.test(convertedQuery);
@@ -121,14 +135,26 @@ async function query(text, params = []) {
         const result = stmt.run(...safeParams);
 
         if (hasReturning) {
-            // Buscar el row recién escrito usando lastInsertRowid
             const tableMatch = queryWithoutReturning.match(
                 /(?:INSERT\s+(?:OR\s+\w+\s+)?INTO|UPDATE)\s+(\w+)/i
             );
-            if (tableMatch && result.lastInsertRowid) {
+            if (tableMatch) {
+                const tableName = tableMatch[1];
                 try {
-                    const row = db.prepare(`SELECT * FROM ${tableMatch[1]} WHERE rowid = ?`)
-                        .get(result.lastInsertRowid);
+                    let row = null;
+                    // For INSERT: use lastInsertRowid
+                    if (result.lastInsertRowid) {
+                        row = db.prepare(`SELECT * FROM ${tableName} WHERE rowid = ?`)
+                            .get(result.lastInsertRowid);
+                    }
+                    // For UPDATE: use original first param (the ID from WHERE id = $1)
+                    if (!row && trimmedUpper.startsWith('UPDATE')) {
+                        const lookupId = safeParams._originalFirst || safeParams[0];
+                        if (lookupId) {
+                            row = db.prepare(`SELECT * FROM ${tableName} WHERE id = ?`)
+                                .get(lookupId);
+                        }
+                    }
                     return { rows: row ? [row] : [], rowCount: result.changes };
                 } catch (e) {
                     return { rows: [], rowCount: result.changes };

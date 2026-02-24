@@ -10,11 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="scripts/admin-panel.js?v=2.1" defer></script>
+    <script src="scripts/admin-panel.js?v=3.0" defer></script>
     <script src="scripts/dai-module.js?v=2.0" defer></script>
     <script src="admin-panel-functions.js?v=1.0" defer></script>
-    <link rel="stylesheet" href="styles/admin-panel.css">
-    <link rel="stylesheet" href="styles/dai-module.css">
+    <link rel="stylesheet" href="styles/admin-panel.css?v=2.0">
+    <link rel="stylesheet" href="styles/dai-module.css?v=2.0">
 </head>
 
 <body>
@@ -43,43 +43,52 @@
             <span class="sidebar-back-text">Volver al Inicio</span>
         </a>
 
-        <nav class="sidebar-menu">
-            <div class="menu-section-label">Principal</div>
-            <a class="menu-item active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
+        <nav class="sidebar-menu" id="sidebarMenu">
+            <div class="menu-section-label" data-section-label="principal">Principal</div>
+            <a class="menu-item active" onclick="showSection('dashboard')" data-tooltip="Dashboard"
+                data-section="dashboard">
                 <i class="material-icons">dashboard</i>
                 <span class="menu-item-text">Dashboard</span>
             </a>
 
-            <div class="menu-section-label">Contenido</div>
-            <a class="menu-item" onclick="showSection('reports')" data-tooltip="Gestión de Reportes">
+            <div class="menu-section-label" data-section-label="contenido">Contenido</div>
+            <a class="menu-item" onclick="showSection('reports')" data-tooltip="Gestión de Reportes"
+                data-section="reports">
                 <i class="material-icons">description</i>
                 <span class="menu-item-text">Gestión de Reportes</span>
             </a>
-            <a class="menu-item" onclick="showSection('slider')" data-tooltip="Slider de Imágenes">
+            <a class="menu-item" onclick="showSection('slider')" data-tooltip="Slider de Imágenes"
+                data-section="slider">
                 <i class="material-icons">image</i>
                 <span class="menu-item-text">Slider de Imágenes</span>
             </a>
 
-            <div class="menu-section-label">Monitoreo</div>
-            <a class="menu-item" onclick="showSection('alertas-dai')" data-tooltip="Alertas DAI (CDN)">
+            <div class="menu-section-label" data-section-label="monitoreo">Monitoreo</div>
+            <a class="menu-item" onclick="showSection('alertas-dai')" data-tooltip="Alertas DAI (CDN)"
+                data-section="alertas-dai">
                 <i class="material-icons" style="color:#f59e0b;">warning_amber</i>
                 <span class="menu-item-text">Alertas DAI (CDN)</span>
             </a>
 
-            <div class="menu-section-label">Sistema</div>
-            <a class="menu-item" onclick="showSection('users')" data-tooltip="Usuarios">
+            <div class="menu-section-label" data-section-label="sistema">Sistema</div>
+            <a class="menu-item" onclick="showSection('users')" data-tooltip="Usuarios" data-section="users">
                 <i class="material-icons">people</i>
                 <span class="menu-item-text">Usuarios</span>
             </a>
-            <a class="menu-item" onclick="showSection('downloads')" data-tooltip="Descargas">
+            <a class="menu-item" onclick="showSection('downloads')" data-tooltip="Descargas" data-section="downloads">
                 <i class="material-icons">download</i>
                 <span class="menu-item-text">Descargas</span>
             </a>
-            <a class="menu-item" onclick="showSection('audit')" data-tooltip="Auditoría">
+            <a class="menu-item" onclick="showSection('audit')" data-tooltip="Auditoría" data-section="audit">
                 <i class="material-icons">security</i>
                 <span class="menu-item-text">Auditoría</span>
             </a>
-            <a class="menu-item" onclick="showSection('settings')" data-tooltip="Configuración">
+            <a class="menu-item" onclick="showSection('analytics')" data-tooltip="Analítica Web"
+                data-section="analytics">
+                <i class="material-icons">insights</i>
+                <span class="menu-item-text">Analítica Web</span>
+            </a>
+            <a class="menu-item" onclick="showSection('settings')" data-tooltip="Configuración" data-section="settings">
                 <i class="material-icons">settings</i>
                 <span class="menu-item-text">Configuración</span>
             </a>
@@ -115,9 +124,9 @@
                     <i class="material-icons">search</i>
                     <input type="text" placeholder="Buscar...">
                 </div>
-                <div class="topbar-icon-btn">
+                <div class="topbar-icon-btn" id="notifBellBtn" onclick="toggleNotifPanel()" title="Notificaciones">
                     <i class="material-icons">notifications_none</i>
-                    <span class="notif-dot"></span>
+                    <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
                 </div>
                 <div class="topbar-icon-btn" id="daiMuteBtn" onclick="daiToggleMute()" title="Silenciar alertas sonoras"
                     style="position:relative;">
@@ -133,97 +142,341 @@
             </div>
         </div>
 
+        <!-- ── NOTIFICATION PANEL (slide-in from right) ──────────── -->
+        <div class="notif-backdrop" id="notifBackdrop" onclick="toggleNotifPanel()"></div>
+        <div class="notif-panel" id="notifPanel">
+            <div class="notif-panel-header">
+                <div>
+                    <h3>Notificaciones</h3>
+                    <p class="notif-panel-sub" id="notifSubtitle">Alertas pendientes del sistema</p>
+                </div>
+                <button class="notif-panel-close" onclick="toggleNotifPanel()">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div class="notif-panel-tabs">
+                <button class="notif-tab active" data-filter="pendientes" onclick="notifFilterTab(this,'pendientes')">
+                    <i class="material-icons">pending_actions</i> Pendientes <span class="notif-tab-count"
+                        id="notifCountPend">0</span>
+                </button>
+                <button class="notif-tab" data-filter="criticas" onclick="notifFilterTab(this,'criticas')">
+                    <i class="material-icons">error</i> Críticas <span class="notif-tab-count"
+                        id="notifCountCrit">0</span>
+                </button>
+                <button class="notif-tab" data-filter="todas" onclick="notifFilterTab(this,'todas')">
+                    <i class="material-icons">list</i> Todas
+                </button>
+            </div>
+            <div class="notif-panel-body" id="notifPanelBody">
+                <div class="notif-empty">
+                    <i class="material-icons">notifications_off</i>
+                    <p>Sin notificaciones</p>
+                </div>
+            </div>
+        </div>
+
         <!-- ── CONTENT ────────────────────────────────────────── -->
         <div class="content" id="contentWrapper">
 
             <!-- ================================================ DASHBOARD ================================================ -->
             <div id="dashboard" class="tab-content active">
-                <div class="section-header">
-                    <div>
-                        <h2>Panel de Control</h2>
-                        <p>Resumen de actividad del sistema VIITS</p>
+
+                <!-- Hero + Date Filter -->
+                <div class="db-hero">
+                    <div class="db-hero-content">
+                        <div class="db-hero-icon"><i class="material-icons">insights</i></div>
+                        <div>
+                            <h2 class="db-hero-title">Panel Ejecutivo</h2>
+                            <p class="db-hero-sub">Indicadores clave de todos los módulos del sistema</p>
+                        </div>
+                    </div>
+                    <div class="db-hero-actions">
+                        <div class="db-date-presets">
+                            <button class="db-preset active" onclick="dbSetPreset('today',this)">Hoy</button>
+                            <button class="db-preset" onclick="dbSetPreset('7d',this)">7 días</button>
+                            <button class="db-preset" onclick="dbSetPreset('30d',this)">30 días</button>
+                            <button class="db-preset" onclick="dbSetPreset('custom',this)">
+                                <i class="material-icons" style="font-size:16px">date_range</i>
+                            </button>
+                        </div>
+                        <div class="db-custom-dates" id="dbCustomDates" style="display:none;">
+                            <input type="date" id="dbDateFrom" class="db-date-input" onchange="dbLoadCustom()">
+                            <span style="color:rgba(255,255,255,.5)">—</span>
+                            <input type="date" id="dbDateTo" class="db-date-input" onchange="dbLoadCustom()">
+                        </div>
+                        <button class="db-btn-export" onclick="dbExportCSV()" title="Exportar datos">
+                            <i class="material-icons">download</i> Exportar
+                        </button>
                     </div>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-icon" style="background:#fff7ed;"><i class="material-icons"
-                                    style="color:#f97316;">description</i></div>
-                            <span class="stat-change positive">+25%</span>
+
+                <!-- ═══════ ACTIVIDAD DEL SISTEMA ═══════ -->
+                <div class="db-card db-card-full">
+                    <div class="db-card-header">
+                        <div>
+                            <h3 class="db-card-title"><i class="material-icons">show_chart</i> Actividad del Sistema
+                            </h3>
+                            <p class="db-card-desc">Acciones registradas en los últimos 7 días · <b
+                                    id="dbActTotal">0</b> acciones en el período</p>
                         </div>
-                        <div class="stat-value">15</div>
-                        <div class="stat-label">Reportes Cargados Hoy</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-icon" style="background:#f0fdf4;"><i class="material-icons"
-                                    style="color:#10b981;">download</i></div>
-                            <span class="stat-change positive">+12%</span>
-                        </div>
-                        <div class="stat-value">847</div>
-                        <div class="stat-label">Descargas Hoy</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-icon" style="background:#eff6ff;"><i class="material-icons"
-                                    style="color:#3b82f6;">people</i></div>
-                            <span class="stat-change negative">-3%</span>
-                        </div>
-                        <div class="stat-value">1,234</div>
-                        <div class="stat-label">Usuarios Activos</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div class="stat-icon" style="background:#f0fdf4;"><i class="material-icons"
-                                    style="color:#10b981;">speed</i></div>
-                            <span class="badge badge-success">Estable</span>
-                        </div>
-                        <div class="stat-value">99.9%</div>
-                        <div class="stat-label">Uptime Sistema</div>
+                    <div class="db-chart" id="dbActivityChart">
+                        <!-- Bars rendered by JS -->
                     </div>
                 </div>
-                <div class="data-table">
-                    <div class="table-header">
-                        <h3>Actividad Reciente</h3>
-                        <button class="btn btn-ghost btn-sm"><i class="material-icons">refresh</i> Actualizar</button>
+
+                <!-- Recent Items Grid -->
+                <div class="db-grid-2">
+                    <!-- Recent Reports -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3 class="db-card-title"><i class="material-icons">description</i> Reportes Recientes</h3>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead>
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Tamaño</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dbRecentReports">
+                                    <tr>
+                                        <td colspan="3" style="text-align:center;color:var(--text-secondary)">
+                                            Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="table-scroll">
-                        <table>
+
+                    <!-- Recent Downloads -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3 class="db-card-title"><i class="material-icons">cloud_download</i> Descargas Recientes
+                            </h3>
+                        </div>
+                        <div class="db-table-wrap">
+                            <table class="db-table">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dbRecentDownloads">
+                                    <tr>
+                                        <td colspan="3" style="text-align:center;color:var(--text-secondary)">
+                                            Cargando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Audit -->
+                <div class="db-card db-card-full">
+                    <div class="db-card-header">
+                        <h3 class="db-card-title"><i class="material-icons">history</i> Actividad Reciente</h3>
+                    </div>
+                    <div class="db-table-wrap">
+                        <table class="db-table">
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
                                     <th>Acción</th>
-                                    <th>Recurso</th>
-                                    <th>Fecha/Hora</th>
+                                    <th>Módulo</th>
                                     <th>Estado</th>
+                                    <th>Fecha</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="dbRecentAudit">
                                 <tr>
-                                    <td>admin@invias.gov.co</td>
-                                    <td>Carga de reporte</td>
-                                    <td>Informe_Diciembre_2024.pdf</td>
-                                    <td>15/12/2024 14:30</td>
-                                    <td><span class="badge badge-success">Exitoso</span></td>
-                                </tr>
-                                <tr>
-                                    <td>usuario1@example.com</td>
-                                    <td>Descarga datos</td>
-                                    <td>Datos_Trafico_Nov.csv</td>
-                                    <td>15/12/2024 14:25</td>
-                                    <td><span class="badge badge-success">Completado</span></td>
-                                </tr>
-                                <tr>
-                                    <td>usuario2@example.com</td>
-                                    <td>Login con 2FA</td>
-                                    <td>Sistema</td>
-                                    <td>15/12/2024 14:20</td>
-                                    <td><span class="badge badge-success">Verificado</span></td>
+                                    <td colspan="5" style="text-align:center;color:var(--text-secondary)">Cargando...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- ═══════ MODULE: REPORTES ═══════ -->
+                <div class="db-module-section">
+                    <div class="db-module-header"
+                        style="--mod-color:#f97316;--mod-bg:linear-gradient(135deg,#fff7ed,#fed7aa);">
+                        <div class="db-module-icon"><i class="material-icons">description</i></div>
+                        <div>
+                            <h3 class="db-module-title">Reportes</h3>
+                            <p class="db-module-sub">Publicaciones, vistas y descargas de reportes</p>
+                        </div>
+                        <span class="db-kpi-badge" id="dbRptBadge">+0 hoy</span>
+                    </div>
+                    <div class="db-module-body">
+                        <div class="db-module-kpis">
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbRptTotal">—</div>
+                                <div class="db-mkpi-lbl">Total Reportes</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbRptPublic">—</div>
+                                <div class="db-mkpi-lbl">Públicos</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbRptFeatured">—</div>
+                                <div class="db-mkpi-lbl">Destacados</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbRptViews">0</div>
+                                <div class="db-mkpi-lbl">Vistas</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbRptDl">0</div>
+                                <div class="db-mkpi-lbl">Descargas</div>
+                            </div>
+                        </div>
+                        <div class="db-module-chart">
+                            <canvas id="dbChartReports" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ MODULE: DESCARGAS ═══════ -->
+                <div class="db-module-section">
+                    <div class="db-module-header"
+                        style="--mod-color:#10b981;--mod-bg:linear-gradient(135deg,#f0fdf4,#a7f3d0);">
+                        <div class="db-module-icon"><i class="material-icons">cloud_download</i></div>
+                        <div>
+                            <h3 class="db-module-title">Descargas</h3>
+                            <p class="db-module-sub">Historial de descargas generadas en la plataforma</p>
+                        </div>
+                        <span class="db-kpi-badge" id="dbDlBadge">+0 hoy</span>
+                    </div>
+                    <div class="db-module-body">
+                        <div class="db-module-kpis">
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDlTotal">—</div>
+                                <div class="db-mkpi-lbl">Total</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDlOk">0</div>
+                                <div class="db-mkpi-lbl">Exitosas</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDlFail">0</div>
+                                <div class="db-mkpi-lbl">Fallidas</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDlProcessing">0</div>
+                                <div class="db-mkpi-lbl">En Proceso</div>
+                            </div>
+                        </div>
+                        <div class="db-module-chart">
+                            <canvas id="dbChartDownloads" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ MODULE: ALERTAS DAI ═══════ -->
+                <div class="db-module-section">
+                    <div class="db-module-header"
+                        style="--mod-color:#f59e0b;--mod-bg:linear-gradient(135deg,#fffbeb,#fde68a);">
+                        <div class="db-module-icon"><i class="material-icons">warning_amber</i></div>
+                        <div>
+                            <h3 class="db-module-title">Alertas DAI (CDN)</h3>
+                            <p class="db-module-sub">Dispositivo de Aforo Inteligente — Red CDN INVIAS</p>
+                        </div>
+                        <span class="db-kpi-badge db-kpi-badge-live"><i class="material-icons"
+                                style="font-size:11px">fiber_manual_record</i> en vivo</span>
+                    </div>
+                    <div class="db-module-body">
+                        <div class="db-module-kpis db-module-kpis--wide">
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDaiTotal">—</div>
+                                <div class="db-mkpi-lbl">Total</div>
+                            </div>
+                            <div class="db-mkpi db-mkpi--critical">
+                                <div class="db-mkpi-val" id="dbDaiCritica">—</div>
+                                <div class="db-mkpi-lbl">Crítica</div>
+                            </div>
+                            <div class="db-mkpi db-mkpi--high">
+                                <div class="db-mkpi-val" id="dbDaiAlta">—</div>
+                                <div class="db-mkpi-lbl">Alta</div>
+                            </div>
+                            <div class="db-mkpi db-mkpi--medium">
+                                <div class="db-mkpi-val" id="dbDaiMedia">—</div>
+                                <div class="db-mkpi-lbl">Media</div>
+                            </div>
+                            <div class="db-mkpi db-mkpi--low">
+                                <div class="db-mkpi-val" id="dbDaiAlta2">—</div>
+                                <div class="db-mkpi-lbl">Baja</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDaiPendientes">—</div>
+                                <div class="db-mkpi-lbl">Pendientes</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbDaiTResp">—</div>
+                                <div class="db-mkpi-lbl">T. Respuesta</div>
+                            </div>
+                        </div>
+                        <div class="db-module-chart">
+                            <canvas id="dbChartDai" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ MODULE: USUARIOS & SEGURIDAD ═══════ -->
+                <div class="db-module-section">
+                    <div class="db-module-header"
+                        style="--mod-color:#6366f1;--mod-bg:linear-gradient(135deg,#eef2ff,#c7d2fe);">
+                        <div class="db-module-icon"><i class="material-icons">shield</i></div>
+                        <div>
+                            <h3 class="db-module-title">Usuarios & Seguridad</h3>
+                            <p class="db-module-sub">Gestión de usuarios, sesiones y autenticación</p>
+                        </div>
+                        <span class="db-kpi-badge" id="dbSecBadge">100%</span>
+                    </div>
+                    <div class="db-module-body">
+                        <div class="db-module-kpis db-module-kpis--wide">
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbUsrTotal">—</div>
+                                <div class="db-mkpi-lbl">Usuarios</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbUsrActive">0</div>
+                                <div class="db-mkpi-lbl">Activos</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbUsrMfa">0</div>
+                                <div class="db-mkpi-lbl">Con 2FA</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbSessActive">—</div>
+                                <div class="db-mkpi-lbl">Sesiones</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbSecLogins">—</div>
+                                <div class="db-mkpi-lbl">Logins</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbSecOk">0</div>
+                                <div class="db-mkpi-lbl">Exitosos</div>
+                            </div>
+                            <div class="db-mkpi">
+                                <div class="db-mkpi-val" id="dbSecFail">0</div>
+                                <div class="db-mkpi-lbl">Fallidos</div>
+                            </div>
+                        </div>
+                        <div class="db-module-chart">
+                            <canvas id="dbChartSecurity" height="220"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
 
 
@@ -232,79 +485,38 @@
 
                 <!-- ── STYLES scoped to reports module ───────────────────────── -->
                 <style>
-                    /* ── Stat cards ────────────────── */
-                    .rpt-stats {
-                        display: grid;
-                        grid-template-columns: repeat(4, 1fr);
-                        gap: 1rem;
-                        margin-bottom: 1.5rem;
-                    }
-
-                    @media(max-width:900px) {
-                        .rpt-stats {
-                            grid-template-columns: repeat(2, 1fr);
-                        }
-                    }
-
-                    .rpt-stat-card {
-                        background: #fff;
-                        border: 1px solid #e5e7eb;
-                        border-radius: 16px;
-                        padding: 1.1rem 1.25rem;
-                        display: flex;
-                        align-items: center;
-                        gap: 1rem;
-                        box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
-                        transition: box-shadow .2s, transform .2s;
-                    }
-
-                    .rpt-stat-card:hover {
-                        box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
-                        transform: translateY(-1px);
-                    }
-
-                    .rpt-stat-icon {
-                        width: 48px;
-                        height: 48px;
-                        border-radius: 12px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        flex-shrink: 0;
-                    }
-
-                    .rpt-stat-val {
-                        font-size: 1.6rem;
-                        font-weight: 800;
-                        color: #0f172a;
-                        line-height: 1;
-                    }
-
-                    .rpt-stat-lbl {
-                        font-size: 0.72rem;
-                        color: #94a3b8;
-                        text-transform: uppercase;
-                        letter-spacing: .5px;
-                        margin-top: 3px;
-                    }
+                    /* [Stat cards moved to Dashboard] */
 
                     /* ── Toolbar ────────────────────── */
                     .rpt-toolbar {
-                        display: flex;
-                        align-items: center;
-                        gap: .75rem;
-                        flex-wrap: wrap;
                         background: #fff;
                         border: 1px solid #e5e7eb;
-                        border-radius: 14px;
-                        padding: .875rem 1rem;
+                        border-radius: 12px;
+                        padding: .65rem 1rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: .5rem;
                         margin-bottom: 1rem;
+                    }
+
+                    /* Row 1: search + refresh */
+                    .rpt-toolbar-top {
+                        display: flex;
+                        align-items: center;
+                        gap: .5rem;
+                    }
+
+                    /* Row 2: 3-column filter selects */
+                    .rpt-toolbar-filters {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr 1fr;
+                        gap: .5rem;
                     }
 
                     .rpt-search-wrap {
                         position: relative;
-                        flex: 1;
-                        min-width: 200px;
+                        flex: 1 1 auto;
+                        min-width: 120px;
                     }
 
                     .rpt-search-wrap .material-icons {
@@ -319,10 +531,10 @@
 
                     .rpt-search-wrap input {
                         width: 100%;
-                        padding: .55rem .75rem .55rem 36px;
+                        padding: .35rem .65rem .35rem 32px;
                         border: 1px solid #e5e7eb;
-                        border-radius: 10px;
-                        font-size: .875rem;
+                        border-radius: 8px;
+                        font-size: .78rem;
                         background: #f8fafc;
                         outline: none;
                         transition: border-color .2s, box-shadow .2s;
@@ -333,19 +545,43 @@
                         box-shadow: 0 0 0 3px rgba(234, 88, 12, .08);
                     }
 
-                    .rpt-toolbar select {
-                        padding: .55rem .75rem;
+                    .rpt-toolbar-filters select {
+                        padding: .35rem .5rem;
                         border: 1px solid #e5e7eb;
-                        border-radius: 10px;
-                        font-size: .875rem;
+                        border-radius: 8px;
+                        font-size: .78rem;
                         background: #f8fafc;
                         outline: none;
                         cursor: pointer;
                         color: #374151;
                     }
 
-                    .rpt-toolbar select:focus {
+                    .rpt-toolbar-filters select:focus {
                         border-color: var(--orange, #ea580c);
+                    }
+
+                    .rpt-btn-refresh {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 32px;
+                        height: 32px;
+                        background: #f1f5f9;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 8px;
+                        color: #64748b;
+                        cursor: pointer;
+                        flex-shrink: 0;
+                        transition: all .2s;
+                    }
+
+                    .rpt-btn-refresh:hover {
+                        background: #e2e8f0;
+                        color: #ea580c;
+                    }
+
+                    .rpt-btn-refresh i {
+                        font-size: 18px;
                     }
 
                     /* ── Report rows (card list) ────── */
@@ -560,84 +796,58 @@
                     }
                 </style>
 
-                <!-- ── Header ──────────────────────────────────────────────── -->
-                <div class="section-header">
-                    <div>
-                        <h2>Gestión de Reportes</h2>
-                        <p>Administra los reportes e informes del sistema</p>
+                <!-- ── Hero Header ────────────────────────────────────────── -->
+                <div class="module-hero">
+                    <div class="module-hero-left">
+                        <div class="module-hero-icon"><i class="material-icons">description</i></div>
+                        <div>
+                            <h2>Gestión de Reportes</h2>
+                            <p>Administra los reportes e informes del sistema</p>
+                        </div>
                     </div>
-                    <div class="section-actions">
-                        <button class="btn btn-ghost btn-sm" onclick="loadReports()">
+                    <div class="module-hero-actions">
+                        <button class="module-hero-btn module-hero-btn--ghost" onclick="loadReports()">
                             <i class="material-icons">refresh</i> Actualizar
                         </button>
-                        <button class="btn btn-primary" onclick="showModal('uploadModal')">
+                        <button class="module-hero-btn" onclick="showModal('uploadModal')">
                             <i class="material-icons">upload_file</i> Cargar Reporte
                         </button>
                     </div>
                 </div>
 
-                <!-- ── Stat cards ──────────────────────────────────────────── -->
-                <div class="rpt-stats">
-                    <div class="rpt-stat-card">
-                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#fff7ed,#fed7aa);">
-                            <i class="material-icons" style="color:#ea580c;font-size:24px;">description</i>
-                        </div>
-                        <div>
-                            <div class="rpt-stat-val" id="statTotalReports">—</div>
-                            <div class="rpt-stat-lbl">Total Reportes</div>
-                        </div>
-                    </div>
-                    <div class="rpt-stat-card">
-                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#f0fdf4,#a7f3d0);">
-                            <i class="material-icons" style="color:#059669;font-size:24px;">public</i>
-                        </div>
-                        <div>
-                            <div class="rpt-stat-val" id="statPublicReports">—</div>
-                            <div class="rpt-stat-lbl">Públicos</div>
-                        </div>
-                    </div>
-                    <div class="rpt-stat-card">
-                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#fff7ed,#fde68a);">
-                            <i class="material-icons" style="color:#d97706;font-size:24px;">star</i>
-                        </div>
-                        <div>
-                            <div class="rpt-stat-val" id="statFeaturedReports">—</div>
-                            <div class="rpt-stat-lbl">Destacados</div>
-                        </div>
-                    </div>
-                    <div class="rpt-stat-card">
-                        <div class="rpt-stat-icon" style="background:linear-gradient(135deg,#eff6ff,#bfdbfe);">
-                            <i class="material-icons" style="color:#3b82f6;font-size:24px;">download</i>
-                        </div>
-                        <div>
-                            <div class="rpt-stat-val" id="statTotalDownloads">—</div>
-                            <div class="rpt-stat-lbl">Descargas</div>
-                        </div>
-                    </div>
-                </div>
+                <!-- [Stat cards moved to Dashboard] -->
 
-                <!-- ── Toolbar ─────────────────────────────────────────────── -->
+                <!-- ── Toolbar — compact 2-row layout (matching Audit design) ── -->
                 <div class="rpt-toolbar">
-                    <div class="rpt-search-wrap">
-                        <i class="material-icons">search</i>
-                        <input type="search" id="reportsSearch" placeholder="Buscar por título o descripción…"
-                            oninput="loadReports()">
+                    <!-- Row 1: search + refresh -->
+                    <div class="rpt-toolbar-top">
+                        <div class="rpt-search-wrap">
+                            <i class="material-icons">search</i>
+                            <input type="search" id="reportsSearch" placeholder="Buscar por título o descripción…"
+                                oninput="loadReports()">
+                        </div>
+                        <button class="rpt-btn-refresh" onclick="loadReports()" title="Actualizar">
+                            <i class="material-icons">refresh</i>
+                        </button>
                     </div>
-                    <select id="reportsStatusFilter" onchange="loadReports()">
-                        <option value="">Todos los estados</option>
-                        <option value="true">Público</option>
-                        <option value="false">Privado</option>
-                    </select>
-                    <select id="reportsSortBy" onchange="loadReports()">
-                        <option value="created_at">Fecha</option>
-                        <option value="title">Título</option>
-                        <option value="view_count">Vistas</option>
-                        <option value="download_count">Descargas</option>
-                    </select>
-                    <select id="reportsSortOrder" onchange="loadReports()">
-                        <option value="DESC">Más reciente</option>
-                        <option value="ASC">Más antiguo</option>
-                    </select>
+                    <!-- Row 2: 3-column filter selects -->
+                    <div class="rpt-toolbar-filters">
+                        <select id="reportsStatusFilter" onchange="loadReports()">
+                            <option value="">📋 Todos los estados</option>
+                            <option value="true">✅ Público</option>
+                            <option value="false">🔒 Privado</option>
+                        </select>
+                        <select id="reportsSortBy" onchange="loadReports()">
+                            <option value="created_at">📅 Fecha</option>
+                            <option value="title">🔤 Título</option>
+                            <option value="view_count">👁️ Vistas</option>
+                            <option value="download_count">📥 Descargas</option>
+                        </select>
+                        <select id="reportsSortOrder" onchange="loadReports()">
+                            <option value="DESC">⬇️ Más reciente</option>
+                            <option value="ASC">⬆️ Más antiguo</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- ── Card list (filled by renderReportsTable) ────────────── -->
@@ -750,16 +960,22 @@
 
             <!-- ================================================ SLIDER ================================================ -->
             <div id="slider" class="tab-content">
-                <div class="section-header">
-                    <div>
-                        <h2>Gestión del Slider</h2>
-                        <p>Administra las imágenes del carrusel principal</p>
+                <div class="module-hero module-hero--blue">
+                    <div class="module-hero-left">
+                        <div class="module-hero-icon module-hero-icon--blue"><i class="material-icons">view_carousel</i>
+                        </div>
+                        <div>
+                            <h2>Gestión del Slider</h2>
+                            <p>Administra las imágenes del carrusel principal</p>
+                        </div>
                     </div>
-                    <div class="section-actions">
-                        <button class="btn btn-ghost btn-sm" onclick="loadSliderImages()"><i
-                                class="material-icons">refresh</i> Actualizar</button>
-                        <button class="btn btn-primary" onclick="showModal('sliderModal')"><i
-                                class="material-icons">add_photo_alternate</i> Agregar Imagen</button>
+                    <div class="module-hero-actions">
+                        <button class="module-hero-btn module-hero-btn--ghost" onclick="loadSliderImages()">
+                            <i class="material-icons">refresh</i> Actualizar
+                        </button>
+                        <button class="module-hero-btn" onclick="showModal('sliderModal')">
+                            <i class="material-icons">add_photo_alternate</i> Agregar Imagen
+                        </button>
                     </div>
                 </div>
                 <!-- Grid de tarjetas del slider — llenado dinámicamente por admin-panel.js -->
@@ -793,86 +1009,278 @@
 
             <!-- ================================================ USUARIOS ================================================ -->
             <div id="users" class="tab-content">
-                <div class="section-header">
-                    <div>
-                        <h2>Gestión de Usuarios</h2>
-                        <p>Administra los usuarios y roles</p>
+
+                <!-- Header -->
+                <div class="um-header">
+                    <div class="um-header-left">
+                        <div class="um-header-icon"><i class="material-icons">people_alt</i></div>
+                        <div>
+                            <h2>Gestión de Usuarios</h2>
+                            <p>Administra equipos, roles y permisos de acceso a la plataforma</p>
+                        </div>
                     </div>
-                    <div class="section-actions">
-                        <select id="roleFilter" style="width:auto;">
+                    <button class="um-btn-primary" onclick="usersOpenCreateUser()">
+                        <i class="material-icons">person_add</i> Nuevo Usuario
+                    </button>
+                </div>
+
+                <!-- Tab switcher + Search -->
+                <div class="um-toolbar">
+                    <div class="um-tabs">
+                        <button class="um-tab active" id="umTabUsuarios" onclick="usersTabSwitch('usuarios')">
+                            <i class="material-icons">people</i>
+                            Usuarios <span class="um-tab-count" id="umCountUsuarios">0</span>
+                        </button>
+                        <button class="um-tab" id="umTabRoles" onclick="usersTabSwitch('roles')">
+                            <i class="material-icons">admin_panel_settings</i>
+                            Roles <span class="um-tab-count" id="umCountRoles">0</span>
+                        </button>
+                    </div>
+                    <div class="um-toolbar-right">
+                        <div class="um-search-wrap" id="umSearchWrap">
+                            <i class="material-icons">search</i>
+                            <input type="text" placeholder="Buscar usuario..." id="umSearchInput"
+                                oninput="usersSearch(this.value)">
+                        </div>
+                        <select class="um-select" id="umRoleFilter" onchange="usersFilterByRole(this.value)">
                             <option value="">Todos los roles</option>
-                            <option value="admin">Admin</option>
-                            <option value="editor">Editor</option>
-                            <option value="user">Usuario</option>
                         </select>
-                        <button class="btn btn-ghost btn-sm" onclick="loadUsers()"><i class="material-icons">refresh</i>
-                            Actualizar</button>
                     </div>
                 </div>
-                <div class="data-table">
-                    <div class="table-scroll">
-                        <table>
+
+                <!-- ── PANEL USUARIOS ── -->
+                <div id="umPanelUsuarios" class="um-panel">
+                    <div class="um-table-wrap">
+                        <table class="um-table">
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
                                     <th>Estado</th>
-                                    <th>Último Acceso</th>
-                                    <th>Creado</th>
+                                    <th class="um-td-hide-sm">Último Acceso</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="usersTableBody"></tbody>
+                            <tbody id="umUsersBody"></tbody>
                         </table>
+                    </div>
+                    <div class="um-empty" id="umUsersEmpty" style="display:none;">
+                        <i class="material-icons">person_search</i>
+                        <p>No se encontraron usuarios</p>
+                    </div>
+                </div>
+
+                <!-- ── PANEL ROLES ── -->
+                <div id="umPanelRoles" class="um-panel" style="display:none;">
+                    <div class="um-roles-header">
+                        <p class="um-roles-desc">Define qué módulos puede acceder cada rol. Los permisos se aplican
+                            automáticamente a todos los usuarios asignados.</p>
+                        <button class="um-btn-primary" onclick="usersOpenCreateRole()">
+                            <i class="material-icons">add</i> Nuevo Rol
+                        </button>
+                    </div>
+                    <div class="um-roles-grid" id="umRolesGrid"></div>
+                    <div class="um-empty" id="umRolesEmpty" style="display:none;">
+                        <i class="material-icons">manage_accounts</i>
+                        <p>No hay roles configurados</p>
+                    </div>
+                </div>
+
+            </div><!-- /#users -->
+
+            <!-- ════ MODAL: Crear / Editar Usuario ════ -->
+            <div class="um-modal-overlay" id="umModalUser" onclick="usersCloseModal('umModalUser')">
+                <div class="um-modal" onclick="event.stopPropagation()">
+                    <div class="um-modal-header">
+                        <div class="um-modal-icon" id="umModalUserIcon"><i class="material-icons">person_add</i></div>
+                        <div>
+                            <h3 id="umModalUserTitle">Nuevo Usuario</h3>
+                            <p id="umModalUserSub">Completa los datos para crear el usuario</p>
+                        </div>
+                        <button class="um-modal-close" onclick="usersCloseModal('umModalUser')">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                    <div class="um-modal-body">
+                        <input type="hidden" id="umUserId">
+                        <div class="um-field-row">
+                            <div class="um-field">
+                                <label>Nombre completo <span class="um-req">*</span></label>
+                                <input type="text" id="umUserName" placeholder="Ej. Juan García" autocomplete="off">
+                            </div>
+                            <div class="um-field">
+                                <label>Email <span class="um-req">*</span></label>
+                                <input type="email" id="umUserEmail" placeholder="usuario@invias.gov.co"
+                                    autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="um-field-row">
+                            <div class="um-field">
+                                <label>Contraseña <span class="um-req" id="umPassReq">*</span></label>
+                                <div class="um-input-icon">
+                                    <input type="password" id="umUserPassword" placeholder="Mínimo 8 caracteres">
+                                    <button class="um-eye" onclick="usersTogglePass()" type="button">
+                                        <i class="material-icons" id="umEyeIcon">visibility</i>
+                                    </button>
+                                </div>
+                                <small id="umPassHint"
+                                    style="color:#94a3b8;font-size:.74rem;margin-top:3px;display:block">Dejar vacío para
+                                    no cambiar</small>
+                            </div>
+                            <div class="um-field">
+                                <label>Rol <span class="um-req">*</span></label>
+                                <select id="umUserRole"></select>
+                            </div>
+                        </div>
+                        <div class="um-field">
+                            <label>Estado</label>
+                            <div class="um-status-toggle">
+                                <label class="um-switch">
+                                    <input type="checkbox" id="umUserActive" checked>
+                                    <span class="um-slider"></span>
+                                </label>
+                                <span id="umUserActiveLabel">Activo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="um-modal-footer">
+                        <button class="um-btn-ghost" onclick="usersCloseModal('umModalUser')">Cancelar</button>
+                        <button class="um-btn-primary" onclick="usersSaveUser()">
+                            <i class="material-icons">save</i> <span id="umUserSaveLbl">Crear Usuario</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
+            <!-- ════ MODAL: Crear / Editar Rol ════ -->
+            <div class="um-modal-overlay" id="umModalRole" onclick="usersCloseModal('umModalRole')">
+                <div class="um-modal um-modal--wide" onclick="event.stopPropagation()">
+                    <div class="um-modal-header">
+                        <div class="um-modal-icon um-modal-icon--purple"><i
+                                class="material-icons">admin_panel_settings</i></div>
+                        <div>
+                            <h3 id="umModalRoleTitle">Nuevo Rol</h3>
+                            <p id="umModalRoleSub">Define qué módulos puede acceder este rol</p>
+                        </div>
+                        <button class="um-modal-close" onclick="usersCloseModal('umModalRole')">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                    <div class="um-modal-body">
+                        <input type="hidden" id="umRoleId">
+                        <div class="um-field-row">
+                            <div class="um-field">
+                                <label>Nombre del Rol <span class="um-req">*</span></label>
+                                <input type="text" id="umRoleName" placeholder="Ej. Supervisor de Alertas">
+                            </div>
+                            <div class="um-field">
+                                <label>Descripción</label>
+                                <input type="text" id="umRoleDesc" placeholder="Breve descripción del rol">
+                            </div>
+                        </div>
+                        <div class="um-field">
+                            <label>Módulos habilitados <span class="um-req">*</span></label>
+                            <div class="um-modules-grid" id="umModulesGrid"></div>
+                        </div>
+                    </div>
+                    <div class="um-modal-footer">
+                        <button class="um-btn-ghost" onclick="usersCloseModal('umModalRole')">Cancelar</button>
+                        <button class="um-btn-primary" onclick="usersSaveRole()">
+                            <i class="material-icons">save</i> <span id="umRoleSaveLbl">Crear Rol</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════ MODAL: Confirmar Eliminar ════ -->
+            <div class="um-modal-overlay" id="umModalConfirm" onclick="usersCloseModal('umModalConfirm')">
+                <div class="um-modal um-modal--sm" onclick="event.stopPropagation()">
+                    <div class="um-modal-header">
+                        <div class="um-modal-icon um-modal-icon--red"><i class="material-icons">warning</i></div>
+                        <div>
+                            <h3 id="umConfirmTitle">¿Confirmar acción?</h3>
+                            <p id="umConfirmMsg">Esta acción no se puede deshacer.</p>
+                        </div>
+                        <button class="um-modal-close" onclick="usersCloseModal('umModalConfirm')">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                    <div class="um-modal-footer">
+                        <button class="um-btn-ghost" onclick="usersCloseModal('umModalConfirm')">Cancelar</button>
+                        <button class="um-btn-danger" id="umConfirmBtn">
+                            <i class="material-icons">delete</i> Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
             <!-- ================================================ DESCARGAS ================================================ -->
             <div id="downloads" class="tab-content">
-                <div class="section-header">
+
+                <!-- Hero Header -->
+                <div class="dl-hero">
+                    <div class="dl-hero-icon"><i class="material-icons">cloud_download</i></div>
                     <div>
-                        <h2>Historial de Descargas</h2>
-                        <p>Registro de descargas de datos del sistema</p>
+                        <h2 class="dl-hero-title">Centro de Descargas</h2>
+                        <p class="dl-hero-sub">Historial completo de las descargas generadas en la plataforma</p>
                     </div>
                 </div>
-                <div class="data-table">
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Dispositivos</th>
-                                    <th>Rango de Fechas</th>
-                                    <th>Tamaño</th>
-                                    <th>Tiempo</th>
-                                    <th>Estado</th>
-                                    <th>Fecha Solicitud</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>usuario1@example.com</td>
-                                    <td>WIM, Radares</td>
-                                    <td>01/09/2024 – 30/11/2024</td>
-                                    <td>125 MB</td>
-                                    <td>2m 15s</td>
-                                    <td><span class="badge badge-success">Completado</span></td>
-                                    <td>15/12/2024 14:30</td>
-                                </tr>
-                                <tr>
-                                    <td>usuario2@example.com</td>
-                                    <td>Conteos Fijos</td>
-                                    <td>01/10/2024 – 31/12/2024</td>
-                                    <td>87 MB</td>
-                                    <td>1m 45s</td>
-                                    <td><span class="badge badge-warning">Procesando</span></td>
-                                    <td>15/12/2024 14:45</td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                <!-- [Stats Cards moved to Dashboard] -->
+
+                <!-- Toolbar -->
+                <div class="dl-toolbar">
+                    <div class="dl-toolbar-left">
+                        <div class="dl-search-wrap">
+                            <i class="material-icons">search</i>
+                            <input type="text" placeholder="Buscar por usuario..." id="dlSearchInput"
+                                oninput="dlDebounceSearch()">
+                        </div>
+                        <select class="dl-select" id="dlStatusFilter" onchange="loadDownloadsAdmin(1)">
+                            <option value="">Todos los estados</option>
+                            <option value="completed">✅ Completado</option>
+                            <option value="processing">⏳ Procesando</option>
+                            <option value="pending">🕐 Pendiente</option>
+                            <option value="failed">❌ Fallido</option>
+                            <option value="expired">⌛ Expirado</option>
+                        </select>
+                    </div>
+                    <button class="dl-btn-refresh" onclick="loadDownloadsAdmin(1)" title="Actualizar">
+                        <i class="material-icons">refresh</i> Actualizar
+                    </button>
+                </div>
+
+                <!-- Table Container -->
+                <div class="dl-table-wrap" id="dlTableWrap">
+                    <!-- Loading state -->
+                    <div class="dl-loading" id="dlLoading">
+                        <div class="dl-spinner"></div>
+                        <p>Cargando historial de descargas...</p>
+                    </div>
+                    <!-- Table (rendered by JS) -->
+                    <div id="dlTableContainer" style="display:none;"></div>
+                    <!-- Empty state -->
+                    <div class="dl-empty" id="dlEmpty" style="display:none;">
+                        <i class="material-icons">cloud_off</i>
+                        <h3>No hay descargas registradas</h3>
+                        <p>Las descargas generadas por los usuarios aparecerán aquí</p>
                     </div>
                 </div>
+
+                <!-- Pagination -->
+                <div class="dl-pagination" id="dlPagination" style="display:none;">
+                    <span class="dl-page-info" id="dlPageInfo"></span>
+                    <div class="dl-page-btns">
+                        <button class="dl-page-btn" id="dlPrevBtn" onclick="dlPrevPage()" disabled>
+                            <i class="material-icons">chevron_left</i>
+                        </button>
+                        <span class="dl-page-current" id="dlPageCurrent">1</span>
+                        <button class="dl-page-btn" id="dlNextBtn" onclick="dlNextPage()">
+                            <i class="material-icons">chevron_right</i>
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ================================================ ALERTAS DAI — SPLIT-PANE ================================================ -->
@@ -880,23 +1288,56 @@
                 style="padding:0;height:calc(100vh - 72px);overflow:hidden;display:none;">
                 <div class="dai-page">
 
-                    <!-- 1. Stat Bar -->
-                    <div class="dai-stat-bar" id="daiStatBar"></div>
-
-                    <!-- 1b. Latency Performance Dashboard (collapsible) -->
-                    <div class="dai-latency-section">
-                        <button class="dai-latency-toggle" onclick="daiToggleLatencyDashboard()" id="daiLatencyToggle">
-                            <span class="dai-latency-toggle-left">
-                                <i class="material-icons">speed</i>
-                                <span>Rendimiento de Latencia</span>
-                                <span class="dai-latency-challenge" id="daiLatencyChallenge"></span>
-                            </span>
-                            <i class="material-icons dai-latency-chevron" id="daiLatencyChevron">expand_less</i>
-                        </button>
-                        <div class="dai-latency-collapsible" id="daiLatencyCollapsible">
-                            <div id="daiLatencyDashboard" class="dai-latency-dashboard"></div>
+                    <!-- 0. Hero Header -->
+                    <div class="module-hero module-hero--amber" style="margin:1rem 1rem 0;flex-shrink:0;">
+                        <div class="module-hero-left">
+                            <div class="module-hero-icon module-hero-icon--amber"><i
+                                    class="material-icons">warning_amber</i></div>
+                            <div>
+                                <h2>Alertas DAI (CDN)</h2>
+                                <p>Dispositivo de Aforo Inteligente — Red CDN INVIAS</p>
+                            </div>
+                        </div>
+                        <!-- Live connection indicator -->
+                        <div class="dai-live-indicator" id="daiLiveIndicator">
+                            <span class="dai-live-dot"></span> Conectando…
                         </div>
                     </div>
+
+                    <!-- 1. Stat Bar & Latency (collapsible, starts collapsed) -->
+                    <div class="dai-stats-collapsible" style="margin:0 1rem;flex-shrink:0;">
+                        <button class="dai-stats-toggle" onclick="daiToggleStatsSection()" id="daiStatsToggle"
+                            style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:.65rem 1rem;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:12px;cursor:pointer;font-size:.85rem;font-weight:600;color:#92400e;margin-top:.75rem;">
+                            <span style="display:flex;align-items:center;gap:.5rem;">
+                                <i class="material-icons" style="font-size:18px;">analytics</i>
+                                <span>Indicadores y Rendimiento de Latencia</span>
+                            </span>
+                            <i class="material-icons" id="daiStatsChevron"
+                                style="font-size:20px;transition:transform .3s;">expand_more</i>
+                        </button>
+                        <div id="daiStatsCollapsible"
+                            style="max-height:0;overflow:hidden;transition:max-height .4s ease;">
+                            <!-- 1a. Stat Bar -->
+                            <div class="dai-stat-bar" id="daiStatBar" style="margin-top:.75rem;"></div>
+
+                            <!-- 1b. Latency Performance Dashboard -->
+                            <div class="dai-latency-section">
+                                <button class="dai-latency-toggle" onclick="daiToggleLatencyDashboard()"
+                                    id="daiLatencyToggle">
+                                    <span class="dai-latency-toggle-left">
+                                        <i class="material-icons">speed</i>
+                                        <span>Rendimiento de Latencia</span>
+                                        <span class="dai-latency-challenge" id="daiLatencyChallenge"></span>
+                                    </span>
+                                    <i class="material-icons dai-latency-chevron" id="daiLatencyChevron">expand_less</i>
+                                </button>
+                                <div class="dai-latency-collapsible" id="daiLatencyCollapsible">
+                                    <div id="daiLatencyDashboard" class="dai-latency-dashboard"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- 2. Smart Search + Controls -->
                     <div class="dai-controls">
@@ -1058,90 +1499,542 @@
 
             <!-- ================================================ AUDITORÍA ================================================ -->
             <div id="audit" class="tab-content">
-                <div class="section-header">
+
+                <!-- Hero Header -->
+                <div class="au-hero">
+                    <div class="au-hero-icon"><i class="material-icons">shield</i></div>
                     <div>
-                        <h2>Registro de Auditoría</h2>
-                        <p>Historial completo de acciones del sistema</p>
-                    </div>
-                    <div class="section-actions">
-                        <button class="btn btn-ghost btn-sm" onclick="loadAuditLogs()"><i
-                                class="material-icons">refresh</i>
-                            Actualizar</button>
+                        <h2 class="au-hero-title">Centro de Auditoría</h2>
+                        <p class="au-hero-sub">Registro completo de todas las acciones realizadas en el sistema</p>
                     </div>
                 </div>
-                <div class="data-table">
-                    <div class="table-header">
-                        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                            <select id="auditActionFilter" style="width:auto;">
-                                <option value="">Todas las acciones</option>
-                                <option value="login">Login</option>
-                                <option value="logout">Logout</option>
-                                <option value="create_report">Crear Reporte</option>
-                                <option value="update_report">Actualizar Reporte</option>
-                                <option value="delete_report">Eliminar Reporte</option>
-                                <option value="download_report">Descargar Reporte</option>
-                                <option value="download">Descarga</option>
-                                <option value="register">Registro</option>
-                                <option value="verify_code_success">Verificar Código</option>
-                            </select>
-                            <select id="auditStatusFilter" style="width:auto;">
-                                <option value="">Todos los estados</option>
-                                <option value="success">Exitoso</option>
-                                <option value="failed">Fallido</option>
-                            </select>
-                            <input type="date" id="auditDateFrom" style="width:auto;">
-                            <input type="date" id="auditDateTo" style="width:auto;">
-                            <button class="btn btn-ghost btn-sm" onclick="applyAuditFilters()"><i
-                                    class="material-icons">filter_list</i> Filtrar</button>
-                            <button class="btn btn-ghost btn-sm" onclick="clearAuditFilters()"><i
-                                    class="material-icons">clear</i> Limpiar</button>
+
+                <!-- Stats Cards -->
+                <div class="au-stats">
+                    <div class="au-stat-card">
+                        <div class="au-stat-icon" style="background:#eff6ff;color:#3b82f6;"><i
+                                class="material-icons">receipt_long</i></div>
+                        <div class="au-stat-info">
+                            <span class="au-stat-number" id="auStatTotal">0</span>
+                            <span class="au-stat-label">Total Registros</span>
                         </div>
                     </div>
-                    <div id="total-registros"
-                        style="text-align:right;padding:6px 1.25rem;font-size:0.78rem;color:var(--gray-400);"></div>
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th>Acción</th>
-                                    <th>Recurso</th>
-                                    <th>Estado</th>
-                                    <th>Fecha/Hora</th>
-                                    <th>IP</th>
-                                </tr>
-                            </thead>
-                            <tbody id="auditTableBody"></tbody>
-                        </table>
+                    <div class="au-stat-card">
+                        <div class="au-stat-icon" style="background:#f0fdf4;color:#22c55e;"><i
+                                class="material-icons">today</i></div>
+                        <div class="au-stat-info">
+                            <span class="au-stat-number" id="auStatToday">0</span>
+                            <span class="au-stat-label">Acciones Hoy</span>
+                        </div>
                     </div>
-                    <div id="auditPagination" class="pagination" style="display:none;">
-                        <button id="auditPrevBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(-1)" disabled><i
-                                class="material-icons">chevron_left</i> Anterior</button>
-                        <span id="auditPageInfo" style="font-size:0.82rem;color:var(--gray-400);">Página 1 de 1</span>
-                        <button id="auditNextBtn" class="btn btn-ghost btn-sm" onclick="changeAuditPage(1)"
-                            disabled>Siguiente <i class="material-icons">chevron_right</i></button>
+                    <div class="au-stat-card">
+                        <div class="au-stat-icon" style="background:#faf5ff;color:#8b5cf6;"><i
+                                class="material-icons">login</i></div>
+                        <div class="au-stat-info">
+                            <span class="au-stat-number" id="auStatLogins">0</span>
+                            <span class="au-stat-label">Logins</span>
+                        </div>
+                    </div>
+                    <div class="au-stat-card">
+                        <div class="au-stat-icon" style="background:#fef2f2;color:#ef4444;"><i
+                                class="material-icons">gpp_bad</i></div>
+                        <div class="au-stat-info">
+                            <span class="au-stat-number" id="auStatFailed">0</span>
+                            <span class="au-stat-label">Fallidos</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Toolbar — compact 2-row layout -->
+                <div class="au-toolbar">
+                    <!-- Row 1: search + dates + refresh -->
+                    <div class="au-toolbar-top">
+                        <div class="au-search-wrap">
+                            <i class="material-icons">search</i>
+                            <input type="text" placeholder="Buscar por usuario..." id="auSearchInput"
+                                oninput="auDebounceSearch()">
+                        </div>
+                        <div class="au-date-group">
+                            <input type="date" class="au-date-input" id="auDateFrom" onchange="loadAuditAdmin(1)"
+                                title="Desde">
+                            <span class="au-date-sep">a</span>
+                            <input type="date" class="au-date-input" id="auDateTo" onchange="loadAuditAdmin(1)"
+                                title="Hasta">
+                        </div>
+                        <button class="au-btn-refresh" onclick="loadAuditAdmin(1)" title="Actualizar">
+                            <i class="material-icons">refresh</i>
+                        </button>
+                    </div>
+                    <!-- Row 2: 3-column filter selects -->
+                    <div class="au-toolbar-filters">
+                        <select class="au-select" id="auModuleFilter" onchange="loadAuditAdmin(1)">
+                            <option value="">📁 Todos los módulos</option>
+                            <option value="user">👤 Usuarios / Auth</option>
+                            <option value="report">📄 Reportes</option>
+                            <option value="slider">🖼️ Slider</option>
+                            <option value="download">📥 Descargas</option>
+                            <option value="config">⚙️ Configuración</option>
+                        </select>
+                        <select class="au-select" id="auActionFilter" onchange="loadAuditAdmin(1)">
+                            <option value="">⚡ Todas las acciones</option>
+                            <option value="login">Inicio de sesión</option>
+                            <option value="logout">Cierre de sesión</option>
+                            <option value="register">Registro</option>
+                            <option value="send_verification_code">Envío código</option>
+                            <option value="verify_code_success">Verificación</option>
+                            <option value="create_report">Crear reporte</option>
+                            <option value="update_report">Editar reporte</option>
+                            <option value="delete_report">Eliminar reporte</option>
+                            <option value="toggle_visibility">Cambiar visibilidad</option>
+                            <option value="toggle_featured">Cambiar destacado</option>
+                            <option value="create_slider">Crear slider</option>
+                            <option value="update_slider">Editar slider</option>
+                            <option value="delete_slider">Eliminar slider</option>
+                            <option value="request_download">Solicitar descarga</option>
+                        </select>
+                        <select class="au-select" id="auStatusFilter" onchange="loadAuditAdmin(1)">
+                            <option value="">🔘 Todos los estados</option>
+                            <option value="success">✅ Exitoso</option>
+                            <option value="failed">❌ Fallido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="au-table-wrap" id="auTableWrap">
+                    <!-- Loading state -->
+                    <div class="au-loading" id="auLoading">
+                        <div class="au-spinner"></div>
+                        <p>Cargando registros de auditoría...</p>
+                    </div>
+                    <!-- Table (rendered by JS) -->
+                    <div id="auTableContainer" style="display:none;"></div>
+                    <!-- Empty state -->
+                    <div class="au-empty" id="auEmpty" style="display:none;">
+                        <i class="material-icons">fact_check</i>
+                        <h3>No hay registros de auditoría</h3>
+                        <p>Las acciones realizadas en el sistema aparecerán aquí</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="au-pagination" id="auPagination" style="display:none;">
+                    <span class="au-page-info" id="auPageInfo"></span>
+                    <div class="au-page-btns">
+                        <button class="au-page-btn" id="auPrevBtn" onclick="auPrevPage()" disabled>
+                            <i class="material-icons">chevron_left</i>
+                        </button>
+                        <span class="au-page-current" id="auPageCurrent">1</span>
+                        <button class="au-page-btn" id="auNextBtn" onclick="auNextPage()">
+                            <i class="material-icons">chevron_right</i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ================================================ ANALÍTICA WEB ================================================ -->
+            <div id="analytics" class="tab-content">
+
+                <!-- Hero -->
+                <div class="an-hero">
+                    <div class="an-hero-content">
+                        <div class="an-hero-icon"><i class="material-icons">insights</i></div>
+                        <div>
+                            <h2 class="an-hero-title">Analítica Web</h2>
+                            <p class="an-hero-sub">Comportamiento de visitantes en páginas públicas</p>
+                        </div>
+                    </div>
+                    <div class="an-hero-actions">
+                        <div class="an-date-presets">
+                            <button class="an-preset active" onclick="anSetPreset('today')">Hoy</button>
+                            <button class="an-preset" onclick="anSetPreset('7d')">7 días</button>
+                            <button class="an-preset" onclick="anSetPreset('30d')">30 días</button>
+                            <button class="an-preset" onclick="anSetPreset('custom')">Personalizado</button>
+                        </div>
+                        <div class="an-custom-dates" id="anCustomDates" style="display:none;">
+                            <input type="date" class="an-date-input" id="anDateFrom" title="Desde">
+                            <span style="color:rgba(255,255,255,.5);">—</span>
+                            <input type="date" class="an-date-input" id="anDateTo" title="Hasta">
+                            <button class="an-btn-apply" onclick="anApplyCustom()">Aplicar</button>
+                        </div>
+                        <div class="an-live-badge" id="anLiveBadge">
+                            <span class="an-live-dot"></span>
+                            <span id="anActiveNow">0</span> en línea
+                        </div>
+                        <div class="an-export-group">
+                            <button class="an-btn-export" onclick="anExportPDF()"><i
+                                    class="material-icons">picture_as_pdf</i> PDF</button>
+                            <button class="an-btn-export" onclick="anExportWord()"><i
+                                    class="material-icons">description</i> Word</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="an-kpi-grid">
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <div class="an-kpi-icon" style="background:rgba(16,185,129,.1);color:#10b981;"><i
+                                    class="material-icons">person</i></div>
+                        </div>
+                        <div class="an-kpi-value" id="anTotalSessions">—</div>
+                        <div class="an-kpi-label">Sesiones únicas</div>
+                    </div>
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <div class="an-kpi-icon" style="background:rgba(59,130,246,.1);color:#3b82f6;"><i
+                                    class="material-icons">visibility</i></div>
+                        </div>
+                        <div class="an-kpi-value" id="anTotalPageviews">—</div>
+                        <div class="an-kpi-label">Páginas vistas</div>
+                    </div>
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <div class="an-kpi-icon" style="background:rgba(245,158,11,.1);color:#f59e0b;"><i
+                                    class="material-icons">schedule</i></div>
+                        </div>
+                        <div class="an-kpi-value" id="anAvgDuration">—</div>
+                        <div class="an-kpi-label">Duración promedio</div>
+                    </div>
+                    <div class="an-kpi-card">
+                        <div class="an-kpi-header">
+                            <div class="an-kpi-icon" style="background:rgba(139,92,246,.1);color:#8b5cf6;"><i
+                                    class="material-icons">devices</i></div>
+                        </div>
+                        <div class="an-kpi-value" id="anTopDevice">—</div>
+                        <div class="an-kpi-label">Dispositivo principal</div>
+                    </div>
+                </div>
+
+                <!-- Visitors trend chart -->
+                <div class="an-card" style="margin-bottom:.75rem;">
+                    <div class="an-card-header">
+                        <h3 class="an-card-title"><i class="material-icons">trending_up</i> Visitantes últimos 7 días
+                        </h3>
+                    </div>
+                    <div class="an-chart" id="anTrendChart"></div>
+                </div>
+
+                <!-- 2-col: Visitors by Page + Device/Browser -->
+                <div class="an-grid-2">
+                    <!-- By Page -->
+                    <div class="an-card">
+                        <div class="an-card-header">
+                            <h3 class="an-card-title"><i class="material-icons">web</i> Visitantes por Página</h3>
+                        </div>
+                        <div class="an-card-body" id="anByPage"></div>
+                    </div>
+                    <!-- Device + Browser -->
+                    <div class="an-card">
+                        <div class="an-card-header">
+                            <h3 class="an-card-title"><i class="material-icons">devices</i> Dispositivos y Navegadores
+                            </h3>
+                        </div>
+                        <div class="an-card-body">
+                            <div class="an-pie-row">
+                                <div class="an-pie-col">
+                                    <h4 class="an-pie-label">Dispositivos</h4>
+                                    <div id="anDevicePie" class="an-pie-list"></div>
+                                </div>
+                                <div class="an-pie-col">
+                                    <h4 class="an-pie-label">Navegadores</h4>
+                                    <div id="anBrowserPie" class="an-pie-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Heat Map -->
+                <div class="an-card" style="margin:.75rem 0;">
+                    <div class="an-card-header">
+                        <h3 class="an-card-title"><i class="material-icons">local_fire_department</i> Secciones más
+                            visitadas</h3>
+                    </div>
+                    <div class="an-table-wrap">
+                        <table class="an-table" id="anSectionTable">
+                            <thead>
+                                <tr>
+                                    <th>Página</th>
+                                    <th>Sección</th>
+                                    <th>Vistas</th>
+                                    <th>Duración prom.</th>
+                                    <th>Intensidad</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2-col: Top Clicks + OS -->
+                <div class="an-grid-2">
+                    <div class="an-card">
+                        <div class="an-card-header">
+                            <h3 class="an-card-title"><i class="material-icons">touch_app</i> Top acciones más usadas
+                            </h3>
+                        </div>
+                        <div class="an-table-wrap">
+                            <table class="an-table" id="anClicksTable">
+                                <thead>
+                                    <tr>
+                                        <th>Acción</th>
+                                        <th>Página</th>
+                                        <th>Clics</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="an-card">
+                        <div class="an-card-header">
+                            <h3 class="an-card-title"><i class="material-icons">computer</i> Sistemas Operativos</h3>
+                        </div>
+                        <div class="an-card-body" id="anOSPie"></div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ================================================ CONFIGURACIÓN ================================================ -->
             <div id="settings" class="tab-content">
-                <div class="section-header">
+
+                <!-- Hero Header -->
+                <div class="cfg-hero">
+                    <div class="cfg-hero-icon"><i class="material-icons">settings</i></div>
                     <div>
-                        <h2>Configuración del Sistema</h2>
-                        <p>Ajustes generales, seguridad y notificaciones</p>
+                        <h2 class="cfg-hero-title">Configuración del Sistema</h2>
+                        <p class="cfg-hero-sub">Ajustes generales, notificaciones y seguridad de tu cuenta</p>
                     </div>
                 </div>
-                <div class="page-card">
-                    <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Configuración General</h3>
-                    <div class="form-group"><label>Nombre del Sistema</label><input type="text"
-                            value="VIITS — Sistema de Vigilancia Inteligente"></div>
-                    <div class="form-group"><label>Email de Notificaciones</label><input type="email"
-                            value="viits@invias.gov.co"></div>
-                    <div class="form-group"><label>Límite de Descarga (meses)</label><input type="number" value="3"
-                            min="1" max="12"></div>
-                    <button class="btn btn-primary"><i class="material-icons">save</i> Guardar Cambios</button>
-                </div>
+
+                <div class="cfg-grid">
+
+                    <!-- ─── Card 1: General Config ─────────────────────────────────────── -->
+                    <div class="cfg-card">
+                        <div class="cfg-card-header">
+                            <div class="cfg-card-icon" style="background:#eff6ff;color:#3b82f6">
+                                <i class="material-icons">tune</i>
+                            </div>
+                            <div>
+                                <h3 class="cfg-card-title">Configuración General</h3>
+                                <p class="cfg-card-desc">Nombre del sistema y correo de notificaciones</p>
+                            </div>
+                        </div>
+                        <div class="cfg-card-body">
+                            <div class="cfg-field">
+                                <label class="cfg-label">Nombre del Sistema</label>
+                                <input type="text" class="cfg-input" id="cfgSystemName"
+                                    value="VIITS — Sistema de Vigilancia Inteligente" placeholder="Nombre del sistema">
+                            </div>
+                            <div class="cfg-field">
+                                <label class="cfg-label">Email de Notificaciones</label>
+                                <div class="cfg-input-icon-wrap">
+                                    <i class="material-icons">email</i>
+                                    <input type="email" class="cfg-input cfg-input-with-icon" id="cfgEmail"
+                                        value="viits@invias.gov.co" placeholder="correo@dominio.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cfg-card-footer">
+                            <button class="cfg-btn-save" onclick="saveGeneralConfig()">
+                                <i class="material-icons">save</i> Guardar Cambios
+                            </button>
+                            <span class="cfg-save-status" id="cfgSaveStatus"></span>
+                        </div>
+                    </div>
+
+                    <!-- ─── Card 2: Notificaciones ─────────────────────────────────────── -->
+                    <div class="cfg-card">
+                        <div class="cfg-card-header">
+                            <div class="cfg-card-icon" style="background:#faf5ff;color:#8b5cf6">
+                                <i class="material-icons">notifications_active</i>
+                            </div>
+                            <div>
+                                <h3 class="cfg-card-title">Notificaciones por Correo</h3>
+                                <p class="cfg-card-desc">Controla cuándo recibes alertas por email</p>
+                            </div>
+                        </div>
+                        <div class="cfg-card-body">
+                            <div class="cfg-toggle-row">
+                                <div class="cfg-toggle-info">
+                                    <div class="cfg-toggle-label">Notificaciones habilitadas</div>
+                                    <div class="cfg-toggle-desc">Recibir alertas de descargas, reportes y actividad del
+                                        sistema</div>
+                                </div>
+                                <label class="cfg-switch">
+                                    <input type="checkbox" id="cfgNotifEnabled" checked
+                                        onchange="toggleNotifications(this)">
+                                    <span class="cfg-slider"></span>
+                                </label>
+                            </div>
+                            <div class="cfg-toggle-row">
+                                <div class="cfg-toggle-info">
+                                    <div class="cfg-toggle-label">Alertas de seguridad</div>
+                                    <div class="cfg-toggle-desc">Notificaciones de inicios de sesión y cambios de
+                                        contraseña</div>
+                                </div>
+                                <label class="cfg-switch">
+                                    <input type="checkbox" id="cfgSecurityAlerts" checked
+                                        onchange="toggleNotifications(this)">
+                                    <span class="cfg-slider"></span>
+                                </label>
+                            </div>
+                            <div class="cfg-toggle-row">
+                                <div class="cfg-toggle-info">
+                                    <div class="cfg-toggle-label">Resumen semanal</div>
+                                    <div class="cfg-toggle-desc">Recibir un resumen semanal de la actividad del sistema
+                                    </div>
+                                </div>
+                                <label class="cfg-switch">
+                                    <input type="checkbox" id="cfgWeeklyDigest" onchange="toggleNotifications(this)">
+                                    <span class="cfg-slider"></span>
+                                </label>
+                            </div>
+                            <div class="cfg-toggle-row">
+                                <div class="cfg-toggle-info">
+                                    <div class="cfg-toggle-label">Alertas DAI (Emergentes)</div>
+                                    <div class="cfg-toggle-desc">Mostrar ventanas emergentes (toasts) para alertas
+                                        criticas y altas</div>
+                                </div>
+                                <label class="cfg-switch">
+                                    <input type="checkbox" id="cfgDaiNotifEnabled" checked
+                                        onchange="toggleNotifications(this)">
+                                    <span class="cfg-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ─── Card 3: Seguridad — Cambio de Contraseña ───────────────────── -->
+                    <div class="cfg-card cfg-card-full">
+                        <div class="cfg-card-header">
+                            <div class="cfg-card-icon" style="background:#fef2f2;color:#ef4444">
+                                <i class="material-icons">lock</i>
+                            </div>
+                            <div>
+                                <h3 class="cfg-card-title">Seguridad — Cambiar Contraseña</h3>
+                                <p class="cfg-card-desc">Cambia tu contraseña mediante un token de verificación enviado
+                                    a tu correo</p>
+                            </div>
+                        </div>
+                        <div class="cfg-card-body">
+
+                            <!-- Step indicator -->
+                            <div class="cfg-steps">
+                                <div class="cfg-step cfg-step-active" id="cfgStep1Indicator">
+                                    <div class="cfg-step-num">1</div>
+                                    <span>Solicitar token</span>
+                                </div>
+                                <div class="cfg-step-line" id="cfgStepLine1"></div>
+                                <div class="cfg-step" id="cfgStep2Indicator">
+                                    <div class="cfg-step-num">2</div>
+                                    <span>Verificar token</span>
+                                </div>
+                                <div class="cfg-step-line" id="cfgStepLine2"></div>
+                                <div class="cfg-step" id="cfgStep3Indicator">
+                                    <div class="cfg-step-num">3</div>
+                                    <span>Nueva contraseña</span>
+                                </div>
+                            </div>
+
+                            <!-- Step 1: Request Token -->
+                            <div class="cfg-pw-step" id="cfgPwStep1">
+                                <div class="cfg-pw-info">
+                                    <i class="material-icons"
+                                        style="font-size:40px;color:#3b82f6;opacity:.6">mark_email_read</i>
+                                    <p>Se enviará un token de 6 dígitos a tu correo electrónico registrado para
+                                        verificar tu identidad.</p>
+                                </div>
+                                <div class="cfg-field">
+                                    <label class="cfg-label">Tu correo electrónico</label>
+                                    <div class="cfg-input-icon-wrap">
+                                        <i class="material-icons">email</i>
+                                        <input type="email" class="cfg-input cfg-input-with-icon" id="cfgPwEmail"
+                                            placeholder="tu-correo@dominio.com">
+                                    </div>
+                                </div>
+                                <button class="cfg-btn-primary" id="cfgBtnRequestToken" onclick="cfgRequestToken()">
+                                    <i class="material-icons">send</i> Enviar Token de Verificación
+                                </button>
+                                <div class="cfg-msg" id="cfgMsg1"></div>
+                            </div>
+
+                            <!-- Step 2: Enter Token -->
+                            <div class="cfg-pw-step cfg-pw-step-hidden" id="cfgPwStep2">
+                                <div class="cfg-pw-info">
+                                    <i class="material-icons" style="font-size:40px;color:#22c55e;opacity:.6">pin</i>
+                                    <p>Ingresa el token de 6 dígitos que recibiste en tu correo electrónico.</p>
+                                </div>
+                                <div class="cfg-field">
+                                    <label class="cfg-label">Token de verificación</label>
+                                    <input type="text" class="cfg-input cfg-input-token" id="cfgPwToken" maxlength="6"
+                                        placeholder="000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                                </div>
+                                <div class="cfg-btn-row">
+                                    <button class="cfg-btn-ghost" onclick="cfgBackToStep(1)">
+                                        <i class="material-icons">arrow_back</i> Volver
+                                    </button>
+                                    <button class="cfg-btn-primary" onclick="cfgVerifyToken()">
+                                        <i class="material-icons">verified</i> Verificar Token
+                                    </button>
+                                </div>
+                                <div class="cfg-msg" id="cfgMsg2"></div>
+                            </div>
+
+                            <!-- Step 3: New Password -->
+                            <div class="cfg-pw-step cfg-pw-step-hidden" id="cfgPwStep3">
+                                <div class="cfg-pw-info">
+                                    <i class="material-icons"
+                                        style="font-size:40px;color:#8b5cf6;opacity:.6">lock_reset</i>
+                                    <p>Ingresa tu nueva contraseña. Debe tener al menos 8 caracteres.</p>
+                                </div>
+                                <div class="cfg-field">
+                                    <label class="cfg-label">Nueva contraseña</label>
+                                    <div class="cfg-input-icon-wrap">
+                                        <i class="material-icons">lock</i>
+                                        <input type="password" class="cfg-input cfg-input-with-icon" id="cfgPwNew"
+                                            placeholder="Mínimo 8 caracteres" minlength="8">
+                                    </div>
+                                </div>
+                                <div class="cfg-field">
+                                    <label class="cfg-label">Confirmar contraseña</label>
+                                    <div class="cfg-input-icon-wrap">
+                                        <i class="material-icons">lock_outline</i>
+                                        <input type="password" class="cfg-input cfg-input-with-icon" id="cfgPwConfirm"
+                                            placeholder="Repite la contraseña" minlength="8">
+                                    </div>
+                                </div>
+                                <div class="cfg-btn-row">
+                                    <button class="cfg-btn-ghost" onclick="cfgBackToStep(2)">
+                                        <i class="material-icons">arrow_back</i> Volver
+                                    </button>
+                                    <button class="cfg-btn-primary cfg-btn-danger" onclick="cfgResetPassword()">
+                                        <i class="material-icons">lock_reset</i> Cambiar Contraseña
+                                    </button>
+                                </div>
+                                <div class="cfg-msg" id="cfgMsg3"></div>
+                            </div>
+
+                            <!-- Success State -->
+                            <div class="cfg-pw-step cfg-pw-step-hidden" id="cfgPwSuccess">
+                                <div class="cfg-pw-success">
+                                    <i class="material-icons" style="font-size:56px;color:#22c55e">check_circle</i>
+                                    <h4>¡Contraseña cambiada exitosamente!</h4>
+                                    <p>Tu contraseña ha sido actualizada. Usa la nueva contraseña en tu próximo inicio
+                                        de sesión.</p>
+                                    <button class="cfg-btn-ghost" onclick="cfgResetPwFlow()">
+                                        <i class="material-icons">undo</i> Volver al inicio
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div><!-- /cfg-grid -->
             </div>
 
         </div><!-- /content -->
@@ -1447,7 +2340,7 @@
             if (sectionId === 'reports' && typeof loadReports === 'function') loadReports();
             if (sectionId === 'slider' && typeof loadSliderImages === 'function') loadSliderImages();
             if (sectionId === 'users' && typeof loadUsers === 'function') loadUsers();
-            if (sectionId === 'audit' && typeof loadAuditLogs === 'function') loadAuditLogs();
+            if (sectionId === 'audit' && typeof loadAuditAdmin === 'function') loadAuditAdmin(1);
         };
 
         // ── Logout helpers ────────────────────────────────────────────────────

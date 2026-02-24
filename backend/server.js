@@ -27,10 +27,13 @@ const sliderRoutes = require('./routes/slider');
 const usersRoutes = require('./routes/users');
 const downloadsRoutes = require('./routes/downloads');
 const auditRoutes = require('./routes/audit');
+const configRoutes = require('./routes/config');
+const analyticsRoutes = require('./routes/analytics');
 const statsRoutes = require('./routes/stats');
 const elasticRoutes = require('./routes/elastic');
 const sqlserverRoutes = require('./routes/sqlserver');
 const clickhouseRoutes = require('./routes/clickhouseserver');
+const alertsRoutes = require('./routes/alerts');
 
 // Importar middlewares
 const { authenticateToken, authorizeRole } = require('./middleware/auth');
@@ -74,15 +77,36 @@ const limiter = rateLimit({
     message: 'Demasiadas peticiones desde esta IP, por favor intente más tarde.'
 });
 
-const strictLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5, // Límite más estricto para rutas sensibles
-    message: 'Demasiados intentos. Por favor intente más tarde.'
+// Rate limiter inteligente para login:
+// - Solo cuenta intentos FALLIDOS (skipSuccessfulRequests: true)
+// - Devuelve tiempo restante y nro de intentos
+const loginLimiter = rateLimit({
+    windowMs: 2 * 60 * 1000,  // 2 minutos (era 5)
+    max: 10,                   // 10 intentos fallidos por ventana (era 5)
+    skipSuccessfulRequests: true, // ¡No penalizar logins exitosos!
+    standardHeaders: true,     // Envía RateLimit-* headers
+    legacyHeaders: false,
+    handler: (req, res, next, options) => {
+        const retryAfterSec = Math.ceil(options.windowMs / 1000);
+        const retryAfterMin = Math.ceil(retryAfterSec / 60);
+        res.status(429).json({
+            error: 'Demasiados intentos fallidos',
+            message: `Has superado el límite de ${options.max} intentos. Intenta nuevamente en ${retryAfterMin} minuto${retryAfterMin > 1 ? 's' : ''}.`,
+            retryAfter: retryAfterSec,
+            retryAfterMin: retryAfterMin,
+            maxAttempts: options.max,
+            attemptsLeft: 0
+        });
+    }
 });
 
 app.use('/api/', limiter);
-app.use('/api/auth/login', strictLimiter);
-app.use('/api/auth/register', strictLimiter);
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/register', rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Demasiados intentos de registro. Intenta en 15 minutos.' }
+}));
 
 // Body parsers - IMPORTANTE: No usar json parser para rutas con archivos
 // Solo usar urlencoded para datos de formulario normales
@@ -97,8 +121,10 @@ app.use('/api/users', jsonParser);
 app.use('/api/stats', jsonParser);
 app.use('/api/slider', jsonParser);
 app.use('/api/audit', jsonParser);
+app.use('/api/config', jsonParser);
+app.use('/api/analytics', jsonParser);
 app.use('/api/downloads', jsonParser);
-// NO aplicar a /api/reports porque usa multer
+app.use('/api/reports', jsonParser);  // Safe: express.json() only parses application/json, multer handles multipart separately
 
 // Servir archivos estáticos desde frontend/
 app.use(express.static(path.join(process.cwd(), '../frontend')));
@@ -136,8 +162,11 @@ app.use('/api/users', usersRoutes);
 app.use('/api/downloads', downloadsRoutes);
 app.use('/api/sqlserver', sqlserverRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/config', configRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/elastic', elasticRoutes);
+app.use('/api/alerts', alertsRoutes);
 
 // ========================================
 // RUTAS PARA SERVIR HTML

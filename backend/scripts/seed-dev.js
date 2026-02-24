@@ -157,6 +157,36 @@ CREATE TABLE IF NOT EXISTS system_config (
     updated_at TEXT DEFAULT (datetime('now')),
     updated_by TEXT
 );
+
+-- Tabla de dispositivos confiables para 2FA
+CREATE TABLE IF NOT EXISTS trusted_devices (
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    user_id TEXT NOT NULL,
+    ip_address TEXT NOT NULL,
+    device_fingerprint TEXT NOT NULL,
+    user_agent TEXT,
+    label TEXT DEFAULT 'Dispositivo',
+    created_at TEXT DEFAULT (datetime('now')),
+    last_used TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabla de eventos de analítica web (tracking anónimo)
+CREATE TABLE IF NOT EXISTS page_events (
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    session_id TEXT NOT NULL,
+    page TEXT NOT NULL,
+    section TEXT,
+    event_type TEXT NOT NULL DEFAULT 'pageview',
+    event_target TEXT,
+    device_type TEXT DEFAULT 'desktop',
+    browser TEXT,
+    os TEXT,
+    screen_width INTEGER,
+    referrer TEXT,
+    duration_seconds INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+);
 `);
 
 console.log('✅ Tablas creadas correctamente');

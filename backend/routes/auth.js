@@ -13,6 +13,8 @@ const { asyncHandler, AppError } = require('../middleware/errorHandler');
 const { sendVerificationCode, sendPasswordResetToken } = require('../utils/emailService');
 const logger = require('../utils/logger');
 const crypto = require('crypto');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
 /**
  * Middleware para verificar token JWT
@@ -237,11 +239,11 @@ const require2FA = async (req, res, next) => {
 };
 
 function hashEmail(email) {
-  const secret = process.env.SECRET_KEY_EMAIL_HASH;
-  return crypto
-    .createHmac('sha256', secret)
-    .update(email.toLowerCase().trim())
-    .digest('hex');
+    const secret = process.env.SECRET_KEY_EMAIL_HASH;
+    return crypto
+        .createHmac('sha256', secret)
+        .update(email.toLowerCase().trim())
+        .digest('hex');
 }
 
 function maskEmail(email) {
@@ -274,7 +276,7 @@ router.post('/login', [
         throw new AppError('Datos inválidos', 400);
     }
 
-    const { email, password } = req.body;
+    const { email, password, device_fingerprint } = req.body;
 
     const emailHash = hashEmail(email);
     const emailMask = maskEmail(email);
@@ -284,7 +286,7 @@ router.post('/login', [
         'SELECT * FROM users WHERE email = $1',
         [emailHash]
     );
-    
+
     if (userResult.rows.length === 0) {
         userResult = await query(
             'SELECT * FROM users WHERE email = $1',
@@ -308,7 +310,46 @@ router.post('/login', [
         throw new AppError('Cuenta desactivada. Contacta al administrador.', 403);
     }
 
-    // Generar token JWT
+    // ── 2FA Check ──────────────────────────────────────────────────────
+    if (user.totp_enabled) {
+        const clientIP = req.ip || req.connection.remoteAddress;
+        const fingerprint = device_fingerprint || '';
+
+        // Check if this device is trusted
+        const trustedResult = await query(
+            `SELECT id FROM trusted_devices 
+             WHERE user_id = $1 AND ip_address = $2 AND device_fingerprint = $3`,
+            [user.id, clientIP, fingerprint]
+        );
+
+        if (trustedResult.rows.length > 0) {
+            // Device is trusted → update last_used and proceed with normal login
+            await query(
+                `UPDATE trusted_devices SET last_used = datetime('now') WHERE id = $1`,
+                [trustedResult.rows[0].id]
+            );
+            logger.info(`Dispositivo confiable detectado para ${emailMask}, skip 2FA`);
+        } else {
+            // Device NOT trusted → require 2FA
+            // Generate a temporary token (short-lived, not a full JWT)
+            const tempToken = jwt.sign(
+                { userId: user.id, email: user.email, role: user.role, pending_2fa: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m' }
+            );
+
+            logger.info(`2FA requerido para ${emailMask} desde IP ${clientIP}`);
+
+            return res.json({
+                requires_2fa: true,
+                temp_token: tempToken,
+                message: 'Verificación de doble factor requerida'
+            });
+        }
+    }
+    // ── End 2FA Check ──────────────────────────────────────────────────
+
+    // Generar token JWT completo
     const token = jwt.sign(
         { userId: user.id, email: user.email, role: user.role },
         process.env.JWT_SECRET,
@@ -336,7 +377,7 @@ router.post('/login', [
         [user.id]
     );
 
-    logger.info(`Usuario ${email} inició sesión exitosamente`);
+    logger.info(`Usuario ${emailMask} inició sesión exitosamente`);
 
     res.json({
         message: 'Inicio de sesión exitoso',
@@ -430,18 +471,26 @@ router.post('/send-verification-code', [
     const emailHash = hashEmail(email);
     const emailMask = maskEmail(email);
 
-    // Crear usuario temporal con rol 'user'
-    const userResult = await query(
+    // Crear usuario temporal con rol 'user' (upsert)
+    await query(
         `INSERT INTO users (email, email_mask, name, role, is_active, email_verified, password_hash, created_at)
          VALUES ($1, $2, $3, 'user', false, false, '', NOW())
          ON CONFLICT (email) DO UPDATE SET
          name = EXCLUDED.name,
-         updated_at = NOW()
-         RETURNING id, email, name, role`,
+         updated_at = NOW()`,
         [emailHash, emailMask, name]
     );
 
+    // Obtener el usuario (funciona tanto si se insertó como si se actualizó)
+    const userResult = await query(
+        'SELECT id, email, name, role FROM users WHERE email = $1',
+        [emailHash]
+    );
+
     const user = userResult.rows[0];
+    if (!user) {
+        throw new AppError('Error interno: no se pudo crear/actualizar el usuario', 500);
+    }
 
     // Guardar código de verificación en la base de datos
     const expirationTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
@@ -450,23 +499,29 @@ router.post('/send-verification-code', [
         [verificationCode, expirationTime, user.id]
     );
 
-    console.log(`Código de verificación para ${email}: ${verificationCode}`);
+    console.log(`\n╔══════════════════════════════════════════════════╗`);
+    console.log(`║  CÓDIGO DE VERIFICACIÓN: ${verificationCode}                  ║`);
+    console.log(`║  Para: ${email.padEnd(40)} ║`);
+    console.log(`╚══════════════════════════════════════════════════╝\n`);
 
     // Enviar email con código de verificación
+    let emailSent = false;
     try {
         const emailResult = await sendVerificationCode(email, verificationCode, name);
         logger.info(`Código de verificación enviado exitosamente a ${emailMask} para usuario ${user.id}: ${emailResult.messageId}`);
+        emailSent = true;
     } catch (emailError) {
         logger.error(`Error al enviar email a ${emailMask}:`, emailError.message);
-        // Si falla el email, limpiar el código guardado
-        await query(
-            'UPDATE users SET verification_code = NULL, verification_code_expires = NULL, updated_at = NOW() WHERE id = $1',
-            [user.id]
-        );
-        // En desarrollo, continuar y mostrar el código
+        // En producción, limpiar código y fallar
         if (process.env.NODE_ENV !== 'development') {
+            await query(
+                'UPDATE users SET verification_code = NULL, verification_code_expires = NULL, updated_at = NOW() WHERE id = $1',
+                [user.id]
+            );
             throw new AppError('Error al enviar el código de verificación. Intente nuevamente.', 500);
         }
+        // En desarrollo, NO borramos el código para que se pueda verificar usando la consola
+        logger.warn(`[DEV] Email falló pero el código se mantiene en BD. Usar código de la consola: ${verificationCode}`);
     }
 
     // Log
@@ -476,10 +531,20 @@ router.post('/send-verification-code', [
         [user.id, user.id, JSON.stringify({ message: `Código enviado a ${emailMask}` }), req.ip]
     );
 
-    res.json({
-        message: 'Código de verificación enviado exitosamente',
+    const response = {
+        message: emailSent
+            ? 'Código de verificación enviado exitosamente'
+            : 'Código generado (email no disponible en desarrollo)',
         email: email,
-    });
+    };
+
+    // En desarrollo, incluir el código en la respuesta para facilitar pruebas
+    if (process.env.NODE_ENV === 'development' && !emailSent) {
+        response.devCode = verificationCode;
+        response.devWarning = 'Email no configurado. Usar este código para verificar.';
+    }
+
+    res.json(response);
 }));
 
 // ========================================
@@ -596,10 +661,10 @@ router.post('/forgot-password', [
     }
 
     const { email } = req.body;
-    
+
     const emailHash = hashEmail(email);
     const emailMask = maskEmail(email);
-    
+
     // Buscar usuario
     let userResult = await query(
         'SELECT id, name, email FROM users WHERE email = $1 AND is_active = true',
@@ -612,7 +677,7 @@ router.post('/forgot-password', [
             'SELECT id, name, email FROM users WHERE email = $1 AND is_active = true',
             [email]
         );
-        
+
         if (userResult.rows.length === 0) {
             throw new AppError('Usuario no encontrado', 404);
         }
@@ -735,7 +800,7 @@ router.post('/reset-password', [
 
     const emailHash = hashEmail(email);
     const emailMask = maskEmail(email);
-    
+
     // Buscar usuario
     let userResult = await query(
         'SELECT id, name, reset_token, reset_token_expires FROM users WHERE email = $1 AND is_active = true',
@@ -791,6 +856,215 @@ router.post('/reset-password', [
 
     res.json({
         message: 'Contraseña restablecida exitosamente'
+    });
+}));
+
+// ========================================
+// POST /api/auth/2fa/setup
+// Generate TOTP secret and QR code
+// ========================================
+router.post('/2fa/setup', authenticateToken, asyncHandler(async (req, res) => {
+    const secret = speakeasy.generateSecret({
+        name: `VIITS Admin (${req.user.email})`,
+        issuer: 'VIITS-INVIAS'
+    });
+
+    // Save secret to user (not yet enabled)
+    await query(
+        'UPDATE users SET totp_secret = $1 WHERE id = $2',
+        [secret.base32, req.user.id]
+    );
+
+    // Generate QR code as data URL
+    const qrDataUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.json({
+        secret: secret.base32,
+        qr_code: qrDataUrl,
+        message: 'Escanea el código QR con tu aplicación de autenticación'
+    });
+}));
+
+// ========================================
+// POST /api/auth/2fa/enable
+// Enable 2FA after verifying first code
+// ========================================
+router.post('/2fa/enable', authenticateToken, asyncHandler(async (req, res) => {
+    const { code } = req.body;
+
+    if (!code || code.length !== 6) {
+        throw new AppError('Código de 6 dígitos requerido', 400);
+    }
+
+    // Get user's TOTP secret
+    const userResult = await query(
+        'SELECT totp_secret FROM users WHERE id = $1',
+        [req.user.id]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].totp_secret) {
+        throw new AppError('Primero configura 2FA con /2fa/setup', 400);
+    }
+
+    const verified = speakeasy.totp.verify({
+        secret: userResult.rows[0].totp_secret,
+        encoding: 'base32',
+        token: code,
+        window: 1
+    });
+
+    if (!verified) {
+        throw new AppError('Código incorrecto. Intenta de nuevo.', 400);
+    }
+
+    await query(
+        'UPDATE users SET totp_enabled = 1 WHERE id = $1',
+        [req.user.id]
+    );
+
+    logger.info(`2FA habilitado para usuario ${req.user.id}`);
+
+    res.json({ message: 'Autenticación de doble factor habilitada exitosamente' });
+}));
+
+// ========================================
+// POST /api/auth/2fa/disable
+// Disable 2FA
+// ========================================
+router.post('/2fa/disable', authenticateToken, asyncHandler(async (req, res) => {
+    const { password } = req.body;
+
+    if (!password) {
+        throw new AppError('Contraseña requerida para desactivar 2FA', 400);
+    }
+
+    const userResult = await query(
+        'SELECT password_hash FROM users WHERE id = $1',
+        [req.user.id]
+    );
+
+    const isValid = await bcrypt.compare(password, userResult.rows[0].password_hash);
+    if (!isValid) {
+        throw new AppError('Contraseña incorrecta', 401);
+    }
+
+    await query(
+        'UPDATE users SET totp_enabled = 0, totp_secret = NULL WHERE id = $1',
+        [req.user.id]
+    );
+
+    // Remove all trusted devices
+    await query(
+        'DELETE FROM trusted_devices WHERE user_id = $1',
+        [req.user.id]
+    );
+
+    logger.info(`2FA deshabilitado para usuario ${req.user.id}`);
+    res.json({ message: '2FA desactivado exitosamente' });
+}));
+
+// ========================================
+// POST /api/auth/2fa/verify
+// Verify TOTP code during login (uses temp_token)
+// ========================================
+router.post('/2fa/verify', asyncHandler(async (req, res) => {
+    const { temp_token, code, device_fingerprint, trust_device } = req.body;
+
+    if (!temp_token || !code) {
+        throw new AppError('Token temporal y código son requeridos', 400);
+    }
+
+    // Verify temp token
+    let decoded;
+    try {
+        decoded = jwt.verify(temp_token, process.env.JWT_SECRET);
+    } catch (err) {
+        throw new AppError('Token temporal expirado. Inicia sesión de nuevo.', 401);
+    }
+
+    if (!decoded.pending_2fa) {
+        throw new AppError('Token inválido', 400);
+    }
+
+    // Get user's TOTP secret
+    const userResult = await query(
+        'SELECT * FROM users WHERE id = $1',
+        [decoded.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+        throw new AppError('Usuario no encontrado', 404);
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify TOTP code
+    const verified = speakeasy.totp.verify({
+        secret: user.totp_secret,
+        encoding: 'base32',
+        token: code,
+        window: 1
+    });
+
+    if (!verified) {
+        throw new AppError('Código incorrecto', 401);
+    }
+
+    // If user wants to trust this device, save it
+    if (trust_device && device_fingerprint) {
+        const clientIP = req.ip || req.connection.remoteAddress;
+        try {
+            await query(
+                `INSERT INTO trusted_devices (user_id, ip_address, device_fingerprint, user_agent)
+                 VALUES ($1, $2, $3, $4)`,
+                [user.id, clientIP, device_fingerprint, req.get('User-Agent')]
+            );
+            logger.info(`Dispositivo confiable registrado para usuario ${user.id}`);
+        } catch (e) {
+            // Ignore duplicate errors
+            logger.warn(`Error guardando dispositivo confiable: ${e.message}`);
+        }
+    }
+
+    // Generate full JWT token
+    const token = jwt.sign(
+        { userId: user.id, email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
+
+    // Create session
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await query(
+        `INSERT INTO sessions (user_id, token_hash, expires_at, ip_address, user_agent)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [user.id, token.substring(0, 64), expiresAt, req.ip, req.get('User-Agent')]
+    );
+
+    // Audit log
+    await query(
+        `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, ip_address, user_agent)
+         VALUES ($1, 'login_2fa', 'user', $2, $3, $4)`,
+        [user.id, user.id, req.ip, req.get('User-Agent')]
+    );
+
+    // Update last login
+    await query(
+        `UPDATE users SET last_login = datetime('now') WHERE id = $1`,
+        [user.id]
+    );
+
+    logger.info(`Usuario ${user.id} verificó 2FA exitosamente`);
+
+    res.json({
+        message: 'Verificación exitosa',
+        token,
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+        }
     });
 }));
 

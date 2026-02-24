@@ -11,13 +11,14 @@ router.use(authorizeRole(['admin']));
 router.get('/', asyncHandler(async (req, res) => {
     const {
         page = 1,
-        limit = 50,
+        limit = 25,
         action,
         user_id,
         resource_type,
         status,
         date_from,
-        date_to
+        date_to,
+        search
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -32,86 +33,90 @@ router.get('/', asyncHandler(async (req, res) => {
     `;
     const params = [];
 
-    // Filtros
+    // Build WHERE clause (shared between main query and count)
+    let whereClause = '';
+
     if (action) {
         params.push(action);
-        queryStr += ` AND a.action = $${params.length}`;
+        whereClause += ` AND a.action = $${params.length}`;
     }
 
     if (user_id) {
         params.push(user_id);
-        queryStr += ` AND a.user_id = $${params.length}`;
+        whereClause += ` AND a.user_id = $${params.length}`;
     }
 
     if (resource_type) {
         params.push(resource_type);
-        queryStr += ` AND a.resource_type = $${params.length}`;
+        whereClause += ` AND a.resource_type = $${params.length}`;
     }
 
     if (status) {
         params.push(status);
-        queryStr += ` AND a.status = $${params.length}`;
+        whereClause += ` AND a.status = $${params.length}`;
     }
 
     if (date_from) {
         params.push(date_from);
-        queryStr += ` AND a.created_at >= $${params.length}`;
+        whereClause += ` AND a.created_at >= $${params.length}`;
     }
 
     if (date_to) {
         params.push(date_to + ' 23:59:59');
-        queryStr += ` AND a.created_at <= $${params.length}`;
+        whereClause += ` AND a.created_at <= $${params.length}`;
     }
 
-    // Ordenamiento y paginación
+    if (search) {
+        params.push(`%${search}%`);
+        whereClause += ` AND (u.name LIKE $${params.length} OR COALESCE(u.email_mask, u.email) LIKE $${params.length})`;
+    }
+
+    queryStr += whereClause;
+
+    // Ordering & pagination
     queryStr += ` ORDER BY a.created_at DESC`;
-    params.push(limit, offset);
-    queryStr += ` LIMIT $${params.length - 1} OFFSET $${params.length}`;
+    const mainParams = [...params];
+    mainParams.push(parseInt(limit), offset);
+    queryStr += ` LIMIT $${mainParams.length - 1} OFFSET $${mainParams.length}`;
 
-    console.log('Query de auditoría:', queryStr);
-    console.log('Parámetros:', params);
+    const result = await query(queryStr, mainParams);
 
-    const result = await query(queryStr, params);
-
-    // Obtener total para paginación
+    // Count query
     let countQuery = `
         SELECT COUNT(*) as total
         FROM audit_logs a
         LEFT JOIN users u ON a.user_id = u.id
         WHERE 1=1
-    `;
-    const countParams = [];
+    ` + whereClause;
 
-    if (action) {
-        countParams.push(action);
-        countQuery += ` AND a.action = $${countParams.length}`;
-    }
-    if (user_id) {
-        countParams.push(user_id);
-        countQuery += ` AND a.user_id = $${countParams.length}`;
-    }
-    if (resource_type) {
-        countParams.push(resource_type);
-        countQuery += ` AND a.resource_type = $${countParams.length}`;
-    }
-    if (status) {
-        countParams.push(status);
-        countQuery += ` AND a.status = $${countParams.length}`;
-    }
-    if (date_from) {
-        countParams.push(date_from);
-        countQuery += ` AND a.created_at >= $${countParams.length}`;
-    }
-    if (date_to) {
-        countParams.push(date_to + ' 23:59:59');
-        countQuery += ` AND a.created_at <= $${countParams.length}`;
-    }
-
-    const countResult = await query(countQuery, countParams);
+    const countResult = await query(countQuery, params);
     const total = parseInt(countResult.rows[0].total);
 
+    // Stats queries
+    let statsResult;
+    try {
+        const todayQ = await query(`SELECT COUNT(*) as c FROM audit_logs WHERE date(created_at) = date('now')`);
+        const loginQ = await query(`SELECT COUNT(*) as c FROM audit_logs WHERE action = 'login'`);
+        const failedQ = await query(`SELECT COUNT(*) as c FROM audit_logs WHERE status = 'failed'`);
+        statsResult = {
+            today: parseInt(todayQ.rows[0].c),
+            logins: parseInt(loginQ.rows[0].c),
+            failed: parseInt(failedQ.rows[0].c)
+        };
+    } catch (e) {
+        statsResult = { today: 0, logins: 0, failed: 0 };
+    }
+
+    // Parse JSON fields
+    const parsedLogs = result.rows.map(log => {
+        try { if (log.old_values && typeof log.old_values === 'string') log.old_values = JSON.parse(log.old_values); } catch { }
+        try { if (log.new_values && typeof log.new_values === 'string') log.new_values = JSON.parse(log.new_values); } catch { }
+        return log;
+    });
+
     res.json({
-        audit_logs: result.rows,
+        audit_logs: parsedLogs,
+        stats: statsResult,
         pagination: {
             total,
             page: parseInt(page),

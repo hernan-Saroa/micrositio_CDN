@@ -11,10 +11,10 @@ let departmentList = {};
 // ============================================
 // INICIALIZACIÓN
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const deviceCards = document.querySelectorAll('.device-card');
     deviceCards.forEach(card => {
-        card.addEventListener('click', function(event) {
+        card.addEventListener('click', function (event) {
             if (event.target.type === 'checkbox') {
                 event.preventDefault();
             }
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for history link
     const historyLink = document.getElementById('historyLink');
     if (historyLink) {
-        historyLink.addEventListener('click', function() {
+        historyLink.addEventListener('click', function () {
             scrollToHistory();
             toggleUserDropdown(); // Close dropdown after clicking
         });
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for logout link
     const logoutLink = document.getElementById('logoutLink');
     if (logoutLink) {
-        logoutLink.addEventListener('click', function() {
+        logoutLink.addEventListener('click', function () {
             logout();
             toggleUserDropdown(); // Close dropdown after clicking
         });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Verificar sesión al cargar
-window.onload = function() {
+window.onload = function () {
     checkSession();
     initializeDates();
     loadDepartments();
@@ -113,7 +113,7 @@ function checkSession() {
         const sessionTime = new Date(sessionData.timestamp);
         const now = new Date();
         const hoursDiff = (now - sessionTime) / (1000 * 60 * 60);
-        
+
         if (hoursDiff < 24) {
             isLoggedIn = true;
             userInfo = sessionData.user;
@@ -132,7 +132,7 @@ function showUserProfile() {
     document.getElementById('userProfile').classList.add('active');
     document.getElementById('welcomeMessage').classList.add('active');
     document.getElementById('historySection').style.display = 'block';
-    
+
     // Obtener iniciales
     const initials = userInfo.name
         .split(' ')
@@ -140,7 +140,7 @@ function showUserProfile() {
         .join('')
         .toUpperCase()
         .substring(0, 2);
-    
+
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userName').textContent = userInfo.name.split(' ')[0];
     document.getElementById('userEntity').textContent = userInfo.entity;
@@ -173,7 +173,7 @@ function toggleUserDropdown() {
 }
 
 // Cerrar dropdown al hacer clic fuera
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     const userProfile = document.getElementById('userProfile');
     const dropdown = document.getElementById('userDropdown');
     const trigger = document.querySelector('.user-profile-trigger');
@@ -353,7 +353,7 @@ async function loadDownloadHistory(page = 1) {
 
                 return `
                     <tr>
-                        <td>${(index + 1) + ((currentPage-1)*10)}</td>
+                        <td>${(index + 1) + ((currentPage - 1) * 10)}</td>
                         <td>${fechaSolicitud}</td>
                         <td>${download.filters.deviceType}</td>
                         <td>${download.filters.department == 'all' ? 'Todos' : download.filters.department}</td>
@@ -362,9 +362,9 @@ async function loadDownloadHistory(page = 1) {
                         <td>${tamano}</td>
                         <td>
                             ${status === 'completed'
-                                ? `<span class="table-status ${statusClass}">${statusText}</span>`
-                                : status === 'processing'
-                                ? `
+                        ? `<span class="table-status ${statusClass}">${statusText}</span>`
+                        : status === 'processing'
+                            ? `
                                     <div class="table-action-progress">
                                         <span class="table-status ${statusClass}">${statusText}</span>
                                         <div class="progress-bar-small">
@@ -372,16 +372,16 @@ async function loadDownloadHistory(page = 1) {
                                         </div>
                                     </div>
                                 `
-                                : `<span class="table-status ${statusClass}">${statusText}</span>`
-                            }
+                            : `<span class="table-status ${statusClass}">${statusText}</span>`
+                    }
                         </td>
                         <td>
                             ${status === 'completed'
-                                ? `<button class="table-action-btn" onclick="downloadFile('${download.id}')" title="Descargar archivo">
+                        ? `<button class="table-action-btn" onclick="downloadFile('${download.id}')" title="Descargar archivo">
                                     <i class="material-icons">download</i>
                                 </button>`
-                                : '<span style="color: #9ca3af; font-size: 0.75rem;">-</span>'
-                            }
+                        : '<span style="color: #9ca3af; font-size: 0.75rem;">-</span>'
+                    }
                         </td>
                     </tr>
                 `;
@@ -572,23 +572,23 @@ function validateDateRange() {
     const startDate = new Date(document.getElementById('startDate').value);
     const endDate = new Date(document.getElementById('endDate').value);
     const dateError = document.getElementById('dateError');
-    
+
     if (startDate > endDate) {
         dateError.textContent = 'La fecha inicial no puede ser mayor que la fecha final';
         dateError.style.display = 'block';
         return false;
     }
-    
+
     const diffTime = Math.abs(endDate - startDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays > 7) {
         // dateError.textContent = 'El rango máximo permitido es de 90 días (3 meses)';
         dateError.textContent = 'El rango máximo permitido es de 7 días';
         dateError.style.display = 'block';
         return false;
     }
-    
+
     dateError.style.display = 'none';
     return true;
 }
@@ -683,37 +683,37 @@ async function loadSectorsForDepartment(departmentKey) {
         // const data = await response.json();
 
         // if (data.success) {
-            const sectorSelect = document.getElementById('sector');
-            const sectors = new Set();
+        const sectorSelect = document.getElementById('sector');
+        const sectors = new Set();
 
-            // Si hay un dispositivo seleccionado, filtrar sectores por ese tipo
-            if (selectedDevices.length > 0) {
-                const selectedTipo = selectedDevices[0];
-                if (departmentList[selectedTipo] && departmentList[selectedTipo][departmentKey] && departmentList[selectedTipo][departmentKey].sectores) {
-                    Object.keys(departmentList[selectedTipo][departmentKey].sectores).forEach(sector => {
+        // Si hay un dispositivo seleccionado, filtrar sectores por ese tipo
+        if (selectedDevices.length > 0) {
+            const selectedTipo = selectedDevices[0];
+            if (departmentList[selectedTipo] && departmentList[selectedTipo][departmentKey] && departmentList[selectedTipo][departmentKey].sectores) {
+                Object.keys(departmentList[selectedTipo][departmentKey].sectores).forEach(sector => {
+                    sectors.add(sector);
+                });
+            }
+        } else {
+            // Si no hay dispositivo seleccionado, mostrar todos los sectores del departamento
+            Object.keys(departmentList).forEach(tipo => {
+                if (departmentList[tipo][departmentKey] && departmentList[tipo][departmentKey].sectores) {
+                    Object.keys(departmentList[tipo][departmentKey].sectores).forEach(sector => {
                         sectors.add(sector);
                     });
                 }
-            } else {
-                // Si no hay dispositivo seleccionado, mostrar todos los sectores del departamento
-                Object.keys(departmentList).forEach(tipo => {
-                    if (departmentList[tipo][departmentKey] && departmentList[tipo][departmentKey].sectores) {
-                        Object.keys(departmentList[tipo][departmentKey].sectores).forEach(sector => {
-                            sectors.add(sector);
-                        });
-                    }
-                });
-            }
-
-            // Agregar sectores ordenados
-            Array.from(sectors).sort().forEach(sector => {
-                const option = document.createElement('option');
-                option.value = sector;
-                option.textContent = sector;
-                sectorSelect.appendChild(option);
             });
+        }
 
-            console.log(`Sectores cargados para ${departmentKey}: ${sectors.size}`);
+        // Agregar sectores ordenados
+        Array.from(sectors).sort().forEach(sector => {
+            const option = document.createElement('option');
+            option.value = sector;
+            option.textContent = sector;
+            sectorSelect.appendChild(option);
+        });
+
+        console.log(`Sectores cargados para ${departmentKey}: ${sectors.size}`);
         // }
     } catch (error) {
         console.error('Error al cargar sectores:', error);
@@ -727,14 +727,14 @@ function nextStep() {
             return;
         }
     }
-    
+
     if (currentStep === 2) {
         if (!validateDateRange()) {
             return;
         }
         updateSummary(); // Actualizar resumen cuando se pasa al paso 3
     }
-    
+
     if (currentStep === 3) {
         if (!document.getElementById('termsAccept').checked) {
             openTermsModal();
@@ -750,7 +750,7 @@ function nextStep() {
         }
         return;
     }
-    
+
     currentStep++;
     updateStepDisplay();
 }
@@ -771,16 +771,16 @@ function updateStepDisplay() {
             step.classList.add('active');
         }
     });
-    
+
     document.querySelectorAll('.step-content').forEach((content, index) => {
         content.classList.remove('active');
         if (index + 1 === currentStep) {
             content.classList.add('active');
         }
     });
-    
+
     document.getElementById('btnBack').style.display = currentStep > 1 ? 'inline-flex' : 'none';
-    document.getElementById('btnNext').innerHTML = currentStep === 3 
+    document.getElementById('btnNext').innerHTML = currentStep === 3
         ? 'Confirmar y Descargar <i class="material-icons">download</i>'
         : 'Siguiente <i class="material-icons">arrow_forward</i>';
 }
@@ -844,12 +844,12 @@ function resetForm() {
     document.getElementById('userEntityInput').value = '';
     document.getElementById('otpSection').classList.remove('visible');
     codeSent = false;
-    
+
     for (let i = 1; i <= 6; i++) {
         document.getElementById(`otp${i}`).value = '';
         document.getElementById(`otp${i}`).classList.remove('filled');
     }
-    
+
     document.getElementById('codeError').style.display = 'none';
 }
 
@@ -934,6 +934,17 @@ async function sendVerificationCode() {
 
         document.getElementById('otp1').focus();
 
+        // Si el backend devolvió devCode (email no configurado en dev), mostrar banner
+        if (data.devCode) {
+            const existing = document.getElementById('devCodeBanner');
+            if (existing) existing.remove();
+            const devBanner = document.createElement('div');
+            devBanner.id = 'devCodeBanner';
+            devBanner.style.cssText = 'background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:10px 14px;margin:10px 0 0;font-size:.82rem;color:#92400e;text-align:center;';
+            devBanner.innerHTML = `⚠️ <strong>Dev:</strong> Email no configurado. Tu código es: <code style="font-weight:700;font-size:1.1rem;letter-spacing:3px;color:#d97706">${data.devCode}</code>`;
+            document.getElementById('otpSection').appendChild(devBanner);
+        }
+
     } catch (error) {
         console.error('Error:', error);
         alert('Error al enviar el código: ' + error.message);
@@ -946,32 +957,32 @@ async function sendVerificationCode() {
 function updateCountdown() {
     const minutes = Math.floor(remainingSeconds / 60);
     const seconds = remainingSeconds % 60;
-    document.getElementById('countdown').textContent = 
+    document.getElementById('countdown').textContent =
         `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
+
     if (remainingSeconds <= 0) {
         clearInterval(countdownTimer);
         handleCodeExpiration();
     }
-    
+
     remainingSeconds--;
 }
 
 function handleCodeExpiration() {
     document.getElementById('codeError').style.display = 'block';
     document.getElementById('codeErrorMessage').textContent = 'El código ha expirado. Por favor solicite uno nuevo.';
-    
+
     for (let i = 1; i <= 6; i++) {
         document.getElementById(`otp${i}`).disabled = true;
     }
-    
+
     document.getElementById('btnActionText').textContent = 'Solicitar Nuevo Código';
     document.getElementById('btnActionIcon').textContent = 'refresh';
 }
 
 function moveToNext(current, nextId) {
     current.value = current.value.replace(/[^0-9]/g, '');
-    
+
     if (current.value.length === 1) {
         current.classList.add('filled');
         if (nextId) {
@@ -985,7 +996,7 @@ function moveToNext(current, nextId) {
 function handlePaste(event) {
     event.preventDefault();
     const pastedData = event.clipboardData.getData('text').trim();
-    
+
     if (/^\d{6}$/.test(pastedData)) {
         for (let i = 0; i < 6; i++) {
             const input = document.getElementById(`otp${i + 1}`);
@@ -1090,7 +1101,7 @@ async function verifyCode() {
 function showCodeError(message) {
     document.getElementById('codeErrorMessage').textContent = message;
     document.getElementById('codeError').style.display = 'block';
-    
+
     setTimeout(() => {
         document.getElementById('codeError').style.display = 'none';
     }, 5000);
@@ -1119,7 +1130,7 @@ async function processDownload() {
         'radares': 'Radares'
     };
     let department = document.getElementById('department').selectedOptions[0]?.text || 'Todos los departamentos';
-    let sector =  document.getElementById('sector').selectedOptions[0]?.text || 'Todos los sectores'
+    let sector = document.getElementById('sector').selectedOptions[0]?.text || 'Todos los sectores'
     let devices = []
     if (sector !== 'Todos los sectores' && department !== 'Todos los departamentos') {
         devices = departmentList[selectedDevices[0]][department.toLowerCase()]['sectores'][sector];

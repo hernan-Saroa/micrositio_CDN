@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { query } = require('../config/database');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const { createClient } = require('@clickhouse/client');
 const fs = require('fs');
 const path = require('path');
@@ -64,7 +64,7 @@ const tableConfigs = {
     },
     'RadaresVelocidad': {
         headers: ['LONGITUD', 'LATITUD', 'FECHA', 'DESCRIP_CATALOGO', 'VELOCIDAD'],
-        fields: ['fnCtlgLng', 'fnCtlgLat', 'fdFecha','fcCtlgDesc', 'fnPldSpeed']
+        fields: ['fnCtlgLng', 'fnCtlgLat', 'fdFecha', 'fcCtlgDesc', 'fnPldSpeed']
     }
 };
 
@@ -138,7 +138,7 @@ async function processCsvGeneration(task) {
             ORDER BY toDate(fdFecha), fcCtlgDesc
         `;
 
-         // Generar nombre de archivo
+        // Generar nombre de archivo
         const fileName = `${tableName}_${downloadId}_${new Date().toISOString().split('T')[0]}.csv`;
         const filePath = path.join(__dirname, '../temp', fileName);
 
@@ -308,12 +308,12 @@ function parseExcelFechaInicio(value) {
 // ----------- BUSCAR MATCH EN EXCEL ------------
 function findGeo(excelData, dispositivo, desdeStr, hastaStr) {
     const dispositivoId = getDeviceIdFromDispositivo(dispositivo);
-    
+
     if (!dispositivoId) return null;
 
     const [d1, m1, y1] = desdeStr.split('/').map(Number);
     const [d2, m2, y2] = hastaStr.split('/').map(Number);
-    
+
     const desde = new Date(y1, m1 - 1, d1);
     const hasta = new Date(y2, m2 - 1, d2);
     // console.log('dispositivoId:', dispositivoId, 'desde:', desde, 'hasta:', hasta);
@@ -364,6 +364,136 @@ const clickhouseConfig = {
     password: process.env.CLICKHOUSE_PASSWORD || '',
 };
 
+// GET /api/downloads/all - Admin: ver TODAS las descargas con info del usuario
+router.get('/all', authenticateToken, authorizeRole(['admin']), asyncHandler(async (req, res) => {
+    console.log('📥 [ADMIN] GET /api/downloads/all llamado', { page: req.query.page, status: req.query.status, search: req.query.search });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 15;
+    const offset = (page - 1) * limit;
+    const status = req.query.status || '';
+    const search = req.query.search || '';
+
+    // Construir condiciones WHERE
+    let conditions = [];
+    let params = [];
+    let paramIndex = 1;
+
+    if (status) {
+        conditions.push(`d.status = $${paramIndex}`);
+        params.push(status);
+        paramIndex++;
+    }
+    if (search) {
+        conditions.push(`(u.name LIKE $${paramIndex} OR u.email LIKE $${paramIndex})`);
+        params.push(`%${search}%`);
+        paramIndex++;
+    }
+
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
+
+    // Estadísticas globales
+    const statsResult = await query(`
+        SELECT 
+            COUNT(*) as total_downloads,
+            COUNT(CASE WHEN d.status = 'completed' THEN 1 END) as completed,
+            COUNT(CASE WHEN d.status = 'processing' THEN 1 END) as processing,
+            COUNT(CASE WHEN d.status = 'failed' THEN 1 END) as failed,
+            COUNT(CASE WHEN d.status = 'completed' AND date(d.completed_at) = date('now') THEN 1 END) as completed_today
+        FROM downloads d
+        LEFT JOIN users u ON d.user_id = u.id
+        ${whereClause}
+    `, params);
+
+    const stats = statsResult.rows[0] || {};
+
+    // Total para paginación (usando las mismas condiciones)
+    const totalResult = await query(`
+        SELECT COUNT(*) as total 
+        FROM downloads d
+        LEFT JOIN users u ON d.user_id = u.id
+        ${whereClause}
+    `, params);
+    const total = parseInt(totalResult.rows[0].total);
+
+    // Consulta principal con JOIN a users
+    const mainParams = [...params, limit, offset];
+    const result = await query(`
+        SELECT 
+            d.id,
+            d.user_id,
+            d.resource_type,
+            d.resource_id,
+            d.file_name,
+            d.filters,
+            d.status,
+            d.download_url,
+            d.expires_at,
+            d.ip_address,
+            d.user_agent,
+            d.created_at,
+            d.completed_at,
+            u.name as user_name,
+            COALESCE(u.email_mask, u.email) as user_email,
+            u.role as user_role
+        FROM downloads d
+        LEFT JOIN users u ON d.user_id = u.id
+        ${whereClause}
+        ORDER BY d.created_at DESC
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `, mainParams);
+
+    // Procesar resultados para agregar info del archivo y parsear filters
+    const downloads = await Promise.all(result.rows.map(async (dl) => {
+        const data = { ...dl };
+
+        // Parsear filters JSON
+        try {
+            data.filters_parsed = dl.filters ? JSON.parse(dl.filters) : null;
+        } catch { data.filters_parsed = null; }
+
+        // Verificar archivo si está completada
+        if (dl.status === 'completed' && dl.download_url) {
+            try {
+                const fileName = dl.download_url.replace('/temp/', '');
+                const filePath = path.join(__dirname, '../temp', fileName);
+                if (fs.existsSync(filePath)) {
+                    const fstats = fs.statSync(filePath);
+                    data.file_size = fstats.size;
+                    data.file_size_formatted = formatFileSize(fstats.size);
+                } else {
+                    data.status = 'expired';
+                    data.file_size_formatted = 'Expirado';
+                }
+            } catch {
+                data.file_size_formatted = 'Error';
+            }
+        } else {
+            data.file_size_formatted = '-';
+        }
+
+        return data;
+    }));
+
+    res.json({
+        downloads,
+        stats: {
+            total_downloads: parseInt(stats.total_downloads || 0),
+            completed: parseInt(stats.completed || 0),
+            processing: parseInt(stats.processing || 0),
+            failed: parseInt(stats.failed || 0),
+            completed_today: parseInt(stats.completed_today || 0),
+        },
+        pagination: {
+            current_page: page,
+            per_page: limit,
+            total,
+            total_pages: Math.ceil(total / limit),
+            has_next: page * limit < total,
+            has_prev: page > 1
+        }
+    });
+}));
+
 // GET /api/downloads/:id/status - Validar estado de descarga
 router.get('/:id/status', authenticateToken, asyncHandler(async (req, res) => {
     const { id } = req.params;
@@ -407,6 +537,13 @@ router.get('/', authenticateToken, asyncHandler(async (req, res) => {
     // Procesar cada descarga para agregar información del archivo si está completada
     const downloadsWithFileInfo = await Promise.all(result.rows.map(async (download) => {
         const downloadData = { ...download };
+
+        // Parsear filters JSON string a objeto
+        try {
+            downloadData.filters = typeof download.filters === 'string'
+                ? JSON.parse(download.filters)
+                : (download.filters || {});
+        } catch { downloadData.filters = {}; }
 
         // Si está completada y tiene download_url, verificar el archivo
         if (download.status === 'completed' && download.download_url) {
@@ -472,19 +609,6 @@ router.post('/', authenticateToken, asyncHandler(async (req, res) => {
         });
     }
 
-    // Insertar nueva descarga
-    const insertQuery = `
-        INSERT INTO downloads (
-            user_id,
-            resource_type,
-            filters,
-            status,
-            ip_address,
-            user_agent
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, created_at
-    `;
-
     const filters = {
         deviceType,
         devices,
@@ -495,18 +619,27 @@ router.post('/', authenticateToken, asyncHandler(async (req, res) => {
         days: days || null
     };
 
-    const result = await query(insertQuery, [
-        req.user.id,
-        'traffic_data',
-        JSON.stringify(filters),
-        'pending',
-        req.ip,
-        req.get('User-Agent')
-    ]);
+    // Generar ID único para la descarga
+    const downloadId = require('crypto').randomBytes(16).toString('hex');
+
+    // Insertar nueva descarga (sin RETURNING para compatibilidad SQLite)
+    await query(
+        `INSERT INTO downloads (id, user_id, resource_type, filters, status, ip_address, user_agent, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+        [downloadId, req.user.id, 'traffic_data', JSON.stringify(filters), 'pending', req.ip, req.get('User-Agent')]
+    );
+
+    // Obtener la descarga recién creada
+    const result = await query('SELECT id, created_at FROM downloads WHERE id = $1', [downloadId]);
+    const download = result.rows[0];
+
+    if (!download) {
+        return res.status(500).json({ error: 'Error al crear la descarga' });
+    }
 
     // Agregar tarea a la cola para procesamiento asíncrono
     processingQueue.push({
-        downloadId: result.rows[0].id,
+        downloadId: download.id,
         filters: filters
     });
 
@@ -515,8 +648,8 @@ router.post('/', authenticateToken, asyncHandler(async (req, res) => {
 
     res.status(201).json({
         success: true,
-        downloadId: result.rows[0].id,
-        created_at: result.rows[0].created_at,
+        downloadId: download.id,
+        created_at: download.created_at,
         message: 'Descarga creada exitosamente. El archivo CSV se está generando en segundo plano.'
     });
 }));

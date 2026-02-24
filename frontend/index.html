@@ -22,28 +22,31 @@
 -->
 
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad - INVIAS">
+    <meta name="description"
+        content="Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad - INVIAS">
     <meta name="author" content="Instituto Nacional de Vías - INVIAS">
     <meta name="theme-color" content="#f97316">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <title>VIITS - Sistema de Vigilancia Inteligente | INVIAS | Gov.co</title>
-    
+
     <!-- Preconnect para mejor performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    
+
     <!-- Gov.co Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Material Icons CDN -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -53,24 +56,26 @@
     <!-- CSS Externo -->
     <link rel="stylesheet" href="styles/index.css">
 </head>
+
 <body>
     <!-- Skip Navigation Link -->
     <a href="#main-content" class="sr-only sr-only-focusable skip-link">Saltar al contenido principal</a>
 
     <!-- Scroll Progress Bar -->
     <div class="scroll-progress" id="scrollProgress" role="progressbar" aria-label="Progreso de lectura"></div>
-    
+
     <!-- Scroll to Top Button -->
     <button class="scroll-to-top" id="scrollToTop" aria-label="Volver arriba">
         <i class="material-icons">keyboard_arrow_up</i>
     </button>
-    
+
     <!-- Gov.co Header Oficial -->
     <header class="gov-header" role="banner">
         <div class="container">
             <div class="gov-content">
                 <div class="gov-logo">
-                    <img src="images/govco.png" alt="Logo Gobierno de Colombia - Gov.co" style="height: clamp(21px, 8vw, 40px); width: auto;">
+                    <img src="images/govco.png" alt="Logo Gobierno de Colombia - Gov.co"
+                        style="height: clamp(21px, 8vw, 40px); width: auto;">
                 </div>
                 <nav class="gov-right" aria-label="Enlaces gubernamentales">
                     <a href="https://www.gov.co" class="gov-link" target="_blank">Inicio</a>
@@ -84,18 +89,24 @@
     <nav class="navbar" role="navigation" aria-label="Menú principal">
         <div class="container">
             <div class="navbar-content">
-                <a href="javascript:void(0)" onclick="scrollToSection('inicio')" class="navbar-brand" aria-label="VIITS - Sistema de Vigilancia Inteligente de INVIAS">
-                    <img src="images/VIITS-LOGO.png" alt="Logo VIITS - Sistema de Vigilancia Inteligente de INVIAS" style="height: clamp(40px, 8vw, 50px); width: auto;">
+                <a href="javascript:void(0)" onclick="scrollToSection('inicio')" class="navbar-brand"
+                    aria-label="VIITS - Sistema de Vigilancia Inteligente de INVIAS">
+                    <img src="images/VIITS-LOGO.png" alt="Logo VIITS - Sistema de Vigilancia Inteligente de INVIAS"
+                        style="height: clamp(40px, 8vw, 50px); width: auto;">
                 </a>
 
                 <div class="navbar-menu" role="menubar">
                     <a href="#" class="navbar-link active" role="menuitem" aria-current="page">Inicio</a>
-                    <a href="javascript:void(0)" onclick="scrollToSection('que-es')" class="navbar-link" role="menuitem">Quiénes Somos</a>
+                    <a href="javascript:void(0)" onclick="scrollToSection('que-es')" class="navbar-link"
+                        role="menuitem">Quiénes Somos</a>
                     <a href="documentos.html" class="navbar-link" role="menuitem">Información Pública</a>
-                    <a href="participacion-ciudadana.html" class="navbar-link" role="menuitem" style="background: linear-gradient(135deg, var(--color-primary), #ea580c); color: white; padding: 0.5rem 1rem; border-radius: 4px; border: none;" aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
+                    <a href="participacion-ciudadana.html" class="navbar-link" role="menuitem"
+                        style="background: linear-gradient(135deg, var(--color-primary), #ea580c); color: white; padding: 0.5rem 1rem; border-radius: 4px; border: none;"
+                        aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
                 </div>
 
-                <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="mobileMenu">
+                <button class="navbar-toggle" onclick="toggleMobileMenu()" aria-label="Abrir menú de navegación"
+                    aria-expanded="false" aria-controls="mobileMenu">
                     <i class="material-icons" aria-hidden="true">menu</i>
                 </button>
             </div>
@@ -103,10 +114,14 @@
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación móvil" aria-hidden="true">
+    <div id="mobileMenu" class="mobile-menu" role="dialog" aria-modal="true" aria-label="Menú de navegación móvil"
+        aria-hidden="true">
         <div class="mobile-menu-header">
-            <a href="javascript:void(0)" onclick="scrollToSection('inicio')" style="font-weight: 700; font-size: 1.25rem; color: var(--color-secondary); text-decoration: none;" aria-label="VIITS - Ir al inicio">VIITS</a>
-            <button onclick="toggleMobileMenu()" aria-label="Cerrar menú de navegación móvil" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
+            <a href="javascript:void(0)" onclick="scrollToSection('inicio')"
+                style="font-weight: 700; font-size: 1.25rem; color: var(--color-secondary); text-decoration: none;"
+                aria-label="VIITS - Ir al inicio">VIITS</a>
+            <button onclick="toggleMobileMenu()" aria-label="Cerrar menú de navegación móvil"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; padding: 0.5rem;">
                 <i class="material-icons" aria-hidden="true">close</i>
             </button>
         </div>
@@ -114,772 +129,1017 @@
             <a href="#" class="mobile-menu-link active" aria-current="page">Inicio</a>
             <a href="javascript:void(0)" onclick="scrollToSection('que-es')" class="mobile-menu-link">Quiénes Somos</a>
             <a href="documentos.html" class="mobile-menu-link">Información Pública</a>
-            <a href="participacion-ciudadana.html" class="mobile-menu-link" style="background: var(--color-primary); color: white; text-align: center; border-radius: 4px; border-left: none;" aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
+            <a href="participacion-ciudadana.html" class="mobile-menu-link"
+                style="background: var(--color-primary); color: white; text-align: center; border-radius: 4px; border-left: none;"
+                aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
         </nav>
     </div>
 
     <!-- Hero Section - Slider Mejorado y Responsive -->
     <main id="main-content">
-    <section id="inicio" class="hero" role="banner" aria-labelledby="hero-title">
-        <div class="slider-container">
-            <div class="slider-wrapper" id="sliderWrapper">
-                <!-- Los slides se cargarán dinámicamente desde la base de datos -->
-            </div>
-            
-            <!-- Navegación del Slider -->
-            <button class="slider-nav slider-nav-prev" aria-label="Slide anterior">
-                <i class="material-icons">chevron_left</i>
-            </button>
-            <button class="slider-nav slider-nav-next" aria-label="Siguiente slide">
-                <i class="material-icons">chevron_right</i>
-            </button>
+        <section id="inicio" class="hero" role="banner" aria-labelledby="hero-title" data-track-section="inicio">
+            <div class="slider-container">
+                <div class="slider-wrapper" id="sliderWrapper">
+                    <!-- Los slides se cargarán dinámicamente desde la base de datos -->
+                </div>
 
-            <!-- Indicadores del Slider -->
-            <div class="slider-indicators" role="tablist" aria-label="Indicadores de slides">
-                <button class="slider-dot active" role="tab" aria-label="Ir a slide 1" aria-selected="true"></button>
-                <button class="slider-dot" role="tab" aria-label="Ir a slide 2" aria-selected="false"></button>
-                <button class="slider-dot" role="tab" aria-label="Ir a slide 3" aria-selected="false"></button>
-                <button class="slider-dot" role="tab" aria-label="Ir a slide 4" aria-selected="false"></button>
-                <button class="slider-dot" role="tab" aria-label="Ir a slide 5" aria-selected="false"></button>
-            </div>
-            
-            <!-- Controles de Play/Pause -->
-            <div class="slider-controls">
-                <button class="slider-control-btn playing" id="playPauseBtn" aria-label="Pausar slider automático" type="button">
-                    <i class="material-icons" id="playPauseIcon">pause</i>
+                <!-- Navegación del Slider -->
+                <button class="slider-nav slider-nav-prev" aria-label="Slide anterior">
+                    <i class="material-icons">chevron_left</i>
                 </button>
-            </div>
-        </div>
-    </section>
+                <button class="slider-nav slider-nav-next" aria-label="Siguiente slide">
+                    <i class="material-icons">chevron_right</i>
+                </button>
 
-    <!-- Dashboard de Análisis Vial -->
-    <section id="estadisticas" class="section" style="background: #f9fafb;" aria-labelledby="dashboard-title">
-        <div class="container" style="max-width: 1400px;">
-            <!-- Dashboard Header -->
-            <div class="dashboard-header">
-                <div class="dashboard-title-wrapper">
-                    <div class="dashboard-icon">
-                        <i class="material-icons" style="color: white; font-size: clamp(24px, 5vw, 28px);" aria-hidden="true">analytics</i>
+                <!-- Indicadores del Slider -->
+                <div class="slider-indicators" role="tablist" aria-label="Indicadores de slides">
+                    <button class="slider-dot active" role="tab" aria-label="Ir a slide 1"
+                        aria-selected="true"></button>
+                    <button class="slider-dot" role="tab" aria-label="Ir a slide 2" aria-selected="false"></button>
+                    <button class="slider-dot" role="tab" aria-label="Ir a slide 3" aria-selected="false"></button>
+                    <button class="slider-dot" role="tab" aria-label="Ir a slide 4" aria-selected="false"></button>
+                    <button class="slider-dot" role="tab" aria-label="Ir a slide 5" aria-selected="false"></button>
+                </div>
+
+                <!-- Controles de Play/Pause -->
+                <div class="slider-controls">
+                    <button class="slider-control-btn playing" id="playPauseBtn" aria-label="Pausar slider automático"
+                        type="button">
+                        <i class="material-icons" id="playPauseIcon">pause</i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard de Análisis Vial -->
+        <section id="estadisticas" class="section" style="background: #f9fafb;" aria-labelledby="dashboard-title"
+            data-track-section="estadisticas">
+            <div class="container" style="max-width: 1400px;">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="dashboard-title-wrapper">
+                        <div class="dashboard-icon">
+                            <i class="material-icons" style="color: white; font-size: clamp(24px, 5vw, 28px);"
+                                aria-hidden="true">analytics</i>
+                        </div>
+                        <div>
+                            <h2 id="dashboard-title"
+                                style="color: var(--color-primary); font-size: clamp(1.5rem, 4vw, 1.75rem); margin: 0;">
+                                Dashboard de análisis vial</h2>
+                            <p style="color: #6b7280; font-size: clamp(0.85rem, 2vw, 0.95rem); margin: 0.25rem 0 0 0;">
+                                Sistema inteligente de tránsito, transporte e infraestructura - INVIAS</p>
+                        </div>
+                    </div>
+
+                    <!-- Filtros Responsive -->
+                    <form class="dashboard-filters" role="search" aria-label="Filtros del dashboard">
+                        <div class="filter-group">
+                            <label for="departmentSelector" class="filter-label">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">location_on</i>
+                                DEPARTAMENTO
+                            </label>
+                            <select id="departmentSelector" class="filter-select" onchange="updateDashboard()">
+                                <option value="all">Todos los departamentos</option>
+                                <option value="antioquia">Antioquia</option>
+                                <option value="boyaca">Boyacá</option>
+                                <option value="casanare">Casanare</option>
+                                <option value="cauca">Cauca</option>
+                                <option value="cundinamarca">Cundinamarca</option>
+                                <option value="quindio">Quindío</option>
+                                <option value="risaralda">Risaralda</option>
+                                <option value="santander">Santander</option>
+                                <option value="tolima">Tolima</option>
+                                <option value="valle">Valle del Cauca</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="metricSelector" class="filter-label">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">analytics</i>
+                                MÉTRICA
+                            </label>
+                            <select id="metricSelector" class="filter-select" onchange="updateDashboard()">
+                                <option value="speed">Velocidad promedio</option>
+                                <option value="volume">Volumen de tráfico</option>
+                                <option value="excess">Velocidad mayor a 80km/h</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="periodSelector" class="filter-label">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">calendar_today</i>
+                                PERÍODO
+                            </label>
+                            <select id="periodSelector" class="filter-select" onchange="updateDashboardQuery()">
+                                <!-- Las opciones se generarán dinámicamente -->
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="vehicleTypeSelector" class="filter-label">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">directions_car</i>
+                                TIPO DE VEHÍCULO
+                            </label>
+                            <select id="vehicleTypeSelector" class="filter-select" onchange="updateDashboardQuery()">
+                                <option value="all">Todos los vehículos</option>
+                                <option value="motorcycles">Motos</option>
+                                <option value="heavy">Vehículos pesados</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- KPIs Grid Responsive -->
+                <div class="kpi-grid">
+                    <!-- KPI 1: Volumen -->
+                    <div class="kpi-card" style="border-left: 4px solid #10b981;">
+                        <div
+                            style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <div
+                                style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="material-icons" style="color: #10b981; font-size: clamp(20px, 5vw, 24px);"
+                                    aria-hidden="true">local_shipping</i>
+                            </div>
+                            <div class="kpi-label">Volumen promedio por sector vial</div>
+                        </div>
+                        <div class="kpi-value">
+                            ... <span
+                                style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
+                        </div>
+                        <div class="kpi-trend">
+                            <span style="color: #6b7280; font-weight: 600;">...</span>
+                            <span style="color: #6b7280;">vs ayer</span>
+                        </div>
+                        <div class="kpi-trend-8">
+                            <span style="color: #6b7280; font-weight: 600;">...</span>
+                            <span style="color: #6b7280;">vs 8 días</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Velocidad -->
+                    <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
+                        <div
+                            style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <div
+                                style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(59, 130, 246, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="material-icons" style="color: #3b82f6; font-size: clamp(20px, 5vw, 24px);"
+                                    aria-hidden="true">speed</i>
+                            </div>
+                            <div class="kpi-label">Velocidad promedio por sector vial</div>
+                        </div>
+                        <div class="kpi-value">
+                            ... <span
+                                style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">km/h</span>
+                        </div>
+                        <div class="kpi-trend">
+                            <span style="color: #6b7280; font-weight: 600;">...</span>
+                            <span style="color: #6b7280;">vs ayer</span>
+                        </div>
+                        <div class="kpi-trend-8">
+                            <span style="color: #6b7280; font-weight: 600;">...</span>
+                            <span style="color: #6b7280;">vs 8 días</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Velocidad mayor a 80km/h -->
+                    <div class="kpi-card" style="border-left: 4px solid #ef4444;">
+                        <div
+                            style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
+                            <div
+                                style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(239, 68, 68, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="material-icons" style="color: #ef4444; font-size: clamp(20px, 5vw, 24px);"
+                                    aria-hidden="true">bar_chart</i>
+                            </div>
+                            <div class="kpi-label"># de vehículos promedio con velocidad mayor a 80km/h por sector vial
+                            </div>
+                        </div>
+                        <div class="kpi-value">
+                            ... <span
+                                style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
+                        </div>
+                        <div class="kpi-trend">
+                            <span style="color: #6b7280; font-weight: 600;">-3.2%</span>
+                            <span style="color: #6b7280;">vs ayer</span>
+                        </div>
+                        <div class="kpi-trend-8">
+                            <span style="color: #6b7280; font-weight: 600;">...</span>
+                            <span style="color: #6b7280;">vs 8 días</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Box Responsive -->
+                <div class="info-box">
+                    <div class="info-box-icon">
+                        <i class="material-icons" style="color: #3b82f6; font-size: clamp(24px, 5vw, 28px);"
+                            aria-hidden="true">info</i>
                     </div>
                     <div>
-                        <h2 id="dashboard-title" style="color: var(--color-primary); font-size: clamp(1.5rem, 4vw, 1.75rem); margin: 0;">Dashboard de análisis vial</h2>
-                        <p style="color: #6b7280; font-size: clamp(0.85rem, 2vw, 0.95rem); margin: 0.25rem 0 0 0;">Sistema inteligente de tránsito, transporte e infraestructura - INVIAS</p>
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.25rem;">Interacción:</div>
+                        <div style="color: #1e40af; font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.5;">Pasa el
+                            mouse sobre cada barra de la gráfica para ver el PR (Punto de Referencia) y nombre completo
+                            del sector.</div>
                     </div>
                 </div>
 
-                <!-- Filtros Responsive -->
-                <form class="dashboard-filters" role="search" aria-label="Filtros del dashboard">
-                    <div class="filter-group">
-                        <label for="departmentSelector" class="filter-label">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">location_on</i>
-                            DEPARTAMENTO
-                        </label>
-                        <select id="departmentSelector" class="filter-select" onchange="updateDashboard()">
-                            <option value="all">Todos los departamentos</option>
-                            <option value="antioquia">Antioquia</option>
-                            <option value="boyaca">Boyacá</option>
-                            <option value="casanare">Casanare</option>
-                            <option value="cauca">Cauca</option>
-                            <option value="cundinamarca">Cundinamarca</option>
-                            <option value="quindio">Quindío</option>
-                            <option value="risaralda">Risaralda</option>
-                            <option value="santander">Santander</option>
-                            <option value="tolima">Tolima</option>
-                            <option value="valle">Valle del Cauca</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="metricSelector" class="filter-label">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">analytics</i>
-                            MÉTRICA
-                        </label>
-                        <select id="metricSelector" class="filter-select" onchange="updateDashboard()">
-                            <option value="speed">Velocidad promedio</option>
-                            <option value="volume">Volumen de tráfico</option>
-                            <option value="excess">Velocidad mayor a 80km/h</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="periodSelector" class="filter-label">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">calendar_today</i>
-                            PERÍODO
-                        </label>
-                        <select id="periodSelector" class="filter-select" onchange="updateDashboardQuery()">
-                            <!-- Las opciones se generarán dinámicamente -->
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label for="vehicleTypeSelector" class="filter-label">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">directions_car</i>
-                            TIPO DE VEHÍCULO
-                        </label>
-                        <select id="vehicleTypeSelector" class="filter-select" onchange="updateDashboardQuery()">
-                            <option value="all">Todos los vehículos</option>
-                            <option value="motorcycles">Motos</option>
-                            <option value="heavy">Vehículos pesados</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-
-            <!-- KPIs Grid Responsive -->
-            <div class="kpi-grid">
-                <!-- KPI 1: Volumen -->
-                <div class="kpi-card" style="border-left: 4px solid #10b981;">
-                    <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
-                        <div style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="material-icons" style="color: #10b981; font-size: clamp(20px, 5vw, 24px);" aria-hidden="true">local_shipping</i>
-                        </div>
-                        <div class="kpi-label">Volumen promedio por sector vial</div>
-                    </div>
-                    <div class="kpi-value">
-                        ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
-                    </div>
-                    <div class="kpi-trend">
-                        <span style="color: #6b7280; font-weight: 600;">...</span>
-                        <span style="color: #6b7280;">vs ayer</span>
-                    </div>
-                    <div class="kpi-trend-8">
-                        <span style="color: #6b7280; font-weight: 600;">...</span>
-                        <span style="color: #6b7280;">vs 8 días</span>
-                    </div>
-                </div>
-
-                <!-- KPI 2: Velocidad -->
-                <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
-                    <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
-                        <div style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(59, 130, 246, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="material-icons" style="color: #3b82f6; font-size: clamp(20px, 5vw, 24px);" aria-hidden="true">speed</i>
-                        </div>
-                        <div class="kpi-label">Velocidad promedio por sector vial</div>
-                    </div>
-                    <div class="kpi-value">
-                        ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">km/h</span>
-                    </div>
-                    <div class="kpi-trend">
-                        <span style="color: #6b7280; font-weight: 600;">...</span>
-                        <span style="color: #6b7280;">vs ayer</span>
-                    </div>
-                    <div class="kpi-trend-8">
-                        <span style="color: #6b7280; font-weight: 600;">...</span>
-                        <span style="color: #6b7280;">vs 8 días</span>
-                    </div>
-                </div>
-
-                <!-- KPI 3: Velocidad mayor a 80km/h -->
-                <div class="kpi-card" style="border-left: 4px solid #ef4444;">
-                    <div style="display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-md);">
-                        <div style="width: clamp(35px, 8vw, 40px); height: clamp(35px, 8vw, 40px); background: rgba(239, 68, 68, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="material-icons" style="color: #ef4444; font-size: clamp(20px, 5vw, 24px);" aria-hidden="true">bar_chart</i>
-                        </div>
-                        <div class="kpi-label"># de vehículos promedio con velocidad mayor a 80km/h por sector vial</div>
-                    </div>
-                    <div class="kpi-value">
-                        ... <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">vehículos/día</span>
-                    </div>
-                    <div class="kpi-trend">
-                        <span style="color: #6b7280; font-weight: 600;">-3.2%</span>
-                        <span style="color: #6b7280;">vs ayer</span>
-                    </div>
-                    <div class="kpi-trend-8">
-                        <span style="color: #6b7280; font-weight: 600;">...</span>
-                        <span style="color: #6b7280;">vs 8 días</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Info Box Responsive -->
-            <div class="info-box">
-                <div class="info-box-icon">
-                    <i class="material-icons" style="color: #3b82f6; font-size: clamp(24px, 5vw, 28px);" aria-hidden="true">info</i>
-                </div>
-                <div>
-                    <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.25rem;">Interacción:</div>
-                    <div style="color: #1e40af; font-size: clamp(0.85rem, 2vw, 0.95rem); line-height: 1.5;">Pasa el mouse sobre cada barra de la gráfica para ver el PR (Punto de Referencia) y nombre completo del sector.</div>
-                </div>
-            </div>
-
-            <!-- Chart Container Responsive -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h3 class="chart-title">Análisis por sector vial</h3>
-                    <div class="chart-type-buttons">
-                        <button id="chartTypeBarras" class="chart-type-btn active">
-                            Barras
-                        </button>
-                        <button id="chartTypeLineas" class="chart-type-btn" type="button">
-                            Líneas
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="chart-wrapper traffic">
-                    <canvas id="trafficChart" role="img" aria-label="Gráfico de análisis por sector vial"></canvas>
-                </div>
-
-                <!-- Gráfica Diaria por Tramo -->
-                <div id="dailyChartContainer" style="display: none; margin-top: var(--space-xl);">
+                <!-- Chart Container Responsive -->
+                <div class="chart-container">
                     <div class="chart-header">
-                        <h3 class="chart-title" id="dailyChartTitle">Análisis diario del tramo seleccionado</h3>
-                        <button id="closeDailyChart" class="btn btn-outline" style="font-size: 0.875rem; padding: 0.5rem 1rem;" aria-label="Cerrar gráfica diaria">
-                            <i class="material-icons" style="font-size: 18px;" aria-hidden="true">close</i>
-                            Cerrar
-                        </button>
+                        <h3 class="chart-title">Análisis por sector vial</h3>
+                        <div class="chart-type-buttons">
+                            <button id="chartTypeBarras" class="chart-type-btn active">
+                                Barras
+                            </button>
+                            <button id="chartTypeLineas" class="chart-type-btn" type="button">
+                                Líneas
+                            </button>
+                        </div>
                     </div>
-                    <div class="chart-wrapper">
-                        <canvas id="dailyChart" role="img" aria-label="Gráfico diario del tramo seleccionado"></canvas>
+
+                    <div class="chart-wrapper traffic">
+                        <canvas id="trafficChart" role="img" aria-label="Gráfico de análisis por sector vial"></canvas>
+                    </div>
+
+                    <!-- Gráfica Diaria por Tramo -->
+                    <div id="dailyChartContainer" style="display: none; margin-top: var(--space-xl);">
+                        <div class="chart-header">
+                            <h3 class="chart-title" id="dailyChartTitle">Análisis diario del tramo seleccionado</h3>
+                            <button id="closeDailyChart" class="btn btn-outline"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem;" aria-label="Cerrar gráfica diaria">
+                                <i class="material-icons" style="font-size: 18px;" aria-hidden="true">close</i>
+                                Cerrar
+                            </button>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="dailyChart" role="img"
+                                aria-label="Gráfico diario del tramo seleccionado"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gráfica por hora  -->
+                    <div id="hourChartContainer" style="display: none; margin-top: var(--space-xl);">
+                        <div class="chart-header">
+                            <h3 class="chart-title" id="hourChartTitle">Análisis por hora</h3>
+                            <button id="closeHourChart" class="btn btn-outline"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem;" aria-label="Cerrar gráfica hora">
+                                <i class="material-icons" style="font-size: 18px;" aria-hidden="true">close</i>
+                                Cerrar
+                            </button>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="hourChart" role="img" aria-label="Gráfico por hora"></canvas>
+                        </div>
+                    </div>
+                    <div id="hourChartLoading" style="padding-bottom: 2rem; display: none;">
+                        <div class="loading-spinner" aria-hidden="true"></div>
+                        <h6 id="loadingTitle" class="loading-title" style="margin-top: -34px; text-align: center;">
+                            Cargando gráfica...</h6>
+                    </div>
+
+                    <!-- Ver Dashboard Completo Button -->
+                    <div
+                        style="text-align: center; margin-top: clamp(1.5rem, 4vw, 2rem); padding-top: clamp(1.5rem, 4vw, 2rem); border-top: 2px solid #f3f4f6;">
+                        <a href="dashboard-sectores-viales.html" class="btn btn-primary"
+                            style="font-size: clamp(0.95rem, 2.5vw, 1.1rem); padding: clamp(0.875rem, 2.5vw, 1rem) clamp(2rem, 5vw, 3rem); text-decoration: none;">
+                            <i class="material-icons" style="font-size: clamp(20px, 5vw, 24px);">dashboard</i>
+                            Ver dashboard completo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section Responsive -->
+        <section id="reportes" class="section" aria-labelledby="reports-title" data-track-section="reportes">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="reports-title" class="section-title">Información pública</h2>
+                    <p class="section-subtitle">Documentos actualizados diariamente</p>
+                </div>
+
+                <div class="grid grid-sm-2 grid-lg-3">
+                    <!-- Report Card 1 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);"
+                                aria-hidden="true">description</i>
+                            <span class="report-badge">NUEVO</span>
+                        </div>
+                        <h3 class="report-title">Informe Mensual de Tráfico</h3>
+                        <p class="report-description">
+                            Análisis detallado del comportamiento vehicular en las vías nacionales.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>08 de Octubre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="2847"
+                                    aria-label="2847 descargas">2,847</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>2.5 MB • PDF</span>
+                            <button
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Card 2 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);"
+                                aria-hidden="true">analytics</i>
+                        </div>
+                        <h3 class="report-title">Estadísticas de Seguridad Vial</h3>
+                        <p class="report-description">
+                            Reporte de incidentes y métricas de seguridad en corredores viales.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>05 de Octubre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="1923"
+                                    aria-label="1923 descargas">1,923</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>1.8 MB • PDF</span>
+                            <button onclick="downloadDocument(this)"
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Card 3 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">memory</i>
+                        </div>
+                        <h3 class="report-title">Estado de Dispositivos ITS</h3>
+                        <p class="report-description">
+                            Informe técnico del funcionamiento de los equipos de monitoreo.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>03 de Octubre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="3456"
+                                    aria-label="3456 descargas">3,456</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>3.2 MB • PDF</span>
+                            <button onclick="downloadDocument(this)"
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Card 4 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">route</i>
+                        </div>
+                        <h3 class="report-title">Análisis de Rutas Nacionales</h3>
+                        <p class="report-description">
+                            Evaluación de las principales rutas y corredores viales del país.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>01 de Octubre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="1567"
+                                    aria-label="1567 descargas">1,567</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>4.1 MB • PDF</span>
+                            <button onclick="downloadDocument(this)"
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Card 5 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);"
+                                aria-hidden="true">show_chart</i>
+                        </div>
+                        <h3 class="report-title">Indicadores de Movilidad</h3>
+                        <p class="report-description">
+                            Métricas clave sobre movilidad y flujo vehicular en tiempo real.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>28 de Septiembre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="2134"
+                                    aria-label="2134 descargas">2,134</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>2.9 MB • PDF</span>
+                            <button onclick="downloadDocument(this)"
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Report Card 6 -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <i class="material-icons" style="color: var(--color-primary);"
+                                aria-hidden="true">assessment</i>
+                        </div>
+                        <h3 class="report-title">Reporte de Mantenimiento Vial</h3>
+                        <p class="report-description">
+                            Estado de mantenimiento de la infraestructura vial nacional.
+                        </p>
+                        <div class="report-date">
+                            <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
+                            <span>25 de Septiembre, 2025</span>
+                        </div>
+                        <div class="report-stats">
+                            <div class="report-stat-item">
+                                <i class="material-icons" style="font-size: 18px; color: var(--color-primary);"
+                                    aria-hidden="true">download</i>
+                                <span class="download-counter" data-downloads="1789"
+                                    aria-label="1789 descargas">1,789</span>
+                                <span style="font-size: 0.8rem;">descargas</span>
+                            </div>
+                        </div>
+                        <div class="report-meta">
+                            <span>3.7 MB • PDF</span>
+                            <button onclick="downloadDocument(this)"
+                                style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;"
+                                aria-label="Descargar documento">
+                                <i class="material-icons">download</i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Gráfica por hora  -->
-                <div id="hourChartContainer" style="display: none; margin-top: var(--space-xl);">
-                    <div class="chart-header">
-                        <h3 class="chart-title" id="hourChartTitle">Análisis por hora</h3>
-                        <button id="closeHourChart" class="btn btn-outline" style="font-size: 0.875rem; padding: 0.5rem 1rem;" aria-label="Cerrar gráfica hora">
-                            <i class="material-icons" style="font-size: 18px;" aria-hidden="true">close</i>
-                            Cerrar
-                        </button>
-                    </div>
-                    <div class="chart-wrapper">
-                        <canvas id="hourChart" role="img" aria-label="Gráfico por hora"></canvas>
-                    </div>
-                </div>
-                <div id="hourChartLoading" style="padding-bottom: 2rem; display: none;">
-                    <div class="loading-spinner" aria-hidden="true"></div>
-                    <h6 id="loadingTitle" class="loading-title" style="margin-top: -34px; text-align: center;">Cargando gráfica...</h6>
-                </div>
-
-                <!-- Ver Dashboard Completo Button -->
-                <div style="text-align: center; margin-top: clamp(1.5rem, 4vw, 2rem); padding-top: clamp(1.5rem, 4vw, 2rem); border-top: 2px solid #f3f4f6;">
-                    <a href="dashboard-sectores-viales.html" class="btn btn-primary" style="font-size: clamp(0.95rem, 2.5vw, 1.1rem); padding: clamp(0.875rem, 2.5vw, 1rem) clamp(2rem, 5vw, 3rem); text-decoration: none;">
-                        <i class="material-icons" style="font-size: clamp(20px, 5vw, 24px);">dashboard</i>
-                        Ver dashboard completo
+                <!-- Botón Ver Más -->
+                <div style="text-align: center;">
+                    <a href="documentos.html" class="ver-mas-btn">
+                        <i class="material-icons">folder_open</i>
+                        Ver todos los documentos
                     </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Reports Section Responsive -->
-    <section id="reportes" class="section" aria-labelledby="reports-title">
-        <div class="container">
-            <div class="section-header">
-                <h2 id="reports-title" class="section-title">Información pública</h2>
-                <p class="section-subtitle">Documentos actualizados diariamente</p>
-            </div>
-
-            <div class="grid grid-sm-2 grid-lg-3">
-                <!-- Report Card 1 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">description</i>
-                        <span class="report-badge">NUEVO</span>
-                    </div>
-                    <h3 class="report-title">Informe Mensual de Tráfico</h3>
-                    <p class="report-description">
-                        Análisis detallado del comportamiento vehicular en las vías nacionales.
+        <!-- About Section Responsive -->
+        <section id="que-es" class="section"
+            style="background: var(--color-gray-50); padding: clamp(2rem, 5vw, 3rem) 0;" aria-labelledby="about-title">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="about-title" class="section-title">¿Quiénes somos?</h2>
+                    <p class="section-subtitle">
+                        Sistema de vigilancia inteligente de infraestructura de transporte y seguridad
                     </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>08 de Octubre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="2847" aria-label="2847 descargas">2,847</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
-                        </div>
-                    </div>
-                    <div class="report-meta">
-                        <span>2.5 MB • PDF</span>
-                        <button style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Report Card 2 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">analytics</i>
-                    </div>
-                    <h3 class="report-title">Estadísticas de Seguridad Vial</h3>
-                    <p class="report-description">
-                        Reporte de incidentes y métricas de seguridad en corredores viales.
-                    </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>05 de Octubre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="1923" aria-label="1923 descargas">1,923</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
+                <!-- Descripción Principal -->
+                <div style="max-width: 1100px; margin: 0 auto;">
+                    <div
+                        style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: var(--space-lg);">
+                        <div style="display: flex; align-items: start; gap: var(--space-md); flex-wrap: wrap;">
+                            <div
+                                style="width: clamp(40px, 10vw, 50px); height: clamp(40px, 10vw, 50px); background: rgba(249, 115, 22, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="material-icons"
+                                    style="color: var(--color-primary); font-size: clamp(24px, 5vw, 28px);"
+                                    aria-hidden="true">location_on</i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <p
+                                    style="font-size: clamp(0.875rem, 2vw, 0.95rem); line-height: 1.6; color: var(--color-text); margin: 0;">
+                                    El proyecto Vías Inteligentes ITS (VIITS) del Instituto Nacional de Vías (INVIAS) de
+                                    Colombia es un sistema inteligente de transporte que moderniza la Red Nacional de
+                                    Carreteras. Con tecnología en vía, monitorea y analiza condiciones de tráfico,
+                                    seguridad e infraestructura, mejorando la eficiencia del transporte en los
+                                    corredores nacionales.
+                                    <!-- El proyecto VIITS (Vías Inteligentes) del Instituto Nacional de Vías (INVIAS) en Colombia <strong>es un sistema de transporte inteligente (ITS, por sus siglas en inglés) que moderniza la infraestructura vial con tecnología para monitorear en tiempo real condiciones de tráfico, seguridad, orden público e infraestructura</strong>. Utiliza puntos de monitoreo para capturar datos y emitir información en tiempo real a los usuarios, mejorando la movilidad, la seguridad vial y la eficiencia del transporte en los corredores nacionales. -->
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <div class="report-meta">
-                        <span>1.8 MB • PDF</span>
-                        <button onclick="downloadDocument(this)" style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Report Card 3 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">memory</i>
-                    </div>
-                    <h3 class="report-title">Estado de Dispositivos ITS</h3>
-                    <p class="report-description">
-                        Informe técnico del funcionamiento de los equipos de monitoreo.
-                    </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>03 de Octubre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="3456" aria-label="3456 descargas">3,456</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
+                    <!-- Objetivos y Componentes -->
+                    <div
+                        style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: var(--space-lg);">
+                        <!-- Objetivos -->
+                        <div style="margin-bottom: var(--space-lg);">
+                            <div
+                                style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); flex-wrap: wrap;">
+                                <i class="material-icons"
+                                    style="color: var(--color-primary); font-size: clamp(22px, 5vw, 26px);"
+                                    aria-hidden="true">track_changes</i>
+                                <h3
+                                    style="font-size: clamp(1.125rem, 3vw, 1.25rem); font-weight: 700; color: var(--color-secondary); margin: 0;">
+                                    Objetivos del proyecto VIITS</h3>
+                            </div>
+
+                            <div class="grid grid-md-2" style="gap: var(--space-md);">
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">public</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Modernización de la red vial</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Implementar tecnología avanzada en la infraestructura vial primaria del
+                                            país.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">monitor</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Monitoreo en tiempo real</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Capturar datos para analizar la situación de las vías, el tráfico, el orden
+                                            público y la seguridad vial.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">description</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Información para el usuario</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Proporcionar información precisa a los conductores para que puedan
+                                            planificar sus viajes.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">security</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Mejora de tránsito y seguridad</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Garantizar condiciones de tránsito idóneas, eficientes y seguras.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid var(--color-gray-200); padding-top: var(--space-lg);">
+                            <!-- Componentes y Capacidades -->
+                            <div
+                                style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); flex-wrap: wrap;">
+                                <i class="material-icons"
+                                    style="color: var(--color-primary); font-size: clamp(22px, 5vw, 26px);"
+                                    aria-hidden="true">dashboard</i>
+                                <h3
+                                    style="font-size: clamp(1.125rem, 3vw, 1.25rem); font-weight: 700; color: var(--color-secondary); margin: 0;">
+                                    Componentes y capacidades</h3>
+                            </div>
+
+                            <div class="grid grid-md-2" style="gap: var(--space-md);">
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">radar</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Puntos de monitoreo</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            237 puntos implementados a lo largo de los corredores viales.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">precision_manufacturing</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Módulos tecnológicos</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Aforos inteligentes, medición de velocidades, pesajes, exceso de gálibo,
+                                            eventos viales y riesgo geotécnico.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">notifications</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Aliados estratégicos</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Todas las entidades del sector Transporte y sector Defensa.</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
+                                    <i class="material-icons"
+                                        style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;"
+                                        aria-hidden="true">call</i>
+                                    <div style="min-width: 0;">
+                                        <h4
+                                            style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">
+                                            Canales de comunicación</h4>
+                                        <p
+                                            style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">
+                                            Línea #767 y sus redes sociales.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="report-meta">
-                        <span>3.2 MB • PDF</span>
-                        <button onclick="downloadDocument(this)" style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Report Card 4 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">route</i>
-                    </div>
-                    <h3 class="report-title">Análisis de Rutas Nacionales</h3>
-                    <p class="report-description">
-                        Evaluación de las principales rutas y corredores viales del país.
-                    </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>01 de Octubre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="1567" aria-label="1567 descargas">1,567</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
-                        </div>
-                    </div>
-                    <div class="report-meta">
-                        <span>4.1 MB • PDF</span>
-                        <button onclick="downloadDocument(this)" style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Report Card 5 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">show_chart</i>
-                    </div>
-                    <h3 class="report-title">Indicadores de Movilidad</h3>
-                    <p class="report-description">
-                        Métricas clave sobre movilidad y flujo vehicular en tiempo real.
-                    </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>28 de Septiembre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="2134" aria-label="2134 descargas">2,134</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
-                        </div>
-                    </div>
-                    <div class="report-meta">
-                        <span>2.9 MB • PDF</span>
-                        <button onclick="downloadDocument(this)" style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Report Card 6 -->
-                <div class="report-card">
-                    <div class="report-header">
-                        <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">assessment</i>
-                    </div>
-                    <h3 class="report-title">Reporte de Mantenimiento Vial</h3>
-                    <p class="report-description">
-                        Estado de mantenimiento de la infraestructura vial nacional.
-                    </p>
-                    <div class="report-date">
-                        <i class="material-icons" style="font-size: 16px;" aria-hidden="true">calendar_today</i>
-                        <span>25 de Septiembre, 2025</span>
-                    </div>
-                    <div class="report-stats">
-                        <div class="report-stat-item">
-                            <i class="material-icons" style="font-size: 18px; color: var(--color-primary);" aria-hidden="true">download</i>
-                            <span class="download-counter" data-downloads="1789" aria-label="1789 descargas">1,789</span>
-                            <span style="font-size: 0.8rem;">descargas</span>
-                        </div>
-                    </div>
-                    <div class="report-meta">
-                        <span>3.7 MB • PDF</span>
-                        <button onclick="downloadDocument(this)" style="background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem;" aria-label="Descargar documento">
-                            <i class="material-icons">download</i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botón Ver Más -->
-            <div style="text-align: center;">
-                <a href="documentos.html" class="ver-mas-btn">
-                    <i class="material-icons">folder_open</i>
-                    Ver todos los documentos
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section Responsive -->
-    <section id="que-es" class="section" style="background: var(--color-gray-50); padding: clamp(2rem, 5vw, 3rem) 0;" aria-labelledby="about-title">
-        <div class="container">
-            <div class="section-header">
-                <h2 id="about-title" class="section-title">¿Quiénes somos?</h2>
-                <p class="section-subtitle">
-                    Sistema de vigilancia inteligente de infraestructura de transporte y seguridad
-                </p>
-            </div>
-
-            <!-- Descripción Principal -->
-            <div style="max-width: 1100px; margin: 0 auto;">
-                <div style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: var(--space-lg);">
-                    <div style="display: flex; align-items: start; gap: var(--space-md); flex-wrap: wrap;">
-                        <div style="width: clamp(40px, 10vw, 50px); height: clamp(40px, 10vw, 50px); background: rgba(249, 115, 22, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="material-icons" style="color: var(--color-primary); font-size: clamp(24px, 5vw, 28px);" aria-hidden="true">location_on</i>
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <p style="font-size: clamp(0.875rem, 2vw, 0.95rem); line-height: 1.6; color: var(--color-text); margin: 0;">
-                                El proyecto Vías Inteligentes ITS (VIITS) del Instituto Nacional de Vías (INVIAS) de Colombia es un sistema inteligente de transporte que moderniza la Red Nacional de Carreteras. Con tecnología en vía, monitorea y analiza condiciones de tráfico, seguridad e infraestructura, mejorando la eficiencia del transporte en los corredores nacionales.
-                                <!-- El proyecto VIITS (Vías Inteligentes) del Instituto Nacional de Vías (INVIAS) en Colombia <strong>es un sistema de transporte inteligente (ITS, por sus siglas en inglés) que moderniza la infraestructura vial con tecnología para monitorear en tiempo real condiciones de tráfico, seguridad, orden público e infraestructura</strong>. Utiliza puntos de monitoreo para capturar datos y emitir información en tiempo real a los usuarios, mejorando la movilidad, la seguridad vial y la eficiencia del transporte en los corredores nacionales. -->
+                    <!-- Reconocimientos y Coverage -->
+                    <div class="grid grid-md-2" style="gap: var(--space-lg);">
+                        <!-- Reconocimientos -->
+                        <div
+                            style="background: linear-gradient(135deg, var(--color-primary), #ea580c); border-radius: 10px; padding: var(--space-lg); color: white;">
+                            <div
+                                style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+                                <i class="material-icons" style="color: white; font-size: clamp(22px, 5vw, 26px);"
+                                    aria-hidden="true">emoji_events</i>
+                                <h3
+                                    style="font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 700; margin: 0; color: white;">
+                                    Reconocimientos</h3>
+                            </div>
+                            <p
+                                style="font-size: clamp(0.85rem, 2vw, 0.9rem); line-height: 1.5; margin: 0; color: rgba(255,255,255,0.95);">
+                                El proyecto VIITS ha recibido <strong>premios internacionales</strong> por su innovación
+                                tecnológica, incluyendo el <strong>Intertraffic Award Latin America</strong> y un
+                                reconocimiento de la <strong>Sociedad Colombiana de Ingenieros</strong>.
                             </p>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Objetivos y Componentes -->
-                <div style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: var(--space-lg);">
-                    <!-- Objetivos -->
-                    <div style="margin-bottom: var(--space-lg);">
-                        <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); flex-wrap: wrap;">
-                            <i class="material-icons" style="color: var(--color-primary); font-size: clamp(22px, 5vw, 26px);" aria-hidden="true">track_changes</i>
-                            <h3 style="font-size: clamp(1.125rem, 3vw, 1.25rem); font-weight: 700; color: var(--color-secondary); margin: 0;">Objetivos del proyecto VIITS</h3>
-                        </div>
-                        
-                        <div class="grid grid-md-2" style="gap: var(--space-md);">
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">public</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Modernización de la red vial</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Implementar tecnología avanzada en la infraestructura vial primaria del país.</p>
+                        <!-- Coverage Grid -->
+                        <div
+                            style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
+                            <h3
+                                style="font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 700; color: var(--color-secondary); margin-bottom: var(--space-md); text-align: center;">
+                                Cobertura nacional</h3>
+                            <div class="grid grid-sm-2 grid-md-3" style="gap: var(--space-md);">
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        6K+</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        km de cobertura</div>
                                 </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">monitor</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Monitoreo en tiempo real</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Capturar datos para analizar la situación de las vías, el tráfico, el orden público y la seguridad vial.</p>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        109</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        Sectores viales</div>
                                 </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">description</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Información para el usuario</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Proporcionar información precisa a los conductores para que puedan planificar sus viajes.</p>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        24</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        Departamentos</div>
                                 </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">security</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Mejora de tránsito y seguridad</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Garantizar condiciones de tránsito idóneas, eficientes y seguras.</p>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        265</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        Dispositivos</div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="border-top: 1px solid var(--color-gray-200); padding-top: var(--space-lg);">
-                        <!-- Componentes y Capacidades -->
-                        <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md); flex-wrap: wrap;">
-                            <i class="material-icons" style="color: var(--color-primary); font-size: clamp(22px, 5vw, 26px);" aria-hidden="true">dashboard</i>
-                            <h3 style="font-size: clamp(1.125rem, 3vw, 1.25rem); font-weight: 700; color: var(--color-secondary); margin: 0;">Componentes y capacidades</h3>
-                        </div>
-                        
-                        <div class="grid grid-md-2" style="gap: var(--space-md);">
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">radar</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Puntos de monitoreo</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">237 puntos implementados a lo largo de los corredores viales.</p>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        27</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        Rutas nacionales</div>
                                 </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">precision_manufacturing</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Módulos tecnológicos</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Aforos inteligentes, medición de velocidades, pesajes, exceso de gálibo, eventos viales y riesgo geotécnico.</p>
+                                <div style="text-align: center;">
+                                    <div
+                                        style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">
+                                        87</div>
+                                    <div
+                                        style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">
+                                        Tramos viales</div>
                                 </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">notifications</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Aliados estratégicos</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Todas las entidades del sector Transporte y sector Defensa.</p>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; align-items: start; gap: var(--space-md); padding: var(--space-md); background: var(--color-gray-50); border-radius: 6px;">
-                                <i class="material-icons" style="color: var(--color-primary); flex-shrink: 0; font-size: 20px;" aria-hidden="true">call</i>
-                                <div style="min-width: 0;">
-                                    <h4 style="font-weight: 600; color: var(--color-secondary); margin-bottom: var(--space-xs); font-size: clamp(0.85rem, 2vw, 0.9rem);">Canales de comunicación</h4>
-                                    <p style="color: var(--color-text); font-size: clamp(0.8rem, 1.8vw, 0.85rem); line-height: 1.4; margin: 0;">Línea #767 y sus redes sociales.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reconocimientos y Coverage -->
-                <div class="grid grid-md-2" style="gap: var(--space-lg);">
-                    <!-- Reconocimientos -->
-                    <div style="background: linear-gradient(135deg, var(--color-primary), #ea580c); border-radius: 10px; padding: var(--space-lg); color: white;">
-                        <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
-                            <i class="material-icons" style="color: white; font-size: clamp(22px, 5vw, 26px);" aria-hidden="true">emoji_events</i>
-                            <h3 style="font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 700; margin: 0; color: white;">Reconocimientos</h3>
-                        </div>
-                        <p style="font-size: clamp(0.85rem, 2vw, 0.9rem); line-height: 1.5; margin: 0; color: rgba(255,255,255,0.95);">
-                            El proyecto VIITS ha recibido <strong>premios internacionales</strong> por su innovación tecnológica, incluyendo el <strong>Intertraffic Award Latin America</strong> y un reconocimiento de la <strong>Sociedad Colombiana de Ingenieros</strong>.
-                        </p>
-                    </div>
-
-                    <!-- Coverage Grid -->
-                    <div style="background: white; border-radius: 10px; padding: var(--space-lg); box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
-                        <h3 style="font-size: clamp(1rem, 3vw, 1.15rem); font-weight: 700; color: var(--color-secondary); margin-bottom: var(--space-md); text-align: center;">Cobertura nacional</h3>
-                        <div class="grid grid-sm-2 grid-md-3" style="gap: var(--space-md);">
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">6K+</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">km de cobertura</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">109</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">Sectores viales</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">24</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">Departamentos</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">265</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">Dispositivos</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">27</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">Rutas nacionales</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: clamp(1.25rem, 4vw, 1.5rem); font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem;">87</div>
-                                <div style="font-size: clamp(0.7rem, 1.8vw, 0.75rem); color: var(--color-text-light);">Tramos viales</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA Section -->
-    <section id="participacion" class="cta" aria-labelledby="cta-title">
-        <div class="container">
-            <h2 id="cta-title" class="cta-title">Datos abiertos de las carreteras de colombia</h2>
-            <p class="cta-description">
-                La ciudadanía ahora puede acceder a información valiosa del tráfico vehicular de nuestro país a través de este portal de datos abiertos, contribuyendo a la transparencia y al desarrollo de soluciones innovadoras para la movilidad nacional.
-            </p>
-            <div style="display: flex; justify-content: center;">
-                <a href="participacion-ciudadana.html" class="btn" style="background: white; color: var(--color-primary); text-decoration: none; font-size: clamp(0.95rem, 2.5vw, 1.1rem); padding: clamp(0.875rem, 2.5vw, 1rem) clamp(2rem, 5vw, 2.5rem);" aria-label="Acceder a participación ciudadana">
-                    <i class="material-icons" aria-hidden="true">login</i>
-                    Ingreso
+        <!-- CTA Section -->
+        <section id="participacion" class="cta" aria-labelledby="cta-title" data-track-section="participacion">
+            <div class="container">
+                <h2 id="cta-title" class="cta-title">Datos abiertos de las carreteras de colombia</h2>
+                <p class="cta-description">
+                    La ciudadanía ahora puede acceder a información valiosa del tráfico vehicular de nuestro país a
+                    través de este portal de datos abiertos, contribuyendo a la transparencia y al desarrollo de
+                    soluciones innovadoras para la movilidad nacional.
+                </p>
+                <div style="display: flex; justify-content: center;">
+                    <a href="participacion-ciudadana.html" class="btn"
+                        style="background: white; color: var(--color-primary); text-decoration: none; font-size: clamp(0.95rem, 2.5vw, 1.1rem); padding: clamp(0.875rem, 2.5vw, 1rem) clamp(2rem, 5vw, 2.5rem);"
+                        aria-label="Acceder a participación ciudadana">
+                        <i class="material-icons" aria-hidden="true">login</i>
+                        Ingreso
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Estilo Ministerial -->
+        <footer class="footer" role="contentinfo">
+            <div class="footer-main" style="max-width: 63%;">
+                <!-- Contenido Principal del Footer -->
+                <div class="footer-content">
+                    <div class="footer-info">
+                        <!-- Columna Izquierda -->
+                        <div>
+                            <!-- Sede Principal -->
+                            <div class="footer-section">
+                                <h3>Sede Principal - Bogotá</h3>
+                                <div class="footer-contact" id="footerMainContact">
+                                    <strong>Dirección:</strong> <span id="conf_footer_address">Carrera 59 No. 26 - 60
+                                        CAN</span><br>
+                                    Bogotá D.C., Colombia<br>
+                                    Código Postal: 111321<br><br>
+
+                                    <strong>Horario de atención:</strong><br>
+                                    <span id="conf_footer_schedule">Lunes a Viernes de 8:00 a.m. a 4:00
+                                        p.m.</span><br><br>
+
+                                    <strong>Conmutador:</strong><br>
+                                    PBX: <span id="conf_footer_phone">(601) 705 6000</span><br>
+                                    Línea gratuita nacional: 018000 960 960
+                                </div>
+                            </div>
+
+                            <!-- Territorial Norte -->
+                            <div class="footer-section">
+                                <h3>Sede • Territorial Norte</h3>
+                                <div class="footer-contact">
+                                    <strong>Dirección:</strong> Carrera 8 No. 16 - 21 piso Barranquilla, D.C.<br>
+                                    Código Postal: 111711<br><br>
+
+                                    <strong>Horario de atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00
+                                    p.m.<br><br>
+
+                                    <strong>Teléfono:</strong> +57 605 242 74 00<br>
+                                    <strong>Extensiones:</strong> 4170 - 4171 - 4172
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha -->
+                        <div>
+                            <!-- Territorial Centro Oriente -->
+                            <div class="footer-section">
+                                <h3>Sede • Territorial Centro Oriente</h3>
+                                <div class="footer-contact">
+                                    <strong>Dirección:</strong> Carrera 12 No. 78 - 65 • piso Bucaramanga, D.C.<br>
+                                    Código Postal: 111711<br><br>
+
+                                    <strong>Horario de atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00
+                                    p.m.<br><br>
+
+                                    <strong>Teléfono:</strong> +57 607 240 243 00<br>
+                                    <strong>Extensiones:</strong> 4250 - 4251 - 4252<br>
+                                    <strong>Subdirección de gestión:</strong><br>
+                                    6325 Grupo de gestión jurídica
+                                </div>
+                            </div>
+
+                            <!-- VIITS Contact -->
+                            <div class="footer-section">
+                                <h3>Contacto VIITS</h3>
+                                <div class="footer-contact">
+                                    <strong>Teléfono:</strong> +57 601 705 74 00<br>
+                                    <strong>Extensiones:</strong> 5963 - 5964<br><br>
+
+                                    <strong>Correos electrónicos:</strong><br>
+                                    viits@invias.gov.co<br>
+                                    <span id="conf_footer_email">servicioalciudadano@invias.gov.co</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logos -->
+                    <div class="footer-logos">
+                        <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                            <!-- Logo INVIAS -->
+                            <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                <img src="images/logo_invias_nuevo.jpg" alt="Logo INVIAS - Instituto Nacional de Vías"
+                                    style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                            </div>
+
+                            <!-- Logo Ministerio de Transporte -->
+                            <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                <img src="images/logo-mintransporte.png" alt="Logo Ministerio de Transporte de Colombia"
+                                    style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redes Sociales -->
+                <div class="social-section">
+                    <div class="social-header">Síguenos en redes sociales</div>
+                    <div class="social-links">
+                        <a href="https://twitter.com/InviasCol" class="social-link" aria-label="Twitter INVIAS"
+                            target="_blank" id="conf_social_twitter">
+                            <i class="material-icons">alternate_email</i>
+                        </a>
+                        <a href="https://www.facebook.com/InviasCol" class="social-link" aria-label="Facebook INVIAS"
+                            target="_blank" id="conf_social_facebook">
+                            <i class="material-icons">facebook</i>
+                        </a>
+                        <a href="https://www.youtube.com/InviasCol" class="social-link" aria-label="YouTube INVIAS"
+                            target="_blank" id="conf_social_youtube">
+                            <i class="material-icons">smart_display</i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/invias" class="social-link"
+                            aria-label="LinkedIn INVIAS" target="_blank">
+                            <i class="material-icons">business</i>
+                        </a>
+                        <a href="https://www.instagram.com/inviascol/" class="social-link" aria-label="Instagram INVIAS"
+                            target="_blank" id="conf_social_instagram">
+                            <i class="material-icons">camera_alt</i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Enlaces del Footer -->
+                <div class="footer-links">
+                    <div class="links-grid">
+                        <a href="#" class="footer-link">Otras Políticas</a>
+                        <a href="#" class="footer-link">Mapa del sitio</a>
+                        <a href="#" class="footer-link">Términos y condiciones</a>
+                        <a href="#" class="footer-link">Datos personales</a>
+                        <a href="#" class="footer-link">Derechos de autor</a>
+                        <a href="#" class="footer-link">PQRS</a>
+                        <a href="participacion-ciudadana.html" class="footer-link">Participación Ciudadana</a>
+                        <a href="admin-panel.html" class="footer-link" style="opacity: 0.3;">Admin</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra Gov.co -->
+            <div class="footer-gov">
+                <a href="https://www.gov.co" class="gov-logo" target="_blank">
+                    <img src="images/logo_co_footer.png" alt="Colombia"
+                        style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
+                    <img src="images/govco.png" alt="Colombia"
+                        style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
                 </a>
             </div>
-        </div>
-    </section>
+        </footer>
 
-    <!-- Footer Estilo Ministerial -->
-    <footer class="footer" role="contentinfo">
-        <div class="footer-main" style="max-width: 63%;">
-            <!-- Contenido Principal del Footer -->
-            <div class="footer-content">
-                <div class="footer-info">
-                    <!-- Columna Izquierda -->
-                    <div>
-                        <!-- Sede Principal -->
-                        <div class="footer-section">
-                            <h3>Sede Principal - Bogotá</h3>
-                            <div class="footer-contact">
-                                <strong>Dirección:</strong> Carrera 59 No. 26 - 60 CAN<br>
-                                Bogotá D.C., Colombia<br>
-                                Código Postal: 111321<br><br>
-                                
-                                <strong>Horario de atención:</strong><br>
-                                Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
-                                
-                                <strong>Conmutador:</strong><br>
-                                PBX: (601) 705 6000<br>
-                                Línea gratuita nacional: 018000 960 960
-                            </div>
-                        </div>
-                        
-                        <!-- Territorial Norte -->
-                        <div class="footer-section">
-                            <h3>Sede • Territorial Norte</h3>
-                            <div class="footer-contact">
-                                <strong>Dirección:</strong> Carrera 8 No. 16 - 21 piso Barranquilla, D.C.<br>
-                                Código Postal: 111711<br><br>
-                                
-                                <strong>Horario de atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
-                                
-                                <strong>Teléfono:</strong> +57 605 242 74 00<br>
-                                <strong>Extensiones:</strong> 4170 - 4171 - 4172
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Columna Derecha -->
-                    <div>
-                        <!-- Territorial Centro Oriente -->
-                        <div class="footer-section">
-                            <h3>Sede • Territorial Centro Oriente</h3>
-                            <div class="footer-contact">
-                                <strong>Dirección:</strong> Carrera 12 No. 78 - 65 • piso Bucaramanga, D.C.<br>
-                                Código Postal: 111711<br><br>
-                                
-                                <strong>Horario de atención:</strong> Lunes a Viernes de 8:00 a.m. a 4:00 p.m.<br><br>
-                                
-                                <strong>Teléfono:</strong> +57 607 240 243 00<br>
-                                <strong>Extensiones:</strong> 4250 - 4251 - 4252<br>
-                                <strong>Subdirección de gestión:</strong><br>
-                                6325 Grupo de gestión jurídica
-                            </div>
-                        </div>
-                        
-                        <!-- VIITS Contact -->
-                        <div class="footer-section">
-                            <h3>Contacto VIITS</h3>
-                            <div class="footer-contact">
-                                <strong>Teléfono:</strong> +57 601 705 74 00<br>
-                                <strong>Extensiones:</strong> 5963 - 5964<br><br>
-                                
-                                <strong>Correos electrónicos:</strong><br>
-                                viits@invias.gov.co<br>
-                                servicioalciudadano@invias.gov.co
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Logos -->
-                <div class="footer-logos">
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                        <!-- Logo INVIAS -->
-                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
-                            <img src="images/logo_invias_nuevo.jpg" alt="Logo INVIAS - Instituto Nacional de Vías" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
-                        </div>
-                        
-                        <!-- Logo Ministerio de Transporte -->
-                        <div style="background: white; padding: 1rem 1.5rem; border-radius: 8px;">
-                            <img src="images/logo-mintransporte.png" alt="Logo Ministerio de Transporte de Colombia" style="height: clamp(50px, 10vw, 70px); width: auto; display: block;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Redes Sociales -->
-            <div class="social-section">
-                <div class="social-header">Síguenos en redes sociales</div>
-                <div class="social-links">
-                    <a href="https://twitter.com/InviasCol" class="social-link" aria-label="Twitter INVIAS" target="_blank">
-                        <i class="material-icons">alternate_email</i>
-                    </a>
-                    <a href="https://www.facebook.com/InviasCol" class="social-link" aria-label="Facebook INVIAS" target="_blank">
-                        <i class="material-icons">facebook</i>
-                    </a>
-                    <a href="https://www.youtube.com/InviasCol" class="social-link" aria-label="YouTube INVIAS" target="_blank">
-                        <i class="material-icons">smart_display</i>
-                    </a>
-                    <a href="https://www.linkedin.com/company/invias" class="social-link" aria-label="LinkedIn INVIAS" target="_blank">
-                        <i class="material-icons">business</i>
-                    </a>
-                    <a href="https://www.instagram.com/inviascol/" class="social-link" aria-label="Instagram INVIAS" target="_blank">
-                        <i class="material-icons">camera_alt</i>
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Enlaces del Footer -->
-            <div class="footer-links">
-                <div class="links-grid">
-                    <a href="#" class="footer-link">Otras Políticas</a>
-                    <a href="#" class="footer-link">Mapa del sitio</a>
-                    <a href="#" class="footer-link">Términos y condiciones</a>
-                    <a href="#" class="footer-link">Datos personales</a>
-                    <a href="#" class="footer-link">Derechos de autor</a>
-                    <a href="#" class="footer-link">PQRS</a>
-                    <a href="participacion-ciudadana.html" class="footer-link">Participación Ciudadana</a>
-                    <a href="admin-panel.html" class="footer-link" style="opacity: 0.3;">Admin</a>
-                </div>
+        <!-- WhatsApp Button -->
+        <a href="#" class="whatsapp-float" id="whatsappButton"
+            aria-label="Contactar por WhatsApp - Servicio al ciudadano">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" focusable="false">
+                <path
+                    d="M16 0C7.164 0 0 7.164 0 16c0 2.825.737 5.479 2.028 7.772L0 32l8.396-2.004A15.897 15.897 0 0 0 16 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm8.284 22.588c-.365 1.029-1.816 1.885-2.964 2.133-.787.166-1.813.3-5.273-1.133-4.428-1.833-7.288-6.313-7.508-6.604-.22-.291-1.796-2.39-1.796-4.556 0-2.167 1.137-3.233 1.54-3.671.403-.437.88-.547 1.174-.547.294 0 .588.003.847.016.271.012.635-.103.993.756.365.878 1.243 3.033 1.353 3.254.11.22.183.478.037.769-.146.291-.22.474-.438.73-.22.256-.461.571-.66.768-.219.217-.446.452-.192.887.254.435 1.13 1.862 2.425 3.016 1.667 1.484 3.072 1.945 3.51 2.163.439.22.694.183.95-.109.256-.293 1.1-1.283 1.393-1.721.293-.439.587-.365.99-.22.403.146 2.564 1.209 3.002 1.429.439.22.731.33.838.512.11.183.11 1.065-.256 2.094z" />
+            </svg>
+        </a>
+
+        <!-- Loading Modal -->
+        <div id="loadingModal" class="loading-modal" role="dialog" aria-labelledby="loadingTitle"
+            aria-describedby="loadingMessage" aria-hidden="true">
+            <div class="loading-modal-overlay"></div>
+            <div class="loading-modal-content">
+                <div class="loading-spinner" aria-hidden="true"></div>
+                <h3 id="loadingTitle" class="loading-title">Cargando datos...</h3>
+                <p id="loadingMessage" class="loading-message">Por favor espere mientras actualizamos la información del
+                    dashboard.</p>
             </div>
         </div>
-        
-        <!-- Barra Gov.co -->
-        <div class="footer-gov">
-            <a href="https://www.gov.co" class="gov-logo" target="_blank">
-                <img src="images/logo_co_footer.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
-                <img src="images/govco.png" alt="Colombia" style="height: clamp(35px, 8vw, 40px); width: auto; margin-right: var(--space-sm);">
-            </a>
-        </div>
-    </footer>
-
-    <!-- WhatsApp Button -->
-    <a href="#" class="whatsapp-float" id="whatsappButton" aria-label="Contactar por WhatsApp - Servicio al ciudadano">
-        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" focusable="false">
-            <path d="M16 0C7.164 0 0 7.164 0 16c0 2.825.737 5.479 2.028 7.772L0 32l8.396-2.004A15.897 15.897 0 0 0 16 32c8.836 0 16-7.164 16-16S24.836 0 16 0zm8.284 22.588c-.365 1.029-1.816 1.885-2.964 2.133-.787.166-1.813.3-5.273-1.133-4.428-1.833-7.288-6.313-7.508-6.604-.22-.291-1.796-2.39-1.796-4.556 0-2.167 1.137-3.233 1.54-3.671.403-.437.88-.547 1.174-.547.294 0 .588.003.847.016.271.012.635-.103.993.756.365.878 1.243 3.033 1.353 3.254.11.22.183.478.037.769-.146.291-.22.474-.438.73-.22.256-.461.571-.66.768-.219.217-.446.452-.192.887.254.435 1.13 1.862 2.425 3.016 1.667 1.484 3.072 1.945 3.51 2.163.439.22.694.183.95-.109.256-.293 1.1-1.283 1.393-1.721.293-.439.587-.365.99-.22.403.146 2.564 1.209 3.002 1.429.439.22.731.33.838.512.11.183.11 1.065-.256 2.094z"/>
-        </svg>
-    </a>
-
-    <!-- Loading Modal -->
-    <div id="loadingModal" class="loading-modal" role="dialog" aria-labelledby="loadingTitle" aria-describedby="loadingMessage" aria-hidden="true">
-        <div class="loading-modal-overlay"></div>
-        <div class="loading-modal-content">
-            <div class="loading-spinner" aria-hidden="true"></div>
-            <h3 id="loadingTitle" class="loading-title">Cargando datos...</h3>
-            <p id="loadingMessage" class="loading-message">Por favor espere mientras actualizamos la información del dashboard.</p>
-        </div>
-    </div>
     </main>
+    <script src="scripts/viits-tracker.js"></script>
+    <script>
+        // Cargar configuración pública dinámicamente
+        async function loadPublicConfig() {
+            try {
+                const res = await fetch('/api/config/public');
+                if (!res.ok) return;
+                const config = await res.json();
+
+                // Aplicar configuraciones al DOM
+                const mapping = {
+                    'conf_footer_address': config.footer_address,
+                    'conf_footer_phone': config.footer_phone,
+                    'conf_footer_email': config.footer_email,
+                    'conf_footer_schedule': config.footer_schedule
+                };
+
+                for (const [id, value] of Object.entries(mapping)) {
+                    const el = document.getElementById(id);
+                    if (el && value) el.textContent = value;
+                }
+
+                // Enlaces sociales
+                const socialMapping = {
+                    'conf_social_twitter': config.social_twitter,
+                    'conf_social_facebook': config.social_facebook,
+                    'conf_social_youtube': config.social_youtube,
+                    'conf_social_instagram': config.social_instagram
+                };
+
+                for (const [id, url] of Object.entries(socialMapping)) {
+                    const el = document.getElementById(id);
+                    if (el && url) el.href = url;
+                }
+
+                // Título del sitio si existe
+                if (config.site_name) document.title = config.site_name;
+
+            } catch (err) {
+                console.warn('No se pudo cargar la configuración dinámica:', err);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadPublicConfig);
+    </script>
 </body>
+
 </html>

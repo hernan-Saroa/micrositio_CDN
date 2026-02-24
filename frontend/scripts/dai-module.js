@@ -46,19 +46,27 @@ const TIPO_ICONS = {
 function _tipoIcon(tipo) { return TIPO_ICONS[tipo] || 'warning'; }
 const ESTADOS = ['creado', 'activa', 'en_revision', 'resuelta'];
 
-// ── Platform users ────────────────────────────────────────────────────
-const DAI_USERS = [
-    { id: 'u1', name: 'Admin Principal', email: 'admin@invias.gov.co', role: 'Administrador' },
-    { id: 'u2', name: 'Juan Pérez', email: 'juan.perez@invias.gov.co', role: 'Analista DAI' },
-    { id: 'u3', name: 'María García', email: 'maria.garcia@invias.gov.co', role: 'Supervisor' },
-    { id: 'u4', name: 'Carlos Rodríguez', email: 'carlos.r@invias.gov.co', role: 'Técnico Campo' },
-    { id: 'u5', name: 'Laura Martínez', email: 'laura.m@invias.gov.co', role: 'Coordinadora' },
-    { id: 'u6', name: 'Andrés Gómez', email: 'andres.g@invias.gov.co', role: 'Ingeniero Vial' },
-    { id: 'u7', name: 'Diana López', email: 'diana.l@invias.gov.co', role: 'Analista DAI' },
-];
+// ── Platform users (loaded dynamically) ─────────────────────────────
+let DAI_USERS = [];
+async function _loadDaiUsers() {
+    try {
+        const r = await fetch('/api/users/by-permission/alertas-dai', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        DAI_USERS = await r.json();
+        console.log(`[DAI] ${DAI_USERS.length} usuarios con permiso cargados`);
+    } catch (e) {
+        console.error('Error cargando usuarios DAI:', e);
+    }
+}
+_loadDaiUsers();
+
+// Obtenemos el usuario actual del localStorage
+const _currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
 // ── State ─────────────────────────────────────────────────────────────
-const DAI = {
+window.DAI = window.DAI || {};
+Object.assign(window.DAI, {
     all: [], filtered: [], selected: null, page: 1, pageSize: 30, activeTab: 'detalle',
     f: {
         search: '', autoMan: new Set(['Automático', 'Manual']),
@@ -68,7 +76,9 @@ const DAI = {
     },
     counts: { total: 0, critica: 0, alta: 0, media: 0, baja: 0 },
     severityFilter: '',
-};
+    notifDaiEnabled: typeof window.DAI.notifDaiEnabled !== 'undefined' ? window.DAI.notifDaiEnabled : true,
+});
+const DAI = window.DAI; // Local reference for compatibility
 
 // ── Helpers ───────────────────────────────────────────────────────────
 const _p = n => String(n).padStart(2, '0');
@@ -498,6 +508,24 @@ function daiToggleLatencyDashboard() {
     setTimeout(() => { if (typeof _daiFixHeight === 'function') _daiFixHeight(); }, 360);
 }
 // ── Filters ───────────────────────────────────────────────────────────
+// Toggle entire stats section (stat bar + latency)
+function daiToggleStatsSection() {
+    var c = document.getElementById('daiStatsCollapsible');
+    var ch = document.getElementById('daiStatsChevron');
+    if (!c) return;
+    var isOpen = c.style.maxHeight && c.style.maxHeight !== '0px';
+    if (isOpen) {
+        c.style.maxHeight = '0px';
+        if (ch) { ch.textContent = 'expand_more'; ch.style.transform = 'rotate(0deg)'; }
+    } else {
+        c.style.maxHeight = c.scrollHeight + 'px';
+        if (ch) { ch.textContent = 'expand_less'; ch.style.transform = 'rotate(180deg)'; }
+    }
+    // Save preference
+    try { localStorage.setItem('dai-stats-collapsed', isOpen ? '1' : '0'); } catch (e) { }
+    // Fix height after transition
+    setTimeout(function () { if (typeof _daiFixHeight === 'function') _daiFixHeight(); }, 450);
+}
 window.daiApplyFilters = function () { _applyFilters(); _renderRows(); closeDaiFilterModal(); };
 function _applyFilters() {
     const f = DAI.f, now = new Date();
@@ -575,13 +603,15 @@ function _rowHTML(a, idx = 0, isPulsing = false) {
     const latCls = _latencyColor(a.latencia_ms);
     const tipoIc = _tipoIcon(a.tipo);
     const hasVid = a.evidencia ? '<i class="material-icons dai-row-vid-icon" title="Video disponible">videocam</i>' : '';
+    const lockIcon = a.locked_by ? `<i class="material-icons dai-row-lock-icon" style="font-size:12px;color:#f59e0b;margin-left:3px" title="Bloqueado por ${a.locked_by_name || 'otro usuario'}">lock</i>` : '';
+
     return `
     <div class="dai-row ${sel} ${urgCls} ${pulseCls}" onclick="daiSelectAlert('${a.id}')" style="--row-i:${idx}">
         <div class="dai-row-strip ${a.sev}"></div>
         <div class="dai-row-sev"><span class="sev-pill ${a.sev}">${_sevLabel[a.sev]}</span></div>
         <div class="dai-row-tipo-icon"><i class="material-icons">${tipoIc}</i></div>
         <div class="dai-row-info">
-            <div class="dai-row-tipo" title="${a.tipo}">${a.tipo}${assignIcon}${hasVid}</div>
+            <div class="dai-row-tipo" title="${a.tipo}">${a.tipo}${assignIcon}${lockIcon}${hasVid}</div>
             <div class="dai-row-id">${a.id}</div>
         </div>
         <div class="dai-row-cell"><span class="cell-label">Departamento</span><span class="cell-value">${a.dep}</span></div>
@@ -601,7 +631,12 @@ window.daiLoadMore = function () { DAI.page++; _renderRows(); };
 //  DETAIL PANEL
 //  One compact, scrollable panel that shows everything needed.
 // ════════════════════════════════════════════════════════════════════════
-function daiSelectAlert(id) {
+async function daiSelectAlert(id) {
+    if (DAI.selected) {
+        // Desbloquear la anterior antes de pasar a la nueva
+        daiUnlockAlert(DAI.selected);
+    }
+
     DAI.selected = id;
     _renderRows();
     const pane = document.getElementById('daiDetailPane');
@@ -617,9 +652,17 @@ function daiSelectAlert(id) {
         backdrop.classList.add('active');
         backdrop.classList.remove('hidden');
     }
-    _renderDetail(DAI.all.find(x => x.id === id));
+
+    const alert = DAI.all.find(x => x.id === id);
+    _renderDetail(alert);
+
+    // Intentar bloquearla para el usuario actual
+    daiLockAlert(id);
 }
 function daiCloseDetail() {
+    if (DAI.selected) {
+        daiUnlockAlert(DAI.selected);
+    }
     document.getElementById('daiDetailPane')?.classList.add('collapsed');
     const backdrop = document.getElementById('daiDetailBackdrop');
     if (backdrop) {
@@ -655,14 +698,24 @@ function _renderDetail(a) {
     const tab = DAI.activeTab;
     const urg = _urgency(a);
 
+    const isLockedByOther = a.locked_by && a.locked_by !== _currentUser.id;
+    const lockWarning = isLockedByOther ? `
+        <div class="dai-detail-lock-msg">
+            <i class="material-icons">lock</i>
+            <span>Este incidente está siendo atendido por <strong>${a.locked_by_name || 'otro usuario'}</strong></span>
+        </div>
+    ` : '';
+
     pane.innerHTML = `
     <!-- URGENCY BAR — visual pulse for active alerts -->
     <div class="dai-urgency-bar urg-${urg}" id="daiUrgencyBar"></div>
 
+    ${lockWarning}
+
     <!-- HEADER -->
-    <div class="dai-detail-header">
+    <div class="dai-detail-header ${isLockedByOther ? 'is-locked' : ''}">
         <div class="dai-detail-top-row">
-            <span class="dai-detail-id">${a.id}</span>
+            <span class="dai-detail-id">${a.id} ${a.locked_by ? '<i class="material-icons" style="font-size:14px;vertical-align:middle;color:#f59e0b">lock</i>' : ''}</span>
             <button class="dai-detail-close" onclick="daiCloseDetail()"><i class="material-icons">close</i></button>
         </div>
         <div class="dai-detail-tipo">${a.tipo}</div>
@@ -670,7 +723,7 @@ function _renderDetail(a) {
             <span class="sev-pill ${a.sev}">${_sevLabel[a.sev]}</span>
             <span class="status-pill ${a.estado}"><span class="status-dot"></span>${_estLabel[a.estado]}</span>
             <span class="dai-pill-tag">${a.tipo_registro === 'Automático' ? '⚡' : '👤'} ${a.tipo_registro}</span>
-            ${a.assignedTo ? `<span class="dai-pill-assigned">👤 ${a.assignedTo}</span>` : ''}
+            ${a.assignedTo ? `<span class="dai-pill-tag assigned" title="Asignado a ${a.assignedTo}"><i class="material-icons">person</i> ${a.assignedTo}</span>` : ''}
         </div>
         ${a.estado === 'resuelta' && a.resolutionLabel ? `
         <div class="dai-resolution-info">
@@ -1331,9 +1384,38 @@ function _closeAllInlinePanels() {
     ['daiResolvePanel', 'daiAssignPanel', 'daiEmailPanel'].forEach(window._closeInlinePanel);
 }
 
+// ── Lock/Unlock Logic ────────────────────────────────────────────────
+window.daiLockAlert = async function (id) {
+    try {
+        const r = await fetch(`/api/alerts/${id}/lock`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        if (r.status === 409) {
+            _toast('Incidente bloqueado por otro usuario', 'lock', 'warning');
+        }
+    } catch (e) { console.error('Error locking alert:', e); }
+};
+
+window.daiUnlockAlert = async function (id) {
+    try {
+        await fetch(`/api/alerts/${id}/unlock`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+        });
+    } catch (e) { console.error('Error unlocking alert:', e); }
+};
+
 // ★ Inline Assign Panel ───────────────────────────────────────────────
 window.daiQuickAssign = function () {
     const a = DAI.all.find(x => x.id === DAI.selected); if (!a) return;
+
+    // Si está bloqueado por otro, no permitir asignar
+    if (a.locked_by && a.locked_by !== _currentUser.id) {
+        _toast('No puedes asignar un incidente bloqueado', 'lock', 'warning');
+        return;
+    }
+
     const existing = document.getElementById('daiAssignPanel');
     if (existing) { existing.classList.toggle('show'); return; }
     _closeAllInlinePanels();
@@ -1346,8 +1428,8 @@ window.daiQuickAssign = function () {
         <div class="dai-inline-title" style="color:#4f46e5"><i class="material-icons">person_add</i> Asignar a usuario</div>
         <div class="dai-assign-users">
             ${DAI_USERS.map(u => `
-                <label class="dai-assign-user-card ${a.assignedTo === u.name ? 'current' : ''}" data-name="${u.name}">
-                    <input type="radio" name="daiAssignUser" value="${u.name}" ${a.assignedTo === u.name ? 'checked' : ''}>
+                <label class="dai-assign-user-card ${a.assignedTo === u.name ? 'current' : ''}" data-name="${u.name}" data-id="${u.id}">
+                    <input type="radio" name="daiAssignUser" value="${u.id}" data-name="${u.name}" ${a.assignedTo === u.name ? 'checked' : ''}>
                     <span class="dai-assign-card-inner">
                         <span class="dai-assign-avatar">${u.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</span>
                         <span class="dai-assign-info">
@@ -1370,19 +1452,35 @@ window.daiQuickAssign = function () {
     qa.insertAdjacentElement('afterend', div);
 };
 
-window.daiConfirmAssign = function () {
+window.daiConfirmAssign = async function () {
     const a = DAI.all.find(x => x.id === DAI.selected); if (!a) return;
     const radio = document.querySelector('input[name="daiAssignUser"]:checked');
     if (!radio) { _toast('Selecciona un usuario', 'warning', 'warning'); return; }
-    const name = radio.value;
-    a.assignedTo = name;
-    a.history.push({
-        ts: new Date(), type: 'assignment', icon: 'person_add', color: '#6366f1',
-        text: `Asignada a ${name}`, user: 'Admin Principal'
-    });
-    _closeInlinePanel('daiAssignPanel');
-    _refresh(a);
-    _toast(`👤 Asignada a ${name}`, 'assignment_ind', 'success');
+
+    const userId = radio.value;
+    const userName = radio.dataset.name;
+
+    try {
+        const r = await fetch(`/api/alerts/${a.id}/assign`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            },
+            body: JSON.stringify({ userId, userName })
+        });
+
+        if (r.ok) {
+            _toast(`✅ Alerta asignada a ${userName}`, 'check_circle', 'success');
+            _closeInlinePanel('daiAssignPanel');
+        } else {
+            const err = await r.json();
+            _toast(err.error || 'Error al asignar', 'error', 'error');
+        }
+    } catch (e) {
+        console.error('Error assigning:', e);
+        _toast('Error de conexión', 'error', 'error');
+    }
 };
 
 // ★ Inline Email Panel ────────────────────────────────────────────────
@@ -1777,3 +1875,333 @@ window.daiFixHeight = _daiFixHeight;
 
 // Llamar cada vez que cambia el tamaño de la ventana
 window.addEventListener('resize', _daiFixHeight);
+
+// ════════════════════════════════════════════════════════════════════════
+//  LIVE CONNECTOR — Server-Sent Events (SSE) for real-time alerts
+//  Auto-reconnects, injects new alerts, updates badge & toast
+// ════════════════════════════════════════════════════════════════════════
+(function () {
+    'use strict';
+
+    var _es = null;           // EventSource instance
+    var _reconnDelay = 1000;  // exponential backoff (ms)
+    var _maxReconn = 30000;   // max 30s between retries
+    var _isConnected = false;
+
+    // ── Fetch existing alert history ──────────────────────────────────
+    window.daiFetchInitialAlerts = function () {
+        console.log('[DAI Live] Cargando historial de alertas...');
+        fetch('/api/alerts')
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success && data.alerts) {
+                    // Filter out any we already have (by ID) just in case
+                    var existingIds = new Set(DAI.all.map(function (a) { return a.id; }));
+                    var toAdd = data.alerts.filter(function (a) { return !existingIds.has(a.id); });
+
+                    if (toAdd.length > 0) {
+                        var hydrated = toAdd.map(_hydrateAlert);
+                        // Add to all and sort
+                        DAI.all = hydrated.concat(DAI.all);
+                        DAI.all.sort(function (a, b) { return b.fecha - a.fecha; });
+
+                        console.log('[DAI Live] Historial cargado: ' + hydrated.length + ' alertas');
+
+                        // Refresh UI if necessary
+                        _buildStatCounts();
+                        _updateNotifBadge();
+                        if (typeof _renderStatBar === 'function') _renderStatBar();
+                        if (typeof _renderStatusTabCounts === 'function') _renderStatusTabCounts();
+
+                        var daiSection = document.getElementById('alertas-dai');
+                        if (daiSection && daiSection.style.display !== 'none') {
+                            if (typeof _applyFilters === 'function') _applyFilters();
+                            if (typeof _renderRows === 'function') _renderRows();
+                        }
+                    }
+                }
+            })
+            .catch(function (err) { console.error('[DAI Live] Error cargando historial:', err); });
+    };
+
+    // ── Start the SSE connection ──────────────────────────────────────
+    window.daiStartLiveUpdates = function () {
+        // Fetch existing history first
+        daiFetchInitialAlerts();
+
+        if (_es) { try { _es.close(); } catch (e) { } }
+
+        var url = '/api/alerts/stream';
+        _es = new EventSource(url);
+
+        // ─ Connected ─
+        _es.addEventListener('connected', function (e) {
+            _isConnected = true;
+            _reconnDelay = 1000; // reset backoff
+            _updateLiveIndicator(true);
+            console.log('[DAI Live] Conectado al stream SSE');
+        });
+
+        // ─ New alert ─
+        _es.addEventListener('new_alert', function (e) {
+            try {
+                var raw = JSON.parse(e.data);
+                var alert = _hydrateAlert(raw);
+                _injectAlert(alert);
+            } catch (err) {
+                console.error('[DAI Live] Error procesando alerta:', err);
+            }
+        });
+
+        // ─ Alert Locked ─
+        _es.addEventListener('alert_locked', function (e) {
+            try {
+                var data = JSON.parse(e.data);
+                var alert = DAI.all.find(a => a.id === data.id);
+                if (alert) {
+                    alert.locked_by = data.locked_by;
+                    alert.locked_by_name = data.locked_by_name;
+                    _refreshRow(alert.id);
+                    if (DAI.selected === alert.id) _renderDetail(alert);
+                }
+            } catch (err) { console.error('Error alert_locked:', err); }
+        });
+
+        // ─ Alert Unlocked ─
+        _es.addEventListener('alert_unlocked', function (e) {
+            try {
+                var data = JSON.parse(e.data);
+                var alert = DAI.all.find(a => a.id === data.id);
+                if (alert) {
+                    alert.locked_by = null;
+                    alert.locked_by_name = null;
+                    _refreshRow(alert.id);
+                    if (DAI.selected === alert.id) _renderDetail(alert);
+                }
+            } catch (err) { console.error('Error alert_unlocked:', err); }
+        });
+
+        // ─ Alert Updated (Assignment, etc) ─
+        _es.addEventListener('alert_updated', function (e) {
+            try {
+                var data = JSON.parse(e.data);
+                var alert = DAI.all.find(a => a.id === data.id);
+                if (alert) {
+                    if (data.assigned_to) {
+                        alert.assignedTo = data.assigned_to_name || data.assigned_to;
+                    }
+                    if (data.history_latest) {
+                        alert.history.push(data.history_latest);
+                    }
+                    _refreshRow(alert.id);
+                    if (DAI.selected === alert.id) _renderDetail(alert);
+                }
+            } catch (err) { console.error('Error alert_updated:', err); }
+        });
+
+        // ─ Heartbeat ─
+        _es.addEventListener('heartbeat', function () {
+            _isConnected = true;
+            _updateLiveIndicator(true);
+        });
+
+        // ─ Error / disconnect ─
+        _es.onerror = function () {
+            _isConnected = false;
+            _updateLiveIndicator(false);
+            _es.close();
+            console.warn('[DAI Live] Desconectado, reconectando en ' + _reconnDelay + 'ms...');
+            setTimeout(function () {
+                _reconnDelay = Math.min(_reconnDelay * 2, _maxReconn);
+                daiStartLiveUpdates();
+            }, _reconnDelay);
+        };
+    };
+
+    // ── Convert SSE JSON → match frontend DAI record format ───────────
+    function _hydrateAlert(raw) {
+        var fecha = new Date(raw.fecha || raw.fecha_ts);
+        var t_cap = raw.t_captura ? new Date(raw.t_captura) : fecha;
+        var t_plat = raw.t_plataforma ? new Date(raw.t_plataforma) : fecha;
+        return {
+            id: raw.id,
+            seq: raw.seq,
+            tipo_registro: raw.tipo_registro || 'Automático',
+            tipo: raw.tipo,
+            sev: raw.sev,
+            estado: raw.estado || 'creado',
+            dep: raw.dep,
+            tramo: raw.tramo,
+            codigo_via: raw.codigo_via || '00-00',
+            poste_ref: raw.poste_ref || '000-0',
+            disp: raw.disp,
+            dTipo: raw.dTipo || 'WIM',
+            lng: raw.lng,
+            lat: raw.lat,
+            fecha: fecha,
+            fecha_str: _fm(fecha),
+            t_captura: t_cap,
+            t_plataforma: t_plat,
+            latencia_ms: raw.latencia_ms || 0,
+            t_respuesta: raw.t_respuesta ? new Date(raw.t_respuesta) : null,
+            t_resolucion: raw.t_resolucion ? new Date(raw.t_resolucion) : null,
+            evidencia: raw.evidencia || null,
+            assignedTo: raw.assignedTo || null,
+            locked_by: raw.locked_by || null,
+            locked_by_name: raw.locked_by_name || null,
+            attachments: raw.attachments || [],
+            notes: raw.notes || [],
+            history: (raw.history || []).map(function (h) {
+                return { ts: new Date(h.ts), type: h.type, icon: h.icon, color: h.color, text: h.text, user: h.user };
+            })
+        };
+    }
+
+    // ── Inject alert into DAI.all and refresh the UI ──────────────────
+    function _injectAlert(alert) {
+        // Prepend to DAI.all (newest first)
+        DAI.all.unshift(alert);
+
+        // Rebuild counts
+        _buildStatCounts();
+
+        // Re-render stat bar if visible
+        if (document.getElementById('daiStatBar')) {
+            _renderStatBar();
+        }
+
+        // Re-render status tab counts
+        _renderStatusTabCounts();
+
+        // Re-apply filters and re-render rows if DAI module is active
+        var daiSection = document.getElementById('alertas-dai');
+        if (daiSection && daiSection.style.display !== 'none') {
+            _applyFilters();
+            _renderRows();
+
+            // Re-render latency dashboard if it's expanded
+            if (document.getElementById('daiLatencyDashboard') && document.getElementById('daiLatencyDashboard').innerHTML) {
+                _renderLatencyDashboard();
+            }
+        }
+
+        // Update notification badge (always, regardless of current section)
+        _updateNotifBadge();
+
+        // Show toast for critical/alta alerts if enabled
+        console.log('[DAI Live] ¿Mostrar toast?', alert.id, 'Sev:', alert.sev, 'Enabled:', DAI.notifDaiEnabled);
+        if ((alert.sev === 'critica' || alert.sev === 'alta') && DAI.notifDaiEnabled) {
+            _showAlertToast(alert);
+        }
+
+        console.log('[DAI Live] Alerta inyectada: ' + alert.id + ' (' + alert.sev + ') → ' + alert.tipo);
+    }
+
+    // ── Update notification bell badge ────────────────────────────────
+    function _updateNotifBadge() {
+        var pending = DAI.all.filter(function (a) { return a.estado !== 'resuelta'; }).length;
+        var badge = document.getElementById('notifBadge');
+        if (badge) {
+            badge.textContent = pending > 99 ? '99+' : pending;
+            badge.style.display = pending > 0 ? '' : 'none';
+            // Pulse animation on update
+            badge.classList.remove('notif-badge-pulse');
+            void badge.offsetWidth; // force reflow
+            badge.classList.add('notif-badge-pulse');
+        }
+        // Also update header subtitle if panel is open
+        var sub = document.getElementById('notifSubtitle');
+        if (sub) {
+            var crit = DAI.all.filter(function (a) { return a.sev === 'critica' && a.estado !== 'resuelta'; }).length;
+            sub.textContent = pending + ' alertas pendientes · ' + crit + ' críticas';
+        }
+        // Update panel body if open
+        if (typeof renderNotifAlerts === 'function' && document.getElementById('notifPanel') &&
+            document.getElementById('notifPanel').classList.contains('open')) {
+            renderNotifAlerts();
+        }
+    }
+
+    // ── Toast notification for critical alerts ────────────────────────
+    function _showAlertToast(alert) {
+        var container = document.getElementById('alertToastContainer');
+        if (!container) {
+            // Create container if not present
+            container = document.createElement('div');
+            container.id = 'alertToastContainer';
+            container.className = 'alert-toast-container';
+            document.body.appendChild(container);
+        }
+
+        var sevLabel = { critica: 'CRÍTICA', alta: 'ALTA', media: 'MEDIA', baja: 'BAJA' };
+        var sevIcon = { critica: 'error', alta: 'warning', media: 'info', baja: 'check_circle' };
+
+        var toast = document.createElement('div');
+        toast.className = 'alert-toast alert-toast-' + alert.sev;
+        toast.innerHTML =
+            '<div class="alert-toast-strip ' + alert.sev + '"></div>' +
+            '<div class="alert-toast-icon"><i class="material-icons">' + (sevIcon[alert.sev] || 'warning') + '</i></div>' +
+            '<div class="alert-toast-body">' +
+            '<div class="alert-toast-title">' +
+            '<span class="alert-toast-sev">' + (sevLabel[alert.sev] || alert.sev) + '</span> ' + alert.tipo +
+            '</div>' +
+            '<div class="alert-toast-meta">' +
+            '<span><i class="material-icons" style="font-size:12px;vertical-align:-2px;">location_on</i> ' + alert.dep + '</span>' +
+            '<span><i class="material-icons" style="font-size:12px;vertical-align:-2px;">router</i> ' + alert.disp.replace('INV-DAI-', '') + '</span>' +
+            '</div>' +
+            '</div>' +
+            '<button class="alert-toast-close" onclick="this.parentElement.remove()"><i class="material-icons">close</i></button>';
+
+        // Click to navigate to alert
+        toast.addEventListener('click', function (e) {
+            if (e.target.closest('.alert-toast-close')) return;
+            // Navigate to DAI section and select the alert
+            if (typeof showSection === 'function') showSection('alertas-dai');
+            setTimeout(function () {
+                if (typeof daiSelectAlert === 'function') daiSelectAlert(alert.id);
+            }, 500);
+            toast.remove();
+        });
+
+        container.prepend(toast);
+
+        // Auto-remove after 10 seconds
+        setTimeout(function () {
+            toast.classList.add('alert-toast-exit');
+            setTimeout(function () { toast.remove(); }, 400);
+        }, 10000);
+
+        // Limit visible toasts to 5
+        while (container.children.length > 5) {
+            container.lastChild.remove();
+        }
+    }
+
+    // ── Live indicator ("● En vivo" badge) ────────────────────────────
+    function _updateLiveIndicator(connected) {
+        var el = document.getElementById('daiLiveIndicator');
+        if (!el) return;
+        if (connected) {
+            el.className = 'dai-live-indicator live';
+            el.innerHTML = '<span class="dai-live-dot"></span> En vivo';
+        } else {
+            el.className = 'dai-live-indicator offline';
+            el.innerHTML = '<span class="dai-live-dot"></span> Reconectando…';
+        }
+    }
+
+    // ── Background badge updater (every 10s) ──────────────────────────
+    // Ensures the badge stays current even without new SSE events
+    setInterval(function () {
+        if (DAI.all.length > 0) _updateNotifBadge();
+    }, 10000);
+
+    // ── Auto-start SSE when page loads ────────────────────────────────
+    // Slight delay to let the DOM and initial data load first
+    setTimeout(function () {
+        daiStartLiveUpdates();
+        // Also do an initial badge update
+        if (DAI.all.length > 0) _updateNotifBadge();
+    }, 3000);
+
+})();

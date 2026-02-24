@@ -250,8 +250,52 @@ INSERT INTO system_config (config_key, config_value, description, is_public) VAL
 ('max_upload_size', '52428800', 'Tamaño máximo de archivo en bytes (50MB)', false),
 ('enable_downloads', 'true', 'Habilitar descargas de datos', false),
 ('enable_2fa', 'true', 'Habilitar autenticación de dos factores', false),
-('download_max_months', '3', 'Máximo de meses permitidos por descarga', false)
+('download_max_months', '3', 'Máximo de meses permitidos por descarga', false),
+-- Configuraciones de contacto y footer
+('footer_address', '"Carrera 59 No. 26 - 60 CAN, Bogotá D.C., Colombia"', 'Dirección sede principal', true),
+('footer_phone', '"(601) 705 6000"', 'Teléfono conmutador', true),
+('footer_email', '"servicioalciudadano@invias.gov.co"', 'Email de servicio al ciudadano', true),
+('footer_schedule', '"Lunes a Viernes de 8:00 a.m. a 4:00 p.m."', 'Horario de atención', true),
+('social_twitter', '"https://twitter.com/InviasCol"', 'Enlace Twitter', true),
+('social_facebook', '"https://www.facebook.com/InviasCol"', 'Enlace Facebook', true),
+('social_youtube', '"https://www.youtube.com/InviasCol"', 'Enlace YouTube', true),
+('social_instagram', '"https://www.instagram.com/inviascol/"', 'Enlace Instagram', true)
 ON CONFLICT (config_key) DO NOTHING;
+
+-- ========================================
+-- TABLA DE ALERTAS DAI
+-- ========================================
+CREATE TABLE IF NOT EXISTS dai_alerts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    seq_id VARCHAR(50) UNIQUE NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    severidad VARCHAR(20) NOT NULL, -- 'critica', 'alta', 'media', 'baja'
+    estado VARCHAR(20) NOT NULL DEFAULT 'creado', -- 'creado', 'activa', 'resuelta'
+    departamento VARCHAR(100) NOT NULL,
+    tramo VARCHAR(200),
+    codigo_via VARCHAR(50),
+    poste_referencia VARCHAR(50),
+    dispositivo_id VARCHAR(100),
+    dispositivo_tipo VARCHAR(50),
+    latitud DECIMAL(10, 7),
+    longitud DECIMAL(10, 7),
+    tipo_registro VARCHAR(50) DEFAULT 'Automático',
+    fecha_captura TIMESTAMP NOT NULL,
+    fecha_plataforma TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    latencia_ms INTEGER,
+    evidencia_json JSONB,
+    detalles_json JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_dai_fecha ON dai_alerts(fecha_plataforma DESC);
+CREATE INDEX idx_dai_severidad ON dai_alerts(severidad);
+CREATE INDEX idx_dai_estado ON dai_alerts(estado);
+CREATE INDEX idx_dai_departamento ON dai_alerts(departamento);
+
+CREATE TRIGGER update_dai_updated_at BEFORE UPDATE ON dai_alerts
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Insertar datos de ejemplo para estadísticas de tráfico
 -- (Estos son los 57 sectores viales reales de Colombia)

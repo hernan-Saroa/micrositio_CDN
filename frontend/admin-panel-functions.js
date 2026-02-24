@@ -170,15 +170,10 @@ function getMimeIcon(mimeType, fileName) {
 // ========================================
 
 async function loadDashboardStats() {
-    try {
-        const response = await apiRequest('/stats/dashboard');
-        if (response && response.ok) {
-            const data = await response.json();
-            updateStatsDisplay(data);
-        }
-    } catch (error) {
-        // Mantener valores por defecto del HTML si falla
-        console.warn('Dashboard stats no disponibles:', error.message);
+    // Delegate to new executive dashboard loader (admin-panel.js)
+    if (typeof loadDashboardData === 'function') {
+        var range = dbGetDateRange(_dbPreset || 'today');
+        loadDashboardData(range.from, range.to);
     }
 }
 
@@ -680,15 +675,8 @@ function renderUsersTable(users) {
 // ========================================
 
 async function loadAuditLogs() {
-    try {
-        const response = await apiRequest('/audit');
-        if (response && response.ok) {
-            const data = await response.json();
-            renderAuditLogs(data.logs || data);
-        }
-    } catch (error) {
-        console.error('Error loading audit logs:', error);
-    }
+    // Redirect to the new audit module in admin-panel.js
+    if (typeof loadAuditAdmin === 'function') loadAuditAdmin(1);
 }
 
 // ========================================
@@ -732,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menuItem.addEventListener('click', () => {
                 if (section === 'reports') loadReports();
                 else if (section === 'users') loadUsers();
-                else if (section === 'audit') loadAuditLogs();
+                else if (section === 'audit') { if (typeof loadAuditAdmin === 'function') loadAuditAdmin(1); }
             });
         }
     });
@@ -750,3 +738,487 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('%c✅ Admin Panel Cargado', 'color: #10b981; font-size: 14px; font-weight: bold;');
     console.log(`%cModo: PRODUCCIÓN (API real)`, 'color: #6b7280; font-size: 12px;');
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  USERS MODULE — API Real + Responsive (v2)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const UM_MODULES = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { id: 'reports', label: 'Reportes', icon: 'description' },
+    { id: 'slider', label: 'Slider', icon: 'image' },
+    { id: 'alertas-dai', label: 'Alertas DAI', icon: 'warning_amber' },
+    { id: 'users', label: 'Usuarios', icon: 'people' },
+    { id: 'downloads', label: 'Descargas', icon: 'download' },
+    { id: 'audit', label: 'Auditoría', icon: 'history' },
+    { id: 'config', label: 'Configuración', icon: 'settings' },
+];
+
+const ROLE_PALETTES = [
+    { bg: '#fff7ed', border: '#fed7aa', icon: '#f97316', bar: '#f97316', name: '#ea580c' },
+    { bg: '#eff6ff', border: '#bfdbfe', icon: '#3b82f6', bar: '#3b82f6', name: '#2563eb' },
+    { bg: '#f5f3ff', border: '#ddd6fe', icon: '#8b5cf6', bar: '#8b5cf6', name: '#7c3aed' },
+    { bg: '#f0fdf4', border: '#bbf7d0', icon: '#22c55e', bar: '#22c55e', name: '#16a34a' },
+    { bg: '#fef2f2', border: '#fecaca', icon: '#ef4444', bar: '#ef4444', name: '#dc2626' },
+    { bg: '#ecfdf5', border: '#a7f3d0', icon: '#10b981', bar: '#10b981', name: '#059669' },
+];
+
+const AVATAR_COLORS = ['#f97316', '#3b82f6', '#8b5cf6', '#22c55e', '#ef4444', '#10b981', '#f59e0b', '#06b6d4'];
+
+// ── Estado en memoria ─────────────────────────────────────────────────────────
+let _umCachedUsers = [];      // usuarios cargados desde la API
+let _umFilterRole = '';
+let _umFilterSearch = '';
+
+// ── Roles (localStorage) ──────────────────────────────────────────────────────
+function _umRoles() { return JSON.parse(localStorage.getItem('um_roles') || '[]'); }
+function _umSaveRoles(r) { localStorage.setItem('um_roles', JSON.stringify(r)); }
+function _umId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+function _umRoleById(id) { return _umRoles().find(r => r.id === id) || null; }
+
+// Seed de roles si no existen
+function _umSeedRoles() {
+    if (localStorage.getItem('um_roles')) return;
+    localStorage.setItem('um_roles', JSON.stringify([
+        { id: 'r_admin', name: 'Administrador', desc: 'Acceso total a la plataforma', modules: UM_MODULES.map(m => m.id) },
+        { id: 'r_viewer', name: 'Monitor DAI', desc: 'Visualización y gestión de alertas', modules: ['dashboard', 'alertas-dai', 'downloads'] },
+        { id: 'r_editor', name: 'Editor', desc: 'Gestión de contenido publicable', modules: ['dashboard', 'reports', 'slider'] },
+    ]));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function _umEsc(s) { return String(s || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
+function _umTimeAgo(date) {
+    const d = Math.floor((Date.now() - date) / 1000);
+    if (d < 60) return 'Hace unos segundos';
+    if (d < 3600) return `Hace ${Math.floor(d / 60)}m`;
+    if (d < 86400) return `Hace ${Math.floor(d / 3600)}h`;
+    return `Hace ${Math.floor(d / 86400)}d`;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.loadUsers = async function () {
+    _umSeedRoles();
+    _umSetLoading(true);
+    try {
+        const response = await apiRequest('/users');
+        if (!response) { _umCachedUsers = []; }
+        else if (!response.ok) {
+            console.warn('Users API responded with status:', response.status);
+            _umCachedUsers = [];
+            _umToast('Error al cargar usuarios (' + response.status + ')', 'error');
+        } else {
+            const data = await response.json();
+            if (Array.isArray(data)) {
+                _umCachedUsers = data;
+            } else if (data && Array.isArray(data.users)) {
+                _umCachedUsers = data.users;
+            } else {
+                _umCachedUsers = [];
+            }
+        }
+    } catch (e) {
+        console.warn('Users API error:', e);
+        _umCachedUsers = [];
+        _umToast('Error al cargar usuarios de la API', 'error');
+    }
+    _umSetLoading(false);
+    _umRenderUsers();
+    _umRenderRoles();
+    _umPopulateRoleFilter();
+};
+
+
+function _umSetLoading(on) {
+    const body = document.getElementById('umUsersBody');
+    if (!body) return;
+    if (on) {
+        body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#94a3b8;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+               <div class="um-spinner"></div> Cargando usuarios...
+            </div></td></tr>`;
+    }
+}
+
+// ── Tab switch ────────────────────────────────────────────────────────────────
+window.usersTabSwitch = function (tab) {
+    const isU = tab === 'usuarios';
+    document.getElementById('umPanelUsuarios').style.display = isU ? '' : 'none';
+    document.getElementById('umPanelRoles').style.display = isU ? 'none' : '';
+    document.getElementById('umSearchWrap').style.display = isU ? '' : 'none';
+    document.getElementById('umRoleFilter').style.display = isU ? '' : 'none';
+    document.getElementById('umTabUsuarios').classList.toggle('active', isU);
+    document.getElementById('umTabRoles').classList.toggle('active', !isU);
+};
+
+// ── Render Users ──────────────────────────────────────────────────────────────
+function _umRenderUsers() {
+    let users = [..._umCachedUsers];
+
+    // Filtrar por rol si aplica (campo `role` de la API)
+    if (_umFilterRole) users = users.filter(u => (u.role || '') === _umFilterRole);
+
+    // Búsqueda
+    if (_umFilterSearch) {
+        const q = _umFilterSearch.toLowerCase();
+        users = users.filter(u =>
+            (u.name || '').toLowerCase().includes(q) ||
+            (u.email || '').toLowerCase().includes(q)
+        );
+    }
+
+    const body = document.getElementById('umUsersBody');
+    const empty = document.getElementById('umUsersEmpty');
+    const countEl = document.getElementById('umCountUsuarios');
+    if (countEl) countEl.textContent = _umCachedUsers.length;
+    if (!body) return;
+
+    if (!users.length) {
+        body.innerHTML = '';
+        if (empty) empty.style.display = 'flex';
+        return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    // Mapa de rol string→paleta (index por orden de aparición)
+    const roleNames = [...new Set(_umCachedUsers.map(u => u.role).filter(Boolean))];
+
+    body.innerHTML = users.map((u, i) => {
+        const initials = (u.name || '?').split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase();
+        const avatarC = AVATAR_COLORS[i % AVATAR_COLORS.length];
+        const roleStr = u.role || 'sin rol';
+        const roleIdx = roleNames.indexOf(u.role);
+        const palette = ROLE_PALETTES[Math.max(0, roleIdx) % ROLE_PALETTES.length];
+        const isActive = u.is_active !== false && u.is_active !== 0;
+        const lastLogin = u.last_login ? _umTimeAgo(new Date(u.last_login)) : '—';
+
+        return `<tr>
+          <td>
+            <div class="um-avatar-cell">
+              <div class="um-avatar" style="background:${avatarC}">${initials}</div>
+              <div>
+                <div class="um-user-name">${_umEsc(u.name || '—')}</div>
+                <div class="um-user-email">${_umEsc(u.email || '—')}</div>
+                <span class="um-role-badge-sm" style="background:${palette.bg};color:${palette.name};border:1px solid ${palette.border}">
+                  ${_umEsc(roleStr)}
+                </span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="um-status-pill ${isActive ? 'active' : 'suspended'}">${isActive ? 'Activo' : 'Suspendido'}</span>
+          </td>
+          <td class="um-td-hide-sm" style="color:var(--gray-500);font-size:.8rem;white-space:nowrap">${lastLogin}</td>
+          <td>
+            <div class="um-actions">
+              <button class="um-act-btn um-act-btn--edit" title="Editar" onclick="usersOpenEditUser('${u.id}')">
+                <i class="material-icons">edit</i>
+              </button>
+              ${isActive
+                ? `<button class="um-act-btn um-act-btn--suspend" title="Suspender" onclick="usersToggleStatus('${u.id}',false)"><i class="material-icons">block</i></button>`
+                : `<button class="um-act-btn um-act-btn--activate" title="Activar" onclick="usersToggleStatus('${u.id}',true)"><i class="material-icons">check_circle</i></button>`
+            }
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+}
+
+
+// ── Render Roles ──────────────────────────────────────────────────────────────
+function _umRenderRoles() {
+    const roles = _umRoles();
+    const grid = document.getElementById('umRolesGrid');
+    const empty = document.getElementById('umRolesEmpty');
+    const countEl = document.getElementById('umCountRoles');
+    if (countEl) countEl.textContent = roles.length;
+    if (!grid) return;
+    if (!roles.length) { grid.innerHTML = ''; if (empty) empty.style.display = 'flex'; return; }
+    if (empty) empty.style.display = 'none';
+
+    // Contar usuarios por rol (aproximado por string del role field)
+    function countByRole(roleName) {
+        return _umCachedUsers.filter(u => (u.role || '').toLowerCase().includes(roleName.toLowerCase())).length;
+    }
+
+    grid.innerHTML = roles.map((role, idx) => {
+        const palette = ROLE_PALETTES[idx % ROLE_PALETTES.length];
+        const userCnt = countByRole(role.name);
+        const modBadges = UM_MODULES.map(m => {
+            const on = role.modules.includes(m.id);
+            return `<span class="um-role-mod ${on ? 'on' : 'off'}">
+              <i class="material-icons">${m.icon}</i>${m.label}
+            </span>`;
+        }).join('');
+        return `<div class="um-role-card" style="border-color:${palette.border}">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${palette.bar};border-radius:20px 20px 0 0"></div>
+          <div class="um-role-card-head">
+            <div class="um-role-card-info">
+              <div class="um-role-icon" style="background:${palette.bg}">
+                <i class="material-icons" style="color:${palette.icon}">admin_panel_settings</i>
+              </div>
+              <div>
+                <div class="um-role-name" style="color:${palette.name}">${_umEsc(role.name)}</div>
+                <div class="um-role-desc">${_umEsc(role.desc || '')}</div>
+              </div>
+            </div>
+          </div>
+          <div class="um-role-users">
+            <i class="material-icons">people</i>
+            ${userCnt} usuario${userCnt !== 1 ? 's' : ''} asignado${userCnt !== 1 ? 's' : ''}
+          </div>
+          <div class="um-role-modules-title">Módulos (${role.modules.length}/${UM_MODULES.length})</div>
+          <div class="um-role-modules">${modBadges}</div>
+          <div class="um-role-card-actions">
+            <button class="um-act-btn um-act-btn--edit" style="flex:1;justify-content:center" onclick="usersOpenEditRole('${role.id}')">
+              <i class="material-icons">edit</i> Editar
+            </button>
+            <button class="um-act-btn um-act-btn--delete" onclick="usersConfirmDelete('role','${role.id}','${_umEsc(role.name)}')">
+              <i class="material-icons">delete</i>
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Populate selects ──────────────────────────────────────────────────────────
+function _umPopulateRoleFilter() {
+    const roles = _umRoles();
+    const fsel = document.getElementById('umRoleFilter');
+    const usel = document.getElementById('umUserRole');
+    // Para el filtro de la tabla usamos los roles únicos del campo `role` de la API
+    const apiRoles = [...new Set(_umCachedUsers.map(u => u.role).filter(Boolean))];
+    if (fsel) {
+        fsel.innerHTML = '<option value="">Todos los roles</option>' +
+            apiRoles.map(r => `<option value="${_umEsc(r)}">${_umEsc(r)}</option>`).join('');
+    }
+    if (usel) {
+        const roleMap = [
+            { value: 'admin', label: 'Administrador' },
+            { value: 'user', label: 'Usuario' },
+            { value: 'editor', label: 'Editor' },
+            { value: 'viewer', label: 'Monitor DAI' },
+        ];
+        usel.innerHTML = roleMap.map(r => `<option value="${r.value}">${_umEsc(r.label)}</option>`).join('');
+    }
+}
+
+// ── Filter & Search ───────────────────────────────────────────────────────────
+window.usersFilterByRole = function (roleId) {
+    _umFilterRole = roleId;
+    _umRenderUsers();
+};
+window.usersSearch = function (q) {
+    _umFilterSearch = q;
+    _umRenderUsers();
+};
+
+// ── Modal helpers ─────────────────────────────────────────────────────────────
+window.usersCloseModal = function (id) { const el = document.getElementById(id); if (el) el.classList.remove('open'); };
+function _umOpenModal(id) { const el = document.getElementById(id); if (el) el.classList.add('open'); }
+
+// ── Password toggle ───────────────────────────────────────────────────────────
+window.usersTogglePass = function () {
+    const inp = document.getElementById('umUserPassword');
+    const ico = document.getElementById('umEyeIcon');
+    if (!inp) return;
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    if (ico) ico.textContent = show ? 'visibility_off' : 'visibility';
+};
+
+// ── Create / Edit User ────────────────────────────────────────────────────────
+window.usersOpenCreateUser = function () {
+    _umPopulateRoleFilter();
+    ['umUserId', 'umUserName', 'umUserEmail', 'umUserPassword'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+    document.getElementById('umUserPassword').type = 'password';
+    document.getElementById('umEyeIcon').textContent = 'visibility';
+    document.getElementById('umUserActive').checked = true;
+    document.getElementById('umUserActiveLabel').textContent = 'Activo';
+    document.getElementById('umModalUserTitle').textContent = 'Nuevo Usuario';
+    document.getElementById('umModalUserSub').textContent = 'Completa los datos para crear el usuario';
+    document.getElementById('umUserSaveLbl').textContent = 'Crear Usuario';
+    document.getElementById('umPassHint').style.display = 'none';
+    document.getElementById('umPassReq').style.display = 'inline';
+    _umOpenModal('umModalUser');
+};
+
+window.usersOpenEditUser = function (userId) {
+    const user = _umCachedUsers.find(u => String(u.id) === String(userId));
+    if (!user) return;
+    _umPopulateRoleFilter();
+    document.getElementById('umUserId').value = user.id;
+    document.getElementById('umUserName').value = user.name || '';
+    document.getElementById('umUserEmail').value = user.email || '';
+    document.getElementById('umUserPassword').value = '';
+    document.getElementById('umUserPassword').type = 'password';
+    document.getElementById('umEyeIcon').textContent = 'visibility';
+    document.getElementById('umUserActive').checked = user.is_active !== false;
+    document.getElementById('umUserActiveLabel').textContent = user.is_active !== false ? 'Activo' : 'Suspendido';
+    document.getElementById('umModalUserTitle').textContent = 'Editar Usuario';
+    document.getElementById('umModalUserSub').textContent = `Modificando datos de ${user.name}`;
+    document.getElementById('umUserSaveLbl').textContent = 'Guardar Cambios';
+    document.getElementById('umPassHint').style.display = 'block';
+    document.getElementById('umPassReq').style.display = 'none';
+    const sel = document.getElementById('umUserRole');
+    if (sel && user.role) {
+        const opt = [...sel.options].find(o => o.value.toLowerCase() === user.role.toLowerCase());
+        if (opt) opt.selected = true;
+    }
+    _umOpenModal('umModalUser');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chk = document.getElementById('umUserActive');
+    const lbl = document.getElementById('umUserActiveLabel');
+    if (chk && lbl) chk.addEventListener('change', () => { lbl.textContent = chk.checked ? 'Activo' : 'Suspendido'; });
+});
+
+// ── Save User (crea o edita vía API) ──────────────────────────────────────────
+window.usersSaveUser = async function () {
+    const id = document.getElementById('umUserId').value.trim();
+    const name = document.getElementById('umUserName').value.trim();
+    const email = document.getElementById('umUserEmail').value.trim();
+    const pass = document.getElementById('umUserPassword').value;
+    const active = document.getElementById('umUserActive').checked;
+    const role = document.getElementById('umUserRole').value;
+
+    if (!name || !email) { _umToast('Completa los campos obligatorios', 'error'); return; }
+    if (!id && !pass) { _umToast('La contraseña es obligatoria para nuevos usuarios', 'error'); return; }
+    if (pass && pass.length < 8) { _umToast('Contraseña mínimo 8 caracteres', 'error'); return; }
+
+    const saveBtn = document.getElementById('umUserSaveLbl');
+    const origText = saveBtn ? saveBtn.textContent : '';
+    if (saveBtn) saveBtn.textContent = 'Guardando...';
+
+    try {
+        const body = { name, role, is_active: active };
+        let response;
+
+        if (id) {
+            // Editar usuario existente
+            if (pass) body.password = pass;
+            response = await apiRequest('/users/' + id, {
+                method: 'PUT',
+                body: JSON.stringify(body)
+            });
+        } else {
+            // Crear nuevo usuario
+            body.email = email;
+            body.password = pass;
+            response = await apiRequest('/users', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+        }
+
+        if (!response || !response.ok) {
+            const errData = response ? await response.json().catch(() => ({})) : {};
+            _umToast(errData.error || 'Error al guardar el usuario', 'error');
+            return;
+        }
+
+        _umToast(id ? `Cambios guardados para "${name}"` : `Usuario "${name}" creado exitosamente`, 'success');
+        usersCloseModal('umModalUser');
+        await loadUsers();
+    } catch (e) {
+        console.error('Error guardando usuario:', e);
+        _umToast('Error de conexión al guardar usuario', 'error');
+    } finally {
+        if (saveBtn) saveBtn.textContent = origText;
+    }
+};
+
+// ── Toggle status ─────────────────────────────────────────────────────────────
+window.usersToggleStatus = async function (userId, activate) {
+    const u = _umCachedUsers.find(x => String(x.id) === String(userId));
+    if (!u) return;
+    _umToast(`${u.name} ${activate ? 'activado' : 'suspendido'}`, activate ? 'success' : 'warn');
+    // Actualizar localmente mientras la API no tiene endpoint de PATCH
+    u.is_active = activate;
+    _umRenderUsers();
+};
+
+// ── Create / Edit Role ────────────────────────────────────────────────────────
+window.usersOpenCreateRole = function () {
+    document.getElementById('umRoleId').value = '';
+    document.getElementById('umRoleName').value = '';
+    document.getElementById('umRoleDesc').value = '';
+    document.getElementById('umModalRoleTitle').textContent = 'Nuevo Rol';
+    document.getElementById('umModalRoleSub').textContent = 'Define qué módulos puede acceder este rol';
+    document.getElementById('umRoleSaveLbl').textContent = 'Crear Rol';
+    _umBuildModulesGrid([]);
+    _umOpenModal('umModalRole');
+};
+
+window.usersOpenEditRole = function (roleId) {
+    const role = _umRoleById(roleId);
+    if (!role) return;
+    document.getElementById('umRoleId').value = role.id;
+    document.getElementById('umRoleName').value = role.name;
+    document.getElementById('umRoleDesc').value = role.desc || '';
+    document.getElementById('umModalRoleTitle').textContent = 'Editar Rol';
+    document.getElementById('umModalRoleSub').textContent = `Modificando permisos de "${role.name}"`;
+    document.getElementById('umRoleSaveLbl').textContent = 'Guardar Cambios';
+    _umBuildModulesGrid(role.modules || []);
+    _umOpenModal('umModalRole');
+};
+
+function _umBuildModulesGrid(checked) {
+    const grid = document.getElementById('umModulesGrid');
+    if (!grid) return;
+    grid.innerHTML = UM_MODULES.map(m => {
+        const on = checked.includes(m.id);
+        return `<div class="um-mod-check ${on ? 'checked' : ''}" data-mod="${m.id}" onclick="_umToggleMod(this)">
+          <div class="um-mod-check-box"></div>
+          <div class="um-mod-check-label"><i class="material-icons">${m.icon}</i>${m.label}</div>
+        </div>`;
+    }).join('');
+}
+window._umToggleMod = function (el) { el.classList.toggle('checked'); };
+
+window.usersSaveRole = function () {
+    const id = document.getElementById('umRoleId').value.trim();
+    const name = document.getElementById('umRoleName').value.trim();
+    const desc = document.getElementById('umRoleDesc').value.trim();
+    const mods = Array.from(document.querySelectorAll('#umModulesGrid .um-mod-check.checked')).map(el => el.dataset.mod).filter(Boolean);
+    if (!name) { _umToast('Nombre del rol obligatorio', 'error'); return; }
+    if (!mods.length) { _umToast('Selecciona al menos un módulo', 'error'); return; }
+    let roles = _umRoles();
+    if (id) { roles = roles.map(r => r.id === id ? { ...r, name, desc, modules: mods } : r); _umToast(`Rol "${name}" actualizado`, 'success'); }
+    else { roles.push({ id: _umId(), name, desc, modules: mods }); _umToast(`Rol "${name}" creado`, 'success'); }
+    _umSaveRoles(roles);
+    usersCloseModal('umModalRole');
+    _umRenderRoles();
+    _umPopulateRoleFilter();
+    const c = document.getElementById('umCountRoles'); if (c) c.textContent = roles.length;
+};
+
+// ── Delete Confirm ────────────────────────────────────────────────────────────
+window.usersConfirmDelete = function (type, id, name) {
+    document.getElementById('umConfirmTitle').textContent = `¿Eliminar ${type === 'user' ? 'usuario' : 'rol'}?`;
+    document.getElementById('umConfirmMsg').textContent = `Se eliminará "${name}". Esta acción no se puede deshacer.`;
+    const btn = document.getElementById('umConfirmBtn');
+    btn.onclick = () => {
+        if (type === 'role') {
+            _umSaveRoles(_umRoles().filter(r => r.id !== id));
+            _umToast('Rol eliminado', 'warn');
+            _umRenderRoles(); _umPopulateRoleFilter();
+        }
+        usersCloseModal('umModalConfirm');
+    };
+    _umOpenModal('umModalConfirm');
+};
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function _umToast(msg, type) {
+    const c = { success: '#22c55e', error: '#ef4444', warn: '#f59e0b' }[type] || '#22c55e';
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e293b;color:#fff;
+        padding:14px 20px;border-radius:14px;font-size:.85rem;font-weight:600;
+        display:flex;align-items:center;gap:10px;box-shadow:0 10px 40px rgba(0,0,0,.3);
+        border-left:4px solid ${c};font-family:var(--font);animation:umSlideUp .25s ease;max-width:340px;`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3200);
+}

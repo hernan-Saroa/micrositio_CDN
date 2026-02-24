@@ -1,0 +1,14 @@
+{"id":"rep-001","title":"Informe Anual de Tráfico 2024","is_public":1,"is_featured":1,"updated_by":"admin-0001-0001-0001-000100010001","updated_at":"2026-02-24 00:48:25"}
+{"id":"rep-002","title":"Reporte de Seguridad Vial - Primer Semestre 2024","is_public":1,"is_featured":0,"updated_by":null,"updated_at":"2026-02-21 02:35:05"}
+{"id":"rep-003","title":"Estadísticas de Velocidad - Red Vial Nacional","is_public":1,"is_featured":0,"updated_by":null,"updated_at":"2026-02-21 02:35:05"}
+
+--- RECENT REPORT AUDIT LOGS ---
+{"id":"b3fe584b1d61abf061cda348670c0e13","action":"update_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-24 00:41:39"}
+{"id":"03e16f62ca492a6290d85f191442247a","action":"update_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-24 00:33:53"}
+{"id":"d9a559cf63c9386604136349a286fb4c","action":"update_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-23 22:34:15"}
+{"id":"4014e876df0333e93fcb2508a2410e9a","action":"update_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-22 20:13:52"}
+{"id":"eff3c5945407e142ed38b5acaf2f297b","action":"update_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-22 20:13:49"}
+{"id":"1541b75c0ff7372b365b1ef0e24a0760","action":"download_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-22 20:06:03"}
+{"id":"7d5e9924f7b7269f4baf0949708a192e","action":"download_report","resource_type":"report","resource_id":"rep-001","created_at":"2026-02-22 18:33:37"}
+{"id":"aud-002","action":"CREATE","resource_type":"report","resource_id":null,"created_at":"2026-02-21 02:35:05"}
+{"id":"aud-005","action":"DOWNLOAD","resource_type":"report","resource_id":null,"created_at":"2026-02-21 02:35:05"}

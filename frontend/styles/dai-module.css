@@ -3530,3 +3530,36 @@
     border-color: var(--brand-orange);
     box-shadow: 0 0 0 2px var(--brand-orange-glow, rgba(249, 115, 22, .15));
 }
+/* --- COLLABORATION STYLES --- */
+.dai-detail-lock-msg {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+.dai-detail-lock-msg i {
+    font-size: 18px;
+}
+.dai-detail-header.is-locked {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+    pointer-events: none; /* Disable actions if locked by other */
+}
+.dai-detail-header.is-locked .dai-detail-close {
+    pointer-events: auto; /* Allow closing even if locked */
+    opacity: 1;
+}
+.dai-pill-tag.assigned {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+}
+.is-locked .dai-quick-actions,
+.is-locked .dai-resolve-panel,
+.is-locked .dai-inline-panel {
+    display: none !important;
+}
