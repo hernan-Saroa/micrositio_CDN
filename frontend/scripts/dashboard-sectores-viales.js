@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // DASHBOARD Y GRÁFICAS - LÓGICA INTEGRADA DE DASHBOARD-SECTORES-VIALES.HTML
 // ============================================
 
@@ -611,8 +611,8 @@ function updateTableFromAPI() {
 
         row.innerHTML = `
             <td><strong>${index + 1}</strong></td>
-            <td>${tramoData.estado.toLowerCase().replace(/\p{L}+/gu, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
-            <td>${tramoData.municipio.toLowerCase().replace(/\p{L}+/gu, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
+            <td>${tramoData.estado.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
+            <td>${tramoData.municipio.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
             <td>${tramoData.codigo_ruta} · ${tramoData.ruta}</td>
             <td>${tramoData.codigo_tramo} · ${tramoData.tramo}</td>
             <td>${tramoData.sector}</td>
@@ -632,8 +632,8 @@ function updateTableFromAPI() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td title="${tramoData.device}"><strong>${Object.keys(datosPorSector).length + index + 1}</strong></td>
-            <td>${tramoData.departamento.toLowerCase().replace(/\p{L}+/gu, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
-            <td>${tramoData.municipio.toLowerCase().replace(/\p{L}+/gu, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
+            <td>${tramoData.departamento.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
+            <td>${tramoData.municipio.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
             <td>${tramoData.codigo_ruta} · ${tramoData.ruta}</td>
             <td>${tramoData.codigo_tramo} · ${tramoData.tramo}</td>
             <td>${tramoData.sector}</td>

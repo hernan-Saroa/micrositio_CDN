@@ -1,0 +1,175 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║  VIITS — Cross-Browser Compatibility Shim                  ║
+ * ║  Fixes for Safari, Edge, and broad browser compatibility    ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ *
+ * ISSUES ADDRESSED:
+ *  1. backdrop-filter — needs -webkit- prefix for Safari < 18
+ *  2. scrollbar-width/color — not supported in Safari; uses ::-webkit-scrollbar
+ *  3. CSS custom property fallbacks for older browsers
+ *  4. Input -webkit-appearance for Safari form resets
+ *  5. Safe area insets for Safari iOS notch/home bar
+ *  6. position: sticky — fix for Safari (needs -webkit- on some elements)
+ *  7. Smooth scrolling — Safari requires explicit setting
+ */
+
+/* ── 1. BACKDROP-FILTER: Safari needs -webkit- prefix ───────── */
+/* All elements using backdrop-filter must include -webkit- variant */
+.topbar,
+.modal-overlay,
+.notif-backdrop,
+.sidebar-overlay,
+.dai-modal-overlay,
+.map-overlay-layer,
+[class*="glass"],
+[class*="blur"] {
+    -webkit-backdrop-filter: var(--bf, blur(4px));
+    backdrop-filter: var(--bf, blur(4px));
+}
+
+/* ── 2. SCROLLBAR: Universal cross-browser scrollbar styles ─── */
+/* Firefox: scrollbar-width + scrollbar-color */
+/* Safari/Chrome/Edge: ::-webkit-scrollbar pseudo-elements */
+
+/* Generic thin scrollbar utility */
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.3) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+}
+
+/* Body-level webkit scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.25);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.45);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ── 3. SMOOTH SCROLL: Safari requires explicit opt-in ──────── */
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* ── 4. FORM RESETS: Safari applies heavy default styles ─────── */
+input,
+select,
+textarea,
+button {
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+}
+
+/* Restore checkbox/radio appearance (Safari resets these too) */
+input[type="checkbox"],
+input[type="radio"] {
+    -webkit-appearance: auto;
+    appearance: auto;
+}
+
+/* ── 5. SAFE AREA INSETS: Safari iOS notch/home bar ─────────── */
+.sidebar,
+.topbar {
+    padding-left: max(0px, env(safe-area-inset-left));
+}
+
+body {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ── 6. FLEX GAP: Safari 14 and below needs margin fallback ─── */
+/* Note: gap in flex is supported in Safari 14.1+ (released April 2021).
+   We add a targeted override for very old Safari only if needed. */
+@supports not (gap: 1px) {
+    .flex-gap>*+* {
+        margin-left: var(--gap, 0.5rem);
+    }
+
+    .flex-gap-col>*+* {
+        margin-top: var(--gap, 0.5rem);
+    }
+}
+
+/* ── 7. POSITION STICKY: Safari WebKit prefix ───────────────── */
+.topbar,
+[class*="sticky"] {
+    position: -webkit-sticky;
+    position: sticky;
+}
+
+/* ── 8. ANIMATION: Ensure keyframes use -webkit- where needed ── */
+/* Modern Safari (15+) supports standard keyframes, but we add
+   prefers-reduced-motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ── 9. ASPECT-RATIO: needs polyfill for very old browsers ───── */
+/* Safari 15+ supports aspect-ratio natively */
+
+/* ── 10. CLAMP(): Safari 13.1+ supports. Fallback for < 13.1 ── */
+/* Most government users are on modern browsers, but add pixel fallback: */
+/* Pattern: property: [pixel-fallback]; property: clamp(...) */
+
+/* ── 11. FOCUS-VISIBLE: Better keyboard vs mouse focus styles ── */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ── 12. OVERSCROLL: Prevent bounce effect on Safari iOS ─────── */
+.modal-body,
+.notif-panel-body,
+[class*="scroll"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}

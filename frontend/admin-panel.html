@@ -3,6 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Administrativo — VIITS INVIAS</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -15,6 +19,7 @@
     <script src="admin-panel-functions.js?v=1.0" defer></script>
     <link rel="stylesheet" href="styles/admin-panel.css?v=2.0">
     <link rel="stylesheet" href="styles/dai-module.css?v=2.0">
+    <link rel="stylesheet" href="styles/compat.css">
 </head>
 
 <body>
@@ -1811,6 +1816,53 @@
                 </div>
 
                 <div class="cfg-grid">
+
+                    <!-- ─── Card DAI: Categorización de Alertas ──────────────────────── -->
+                    <div class="cfg-card cfg-card-full" id="cfgDaiSeverityCard">
+                        <div class="cfg-card-header">
+                            <div class="cfg-card-icon" style="background:#fff7ed;color:#f97316">
+                                <i class="material-icons">warning_amber</i>
+                            </div>
+                            <div>
+                                <h3 class="cfg-card-title">Categorización de Alertas DAI</h3>
+                                <p class="cfg-card-desc">Asigna la severidad por defecto a cada tipo de alerta del
+                                    sistema CDN</p>
+                            </div>
+                        </div>
+                        <div class="cfg-card-body">
+                            <!-- Search / filter -->
+                            <div class="cfg-field" style="margin-bottom:12px">
+                                <div class="cfg-input-icon-wrap">
+                                    <i class="material-icons">search</i>
+                                    <input type="text" id="cfgDaiSearch" class="cfg-input cfg-input-with-icon"
+                                        placeholder="Buscar tipo de alerta…" oninput="cfgDaiFilterRows(this.value)">
+                                </div>
+                            </div>
+                            <!-- Table -->
+                            <div class="cfg-dai-table-wrap">
+                                <table class="cfg-dai-table" id="cfgDaiTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo de Alerta</th>
+                                            <th style="width:180px">Severidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cfgDaiTableBody">
+                                        <!-- Rows injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="cfg-card-footer">
+                            <button class="cfg-btn-save" id="cfgDaiSaveBtn" onclick="saveDaiSeverityConfig()">
+                                <i class="material-icons">save</i> Guardar Categorización
+                            </button>
+                            <span class="cfg-save-status" id="cfgDaiSaveStatus"></span>
+                            <button class="cfg-btn-reset" onclick="cfgDaiResetDefaults()" style="margin-left:auto">
+                                <i class="material-icons">refresh</i> Restablecer
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- ─── Card 1: General Config ─────────────────────────────────────── -->
                     <div class="cfg-card">

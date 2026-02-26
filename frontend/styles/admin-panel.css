@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    VIITS ADMIN PANEL — WORLD-CLASS DESIGN SYSTEM v2.0
    ============================================================ */
 
@@ -579,6 +579,8 @@ body {
 /* ── Topbar ─ */
 .topbar {
     background: var(--bg-header);
+    -webkit-backdrop-filter: blur(12px);
+
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 0 2rem;
@@ -707,6 +709,8 @@ body {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, .4);
+    -webkit-backdrop-filter: blur(2px);
+
     backdrop-filter: blur(2px);
     z-index: 1050;
     opacity: 0;
@@ -1440,6 +1444,8 @@ input[type="search"] {
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.6);
+    -webkit-backdrop-filter: blur(4px);
+
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     z-index: 1000;
@@ -1851,6 +1857,8 @@ input[type="search"] {
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 190;
+    -webkit-backdrop-filter: blur(2px);
+
     backdrop-filter: blur(2px);
 }
 
@@ -2705,6 +2713,8 @@ input[type="search"] {
     inset: 0;
     z-index: 1100;
     background: rgba(15, 23, 42, .55);
+    -webkit-backdrop-filter: blur(5px);
+
     backdrop-filter: blur(5px);
     align-items: center;
     justify-content: center;
@@ -3717,6 +3727,8 @@ input[type="search"] {
     inset: 0;
     z-index: 8000;
     background: rgba(15, 23, 42, .55);
+    -webkit-backdrop-filter: blur(4px);
+
     backdrop-filter: blur(4px);
     align-items: center;
     justify-content: center;
@@ -6421,3 +6433,125 @@ input[type="search"] {
         transform: scale(1);
     }
 }
+/* -- DAI Severity Config Table ------------------------------------------- */
+.cfg-card-full {
+    grid-column: 1 / -1;
+}
+
+.cfg-dai-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-color, #e5e7eb);
+    border-radius: 10px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+.cfg-dai-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+}
+.cfg-dai-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+}
+.cfg-dai-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 2px solid #e2e8f0;
+}
+.cfg-dai-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+.cfg-dai-table tr:last-child td { border-bottom: none; }
+.cfg-dai-table tr:hover td { background: #f8fafc; }
+
+.cfg-dai-td-tipo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #1e293b;
+}
+.cfg-dai-tipo-icon {
+    font-size: 16px !important;
+    color: #f97316;
+    flex-shrink: 0;
+}
+.cfg-dai-sev-select {
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1.5px solid;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: all .2s;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+}
+.cfg-dai-sev-select:focus { box-shadow: 0 0 0 3px rgba(249,115,22,.15); }
+
+.cfg-btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+}
+.cfg-btn-reset:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+/* ── Cross-browser scrollbar (webkit supplement) ──────────────────── */
+.sidebar-nav::-webkit-scrollbar,
+.notif-panel-body::-webkit-scrollbar,
+.alert-list::-webkit-scrollbar,
+.dai-alert-list::-webkit-scrollbar,
+.dai-detail-scroll::-webkit-scrollbar,
+.cfg-dai-table-wrap::-webkit-scrollbar,
+[class*="scroll"]::-webkit-scrollbar { width: 6px; height: 6px; }
+.sidebar-nav::-webkit-scrollbar-track,
+.notif-panel-body::-webkit-scrollbar-track,
+.alert-list::-webkit-scrollbar-track,
+.dai-alert-list::-webkit-scrollbar-track,
+.dai-detail-scroll::-webkit-scrollbar-track,
+.cfg-dai-table-wrap::-webkit-scrollbar-track,
+[class*="scroll"]::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb,
+.notif-panel-body::-webkit-scrollbar-thumb,
+.alert-list::-webkit-scrollbar-thumb,
+.dai-alert-list::-webkit-scrollbar-thumb,
+.dai-detail-scroll::-webkit-scrollbar-thumb,
+.cfg-dai-table-wrap::-webkit-scrollbar-thumb,
+[class*="scroll"]::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.25); border-radius: 3px; }
+.sidebar-nav::-webkit-scrollbar-thumb:hover,
+.notif-panel-body::-webkit-scrollbar-thumb:hover,
+.alert-list::-webkit-scrollbar-thumb:hover,
+.dai-alert-list::-webkit-scrollbar-thumb:hover,
+.dai-detail-scroll::-webkit-scrollbar-thumb:hover,
+.cfg-dai-table-wrap::-webkit-scrollbar-thumb:hover,
+[class*="scroll"]::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.5); }
