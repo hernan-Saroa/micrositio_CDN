@@ -5,6 +5,66 @@
  * ╚════════════════════════════════════════════════════════════════╝
  */
 
+// ═══════════════════════════════════════════════════════════════
+//  CUSTOM CONFIRM MODAL — replaces browser confirm()
+//  Usage: const ok = await ccmConfirm({ title, message, detail,
+//           confirmLabel, icon, type: 'danger'|'warn' })
+// ═══════════════════════════════════════════════════════════════
+let _ccmResolve = null;
+
+function ccmResolve(value) {
+    const overlay = document.getElementById('customConfirmModal');
+    if (overlay) {
+        overlay.classList.remove('ccm-open');
+        overlay.addEventListener('transitionend', () => {
+            overlay.style.display = '';
+        }, { once: true });
+    }
+    if (_ccmResolve) { _ccmResolve(value); _ccmResolve = null; }
+}
+
+function ccmConfirm({ title = '¿Confirmar acción?', message = '', detail = '',
+    confirmLabel = 'Confirmar', icon = 'warning_amber', type = 'danger' } = {}) {
+    return new Promise(resolve => {
+        _ccmResolve = resolve;
+        const overlay = document.getElementById('customConfirmModal');
+        if (!overlay) { resolve(window.confirm(message || title)); return; }
+
+        // Populate
+        document.getElementById('ccmTitle').textContent = title;
+        document.getElementById('ccmMessage').textContent = message;
+        const detailEl = document.getElementById('ccmDetail');
+        detailEl.textContent = detail || '';
+        document.getElementById('ccmIcon').textContent = icon;
+        document.getElementById('ccmConfirmIcon').textContent = icon;
+        document.getElementById('ccmConfirmLabel').textContent = confirmLabel;
+
+        const iconWrap = document.getElementById('ccmIconWrap');
+        const confirmBtn = document.getElementById('ccmConfirmBtn');
+        if (type === 'warn') {
+            iconWrap.className = 'ccm-icon-wrap warn';
+            confirmBtn.className = 'ccm-btn-confirm warn-btn';
+        } else {
+            iconWrap.className = 'ccm-icon-wrap';
+            confirmBtn.className = 'ccm-btn-confirm';
+        }
+
+        // Show
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('ccm-open'));
+
+        // Click outside to cancel
+        overlay.onclick = (e) => { if (e.target === overlay) ccmResolve(false); };
+
+        // Keyboard: Escape = cancel, Enter = confirm
+        const onKey = (e) => {
+            if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); ccmResolve(false); }
+            if (e.key === 'Enter') { document.removeEventListener('keydown', onKey); ccmResolve(true); }
+        };
+        document.addEventListener('keydown', onKey);
+    });
+}
+
 // ========================================
 // HELPERS DROP-ZONE REPORTES
 // ========================================
@@ -394,11 +454,19 @@ function downloadReport(id) {
 }
 
 async function deleteReport(id) {
-    if (!confirm('¿Eliminar este reporte permanentemente? Esta acción no se puede deshacer.')) return;
+    const ok = await ccmConfirm({
+        title: '¿Eliminar reporte?',
+        message: 'Esta acción es permanente y no se puede deshacer.',
+        detail: `ID del reporte: ${id}`,
+        confirmLabel: 'Eliminar reporte',
+        icon: 'delete_forever',
+        type: 'danger'
+    });
+    if (!ok) return;
     try {
         const response = await apiRequest(`/reports/${id}`, { method: 'DELETE' });
         if (response && response.ok) {
-            showNotification('Reporte eliminado', 'success');
+            showNotification('Reporte eliminado correctamente', 'success');
             loadReports();
         } else {
             showNotification('Error al eliminar el reporte', 'error');
@@ -612,22 +680,7 @@ async function saveEditReport(id) {
 
 
 
-async function deleteReport(id) {
-    if (!confirm('¿Estás seguro de que deseas eliminar este reporte? Esta acción es permanente.')) return;
-
-    try {
-        const response = await apiRequest(`/reports/${id}`, { method: 'DELETE' });
-        if (response && response.ok) {
-            showNotification('Reporte eliminado', 'success');
-            loadReports();
-        } else {
-            showNotification('Error al eliminar reporte', 'error');
-        }
-    } catch (error) {
-        console.error('Error deleting report:', error);
-        showNotification('Error de conexión', 'error');
-    }
-}
+// deleteReport is defined above — duplicate removed
 
 function downloadReport(id) {
     window.open(`${API_BASE_URL}/reports/${id}/download`, '_blank');
@@ -1221,4 +1274,162 @@ function _umToast(msg, type) {
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3200);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DAI SEVERITY CONFIGURATION
+// ══════════════════════════════════════════════════════════════════════════════
+
+const _DAI_TIPOS = [
+    'Abandono de vehículo', 'Acc. vehículo con lesionados', 'Acc. vehículo con fallecidos',
+    'Acc. vehículo sin lesionados', 'Alta densidad vehicular', 'Animal en calzada',
+    'Congestión vehicular', 'Conducción en sentido contrario', 'Derrumbe / Deslizamiento',
+    'Desplazamiento irregular', 'Exceso de velocidad', 'Falla en dispositivo DAI',
+    'Falla en sensor WIM', 'Incendio vehicular', 'Mercancía en vía',
+    'Objeto caído en calzada', 'Parada de emergencia', 'Peatón en calzada',
+    'Pérdida de carga', 'Semáforo no operativo', 'Vehículo averiado',
+    'Vehículo lento en tráfico fluido', 'Vehículo sobredimensionado',
+    'Violación pesaje control', 'Zona de obras — tráfico lento',
+];
+
+// Default severity per alert type (used when nothing is configured yet)
+const _DAI_DEFAULTS = {
+    'Acc. vehículo con fallecidos': 'critica',
+    'Incendio vehicular': 'critica',
+    'Derrumbe / Deslizamiento': 'critica',
+    'Conducción en sentido contrario': 'critica',
+    'Violación pesaje control': 'critica',
+    'Acc. vehículo con lesionados': 'alta',
+    'Exceso de velocidad': 'alta',
+    'Acc. vehículo sin lesionados': 'alta',
+    'Vehículo sobredimensionado': 'alta',
+    'Falla en dispositivo DAI': 'alta',
+    'Falla en sensor WIM': 'alta',
+    'Zona de obras — tráfico lento': 'alta',
+    'Congestión vehicular': 'media',
+    'Alta densidad vehicular': 'media',
+    'Pérdida de carga': 'media',
+    'Mercancía en vía': 'media',
+    'Peatón en calzada': 'media',
+    'Semáforo no operativo': 'media',
+    'Objeto caído en calzada': 'media',
+    'Animal en calzada': 'media',
+    'Abandono de vehículo': 'baja',
+    'Vehículo averiado': 'baja',
+    'Vehículo lento en tráfico fluido': 'baja',
+    'Desplazamiento irregular': 'baja',
+    'Parada de emergencia': 'baja',
+};
+
+const _SEV_COLORS = {
+    critica: { bg: '#fef2f2', color: '#dc2626', border: '#fca5a5' },
+    alta: { bg: '#fff7ed', color: '#ea580c', border: '#fdba74' },
+    media: { bg: '#fefce8', color: '#ca8a04', border: '#fde047' },
+    baja: { bg: '#f0fdf4', color: '#16a34a', border: '#86efac' },
+};
+
+let _daiSeverityLoaded = {}; // local state copy
+
+function _daiSevSelectHTML(tipo, current) {
+    const opts = ['critica', 'alta', 'media', 'baja'];
+    const labels = { critica: '🔴 Crítica', alta: '🟠 Alta', media: '🟡 Media', baja: '🟢 Baja' };
+    const c = _SEV_COLORS[current] || _SEV_COLORS.media;
+    return `<select class="cfg-dai-sev-select" data-tipo="${tipo}"
+        onchange="cfgDaiOnSelectChange(this)"
+        style="background:${c.bg};color:${c.color};border-color:${c.border}">
+        ${opts.map(o => `<option value="${o}" ${o === current ? 'selected' : ''}>${labels[o]}</option>`).join('')}
+    </select>`;
+}
+
+function _daiRenderTable(map) {
+    const tbody = document.getElementById('cfgDaiTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = _DAI_TIPOS.map(tipo => {
+        const sev = map[tipo] || _DAI_DEFAULTS[tipo] || 'media';
+        return `<tr data-tipo="${tipo}">
+            <td class="cfg-dai-td-tipo"><i class="material-icons cfg-dai-tipo-icon">warning_amber</i>${tipo}</td>
+            <td>${_daiSevSelectHTML(tipo, sev)}</td>
+        </tr>`;
+    }).join('');
+}
+
+async function loadDaiSeverityConfig() {
+    const token = localStorage.getItem('authToken');
+    try {
+        const r = await fetch('/api/alerts/severity-config', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const data = await r.json();
+        // Merge with defaults so all types have a value
+        _daiSeverityLoaded = { ..._DAI_DEFAULTS, ...(data.severityMap || {}) };
+        _daiRenderTable(_daiSeverityLoaded);
+    } catch (e) {
+        console.warn('[DAI Severity] Using defaults:', e.message);
+        _daiSeverityLoaded = { ..._DAI_DEFAULTS };
+        _daiRenderTable(_daiSeverityLoaded);
+    }
+}
+
+function cfgDaiOnSelectChange(sel) {
+    const sev = sel.value;
+    const c = _SEV_COLORS[sev] || _SEV_COLORS.media;
+    sel.style.background = c.bg;
+    sel.style.color = c.color;
+    sel.style.borderColor = c.border;
+}
+
+function cfgDaiFilterRows(q) {
+    const rows = document.querySelectorAll('#cfgDaiTableBody tr');
+    const lq = q.toLowerCase();
+    rows.forEach(row => {
+        row.style.display = row.dataset.tipo.toLowerCase().includes(lq) ? '' : 'none';
+    });
+}
+
+async function saveDaiSeverityConfig() {
+    const selects = document.querySelectorAll('.cfg-dai-sev-select');
+    const map = {};
+    selects.forEach(s => { map[s.dataset.tipo] = s.value; });
+
+    const token = localStorage.getItem('authToken');
+    const btn = document.getElementById('cfgDaiSaveBtn');
+    const status = document.getElementById('cfgDaiSaveStatus');
+    if (btn) btn.disabled = true;
+    try {
+        const r = await fetch('/api/alerts/severity-config', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ severityMap: map })
+        });
+        if (!r.ok) throw new Error((await r.json()).error || 'Error');
+        _daiSeverityLoaded = map;
+        if (status) {
+            status.textContent = '✓ Guardado correctamente';
+            status.style.color = '#22c55e';
+            setTimeout(() => { if (status) status.textContent = ''; }, 3000);
+        }
+    } catch (e) {
+        if (status) {
+            status.textContent = '✗ Error: ' + e.message;
+            status.style.color = '#ef4444';
+        }
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function cfgDaiResetDefaults() {
+    const ok = await ccmConfirm({
+        title: '¿Restablecer severidades?',
+        message: 'Se restablecerán todos los tipos de alerta a su severidad predeterminada.',
+        confirmLabel: 'Restablecer',
+        icon: 'refresh',
+        type: 'warn'
+    });
+    if (!ok) return;
+    _daiRenderTable(_DAI_DEFAULTS);
 }

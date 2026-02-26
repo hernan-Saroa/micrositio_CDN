@@ -2412,6 +2412,28 @@
         };
     </script>
 
+    <!-- ══ CUSTOM CONFIRM MODAL ═══════════════════════════════════ -->
+    <div id="customConfirmModal" class="ccm-overlay" role="dialog" aria-modal="true" aria-labelledby="ccmTitle">
+        <div class="ccm-card" id="ccmCard">
+            <div class="ccm-icon-wrap" id="ccmIconWrap">
+                <i class="material-icons" id="ccmIcon">delete_forever</i>
+            </div>
+            <h3 class="ccm-title" id="ccmTitle">¿Eliminar elemento?</h3>
+            <p class="ccm-message" id="ccmMessage">Esta acción es permanente y no se puede deshacer.</p>
+            <div class="ccm-detail" id="ccmDetail"></div>
+            <div class="ccm-actions">
+                <button class="ccm-btn-cancel" id="ccmCancelBtn" onclick="ccmResolve(false)">
+                    <i class="material-icons">close</i> Cancelar
+                </button>
+                <button class="ccm-btn-confirm" id="ccmConfirmBtn" onclick="ccmResolve(true)">
+                    <i class="material-icons" id="ccmConfirmIcon">delete_forever</i>
+                    <span id="ccmConfirmLabel">Eliminar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 
 </html>

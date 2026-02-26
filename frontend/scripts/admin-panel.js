@@ -742,6 +742,7 @@ function showSection(sectionId) {
         loadDownloadsAdmin(1);
     } else if (sectionId === 'settings') {
         loadSettingsConfig();
+        if (typeof loadDaiSeverityConfig === 'function') loadDaiSeverityConfig();
     }
 }
 
@@ -963,6 +964,7 @@ async function archiveSliderImage(id) {
     const image = sliderImages.find(img => img.id === id);
     const name = image ? image.title : id;
     if (!confirm(`¿Archivar "${name}"? Podrás restaurarla luego desde la sección de archivados.`)) return;
+    // Note: ccmConfirm used only where async-await flow is clean; this function wraps it:
 
     try {
         const response = await apiRequest(`/api/slider/${id}/archive`, { method: 'PATCH' });
@@ -1871,11 +1873,11 @@ function changeDaiPage(dir) {
 function verDetalleDAI(id) {
     const a = daiAlertas.find(x => x.id === id);
     if (!a) return;
-    alert('ALERTA DAI  ' + a.id + '\n\nDispositivo: ' + a.dispositivo + '\nEstaci�n: ' + a.estacion + '\nTipo: ' + a.tipo + '\nSeveridad: ' + a.severidad.toUpperCase() + '\nEstado: ' + a.estado + '\nV�a: ' + a.via + '\nFecha: ' + new Date(a.fecha).toLocaleString('es-CO'));
+    alert('ALERTA DAI  ' + a.id + '\n\nDispositivo: ' + a.dispositivo + '\nEstacin: ' + a.estacion + '\nTipo: ' + a.tipo + '\nSeveridad: ' + a.severidad.toUpperCase() + '\nEstado: ' + a.estado + '\nVa: ' + a.via + '\nFecha: ' + new Date(a.fecha).toLocaleString('es-CO'));
 }
 
 function resolverAlertaDAI(id) {
-    if (!confirm('�Marcar la alerta ' + id + ' como RESUELTA?')) return;
+    if (!ccmConfirm('¿Marcar la alerta ' + id + ' como RESUELTA?')) return;
     const idx = daiAlertas.findIndex(x => x.id === id);
     if (idx !== -1) {
         daiAlertas[idx].estado = 'resuelta';

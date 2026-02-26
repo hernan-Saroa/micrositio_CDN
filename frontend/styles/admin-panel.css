@@ -6555,3 +6555,139 @@ input[type="search"] {
 .dai-detail-scroll::-webkit-scrollbar-thumb:hover,
 .cfg-dai-table-wrap::-webkit-scrollbar-thumb:hover,
 [class*="scroll"]::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.5); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CONFIRM MODAL (replaces browser confirm())
+   ═══════════════════════════════════════════════════════════════ */
+.ccm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s ease, visibility .25s ease;
+    padding: 1rem;
+}
+.ccm-overlay.ccm-open {
+    opacity: 1;
+    visibility: visible;
+}
+.ccm-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem 2rem 1.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.05);
+    text-align: center;
+    transform: scale(.92) translateY(12px);
+    transition: transform .28s cubic-bezier(.34,1.56,.64,1);
+}
+.ccm-overlay.ccm-open .ccm-card {
+    transform: scale(1) translateY(0);
+}
+.ccm-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    transition: background .2s;
+}
+.ccm-icon-wrap.warn { background: #fff7ed; }
+.ccm-icon-wrap .material-icons {
+    font-size: 30px;
+    color: #ef4444;
+}
+.ccm-icon-wrap.warn .material-icons { color: #f97316; }
+.ccm-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 .5rem;
+}
+.ccm-message {
+    font-size: .88rem;
+    color: #64748b;
+    margin: 0 0 .75rem;
+    line-height: 1.55;
+}
+.ccm-detail {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: .65rem 1rem;
+    font-size: .82rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 1.5rem;
+    display: none;
+    word-break: break-word;
+}
+.ccm-detail:not(:empty) { display: block; }
+.ccm-actions {
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+}
+.ccm-btn-cancel,
+.ccm-btn-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: .7rem 1.4rem;
+    border-radius: 10px;
+    border: none;
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s;
+    font-family: inherit;
+    flex: 1;
+    justify-content: center;
+}
+.ccm-btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+}
+.ccm-btn-cancel:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+.ccm-btn-confirm {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(239,68,68,.35);
+}
+.ccm-btn-confirm:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    box-shadow: 0 6px 20px rgba(239,68,68,.45);
+    transform: translateY(-1px);
+}
+.ccm-btn-confirm:active { transform: translateY(0); }
+.ccm-btn-confirm.warn-btn {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    box-shadow: 0 4px 14px rgba(249,115,22,.35);
+}
+.ccm-btn-confirm.warn-btn:hover {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    box-shadow: 0 6px 20px rgba(249,115,22,.45);
+}
+.ccm-btn-cancel .material-icons,
+.ccm-btn-confirm .material-icons { font-size: 17px; }
+
+@media (max-width: 480px) {
+    .ccm-card { padding: 1.5rem 1.25rem 1.25rem; }
+    .ccm-actions { flex-direction: column-reverse; }
+}
