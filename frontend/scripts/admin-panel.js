@@ -961,23 +961,28 @@ function editSliderImage(id) {
 
 // Función para archivar imagen del slider (reemplaza eliminar)
 async function archiveSliderImage(id) {
-    const image = sliderImages.find(img => img.id === id);
-    const name = image ? image.title : id;
-    if (!confirm(`¿Archivar "${name}"? Podrás restaurarla luego desde la sección de archivados.`)) return;
-    // Note: ccmConfirm used only where async-await flow is clean; this function wraps it:
-
+    const image = sliderImages.find(img => String(img.id) === String(id));
+    const name = image ? image.title : `Slide #${id}`;
+    const ok = await ccmConfirm({
+        title: `¿Archivar "${name}"?`,
+        message: 'El slide dejará de aparecer en el carrusel. Podrás restaurarlo desde la sección de archivados.',
+        confirmLabel: 'Archivar',
+        icon: 'inventory_2',
+        type: 'warn'
+    });
+    if (!ok) return;
     try {
         const response = await apiRequest(`/api/slider/${id}/archive`, { method: 'PATCH' });
         if (response && response.ok) {
-            showSuccessModal('Slide archivado correctamente');
+            showNotification('Slide archivado correctamente', 'success');
             loadSliderImages();
         } else {
             const err = await response.json().catch(() => ({}));
-            alert('Error al archivar: ' + (err.message || 'Error desconocido'));
+            showNotification('Error al archivar: ' + (err.message || 'Error desconocido'), 'error');
         }
     } catch (error) {
         console.error('Error al archivar imagen del slider:', error);
-        alert('Error de conexión');
+        showNotification('Error de conexión al intentar archivar', 'error');
     }
 }
 
