@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // SLIDER - CÓDIGO OPTIMIZADO Y RESPONSIVE
 // ============================================
 
@@ -304,7 +304,7 @@ function createDynamicSlider(images) {
                 <div class="hero-content">
                     <div class="hero-badge" style="${badgeBg}">
                         <span style="width: 8px; height: 8px; background: ${(resolvedTextColor === '#ffffff' || resolvedTextColor === 'white') ? '#10b981' : 'var(--color-primary)'}; border-radius: 50%; animation: pulse 2s infinite;" aria-hidden="true"></span>
-                        ${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}
+                        <span style="color:${image.badge_color||'inherit'}">${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}</span>
                     </div>
 
                     <h1 class="hero-title" style="${textColor}">

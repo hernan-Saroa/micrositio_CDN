@@ -1133,6 +1133,37 @@ function openEditSliderModal(image) {
                         <small style="color: #6b7280; font-size: 0.75rem;">Deja vacío para mantener la imagen actual</small>
                     </div>
 
+                    <!-- ── Badge del Slide ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Texto del Badge (etiqueta de estado)</label>
+                        <input type="text" id="editSliderBadgeText"
+                            value="${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}"
+                            placeholder="Ej: Sistema en línea • Monitoreo 24/7"
+                            oninput="livePreviewSlide('editSlider')">
+                        <small style="color:#6b7280;font-size:0.75rem;">Texto visible en la píldora pequeña encima del título.</small>
+                    </div>
+
+                    <!-- ── Color del Texto del Badge ── -->
+                    <div class="form-group">
+                        <label style="font-weight:600;">Color del Texto del Badge</label>
+                        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;flex-wrap:wrap;">
+                            <button type="button" onclick="setTextColor('editSliderBadgeColor','#ffffff');livePreviewSlide('editSlider')" title="Blanco"
+                                style="width:28px;height:28px;background:#ffffff;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button" onclick="setTextColor('editSliderBadgeColor','#0f172a');livePreviewSlide('editSlider')" title="Negro"
+                                style="width:28px;height:28px;background:#0f172a;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button" onclick="setTextColor('editSliderBadgeColor','#10b981');livePreviewSlide('editSlider')" title="Verde"
+                                style="width:28px;height:28px;background:#10b981;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button" onclick="setTextColor('editSliderBadgeColor','#f97316');livePreviewSlide('editSlider')" title="Naranja"
+                                style="width:28px;height:28px;background:#f97316;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <button type="button" onclick="setTextColor('editSliderBadgeColor','#fbbf24');livePreviewSlide('editSlider')" title="Amarillo"
+                                style="width:28px;height:28px;background:#fbbf24;border:2px solid #d1d5db;border-radius:50%;cursor:pointer;"></button>
+                            <label style="font-size:0.8rem;color:#6b7280;margin:0 0.25rem;">o personalizado:</label>
+                            <input type="color" id="editSliderBadgeColor" value="${image.badge_color || '#ffffff'}"
+                                style="width:36px;height:32px;border-radius:6px;border:1px solid #d1d5db;cursor:pointer;padding:2px;"
+                                oninput="livePreviewSlide('editSlider')">
+                        </div>
+                    </div>
+
                     <!-- ── Color del Texto ── -->
                     <div class="form-group">
                         <label style="font-weight:600;">Color del Texto</label>
@@ -1172,7 +1203,7 @@ function openEditSliderModal(image) {
                         <div id="editSliderLivePreview" style="position:relative;height:180px;border-radius:12px;overflow:hidden;background:${image.bg_color || 'linear-gradient(135deg,#f0f9ff,#e0f2fe)'};display:flex;align-items:center;justify-content:center;margin-top:0.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
                             <div id="editSliderPreviewImg" style="position:absolute;inset:0;background-size:cover;background-position:center;opacity:${image.image_opacity ?? 0.35};${image.image_path && image.image_path !== 'placeholder.jpg' ? `background-image:url('/uploads/slider/${image.image_path}');` : 'display:none;'}"></div>
                             <div id="editSliderPreviewContent" style="position:relative;z-index:1;text-align:center;padding:1rem;color:${image.text_color || '#ffffff'};">
-                                <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.05em;opacity:0.8;margin-bottom:0.5rem;">⬤ Sistema en línea • Monitoreo 24/7</div>
+                                <div style="font-size:0.65rem;font-weight:600;letter-spacing:0.05em;opacity:0.9;margin-bottom:0.5rem;" id="editSliderPreviewBadge">⬤ ${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}</div>
                                 <div id="editSliderPreviewTitle" style="font-size:1rem;font-weight:700;line-height:1.2;margin-bottom:0.3rem;">${image.title || 'Título del slide'}</div>
                                 <div id="editSliderPreviewSub" style="font-size:0.75rem;opacity:0.85;">${image.alt_text || 'Subtítulo aquí'}</div>
                             </div>
@@ -1327,6 +1358,8 @@ async function handleEditSliderFormSubmit(event) {
     const editOpacityPct = parseInt(document.getElementById('editSliderImageOpacity')?.value ?? 35, 10);
     formData.append('image_opacity', (editOpacityPct / 100).toFixed(2));
     formData.append('text_color', document.getElementById('editSliderTextColor')?.value || '#ffffff');
+    formData.append('badge_text', document.getElementById('editSliderBadgeText')?.value.trim() || '');
+    formData.append('badge_color', document.getElementById('editSliderBadgeColor')?.value || '#ffffff');
 
     // Solo agregar imagen si se seleccionó una nueva
     if (fileInput && fileInput.files && fileInput.files.length > 0) {
@@ -1645,6 +1678,16 @@ function livePreviewSlide(prefix) {
     const subtitle = document.getElementById(isEdit ? 'editSliderSubTitle' : 'slidersubTitle')?.value || 'Subtítulo aquí';
     if (titleEl) titleEl.textContent = title;
     if (subEl) subEl.textContent = subtitle;
+
+    // 5. Badge text and color
+    const badgeEl = document.getElementById(prefix + 'PreviewBadge');
+    if (badgeEl) {
+        const badgeText = document.getElementById(isEdit ? 'editSliderBadgeText' : 'sliderBadgeText')?.value
+            || 'Sistema en línea • Monitoreo 24/7';
+        const badgeColor = document.getElementById(isEdit ? 'editSliderBadgeColor' : 'sliderBadgeColor')?.value || '#ffffff';
+        badgeEl.textContent = '⬤ ' + badgeText;
+        badgeEl.style.color = badgeColor;
+    }
 }
 
 // Whenever a new image is selected for the CREATE modal, store the preview URL

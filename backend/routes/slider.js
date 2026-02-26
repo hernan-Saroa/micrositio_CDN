@@ -250,6 +250,16 @@ router.put('/:id', [
         updates.push(`text_color = $${params.length}`);
         hasUpdates = true;
     }
+    if (req.body.badge_text !== undefined) {
+        params.push(req.body.badge_text || null);
+        updates.push(`badge_text = $${params.length}`);
+        hasUpdates = true;
+    }
+    if (req.body.badge_color !== undefined && req.body.badge_color !== '') {
+        params.push(req.body.badge_color);
+        updates.push(`badge_color = $${params.length}`);
+        hasUpdates = true;
+    }
 
     // Si no hay actualizaciones, devolver error
     if (!hasUpdates) {
