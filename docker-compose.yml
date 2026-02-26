@@ -1,127 +1,76 @@
 version: '3.9'
+# ════════════════════════════════════════════════════════════════
+#  VIITS — Docker Compose (Producción)
+#  2 servicios independientes:
+#    • backend   — Node.js monolito en :3000
+#    • frontend  — React/Vite + nginx en :80
+# ════════════════════════════════════════════════════════════════
 
 services:
-  # ── Base de datos ─────────────────────────────────────────────
-  # (ClickHouse, PostgreSQL ya corren separado; aquí solo Redis para cache)
-  redis:
-    image: redis:7-alpine
-    ports: ['6379:6379']
-    command: redis-server --save 60 1 --loglevel warning
-    volumes: [redis_data:/data]
-
-  # ── Microservicios Backend ─────────────────────────────────────
-  svc-auth:
-    build: ./services/svc-auth
+  # ── Backend monolito Node.js ─────────────────────────────────
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-hernan-saroa}/viits-backend:${IMAGE_TAG:-latest}
+    # En desarrollo local sin imagen publicada, construye desde código fuente:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - AUTH_PORT=3001
+      - PORT=3000
       - JWT_SECRET=${JWT_SECRET}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-    ports: ['3001:3001']
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - SECRET_KEY_EMAIL_HASH=${SECRET_KEY_EMAIL_HASH}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost}
+      # Base de datos PostgreSQL (producción) — si se usa SQLite, omitir
+      - DB_HOST=${DB_HOST:-}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-}
+      - DB_USER=${DB_USER:-}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      # Elasticsearch (opcional)
+      - ELASTIC_URL=${ELASTIC_URL:-}
+      - ELASTIC_USER=${ELASTIC_USER:-}
+      - ELASTIC_PASS=${ELASTIC_PASS:-}
+      # SMTP (opcional)
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@invias.gov.co}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Persistir SQLite y archivos subidos fuera del contenedor
+      - backend_data:/app/data
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: [ "CMD", "wget", "-qO-", "http://localhost:3000/api/health" ]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
+      start_period: 15s
       retries: 3
+    # No exponer el puerto del backend al exterior — solo nginx llega a él
+    expose:
+      - "3000"
 
-  svc-dai:
-    build: ./services/svc-dai
-    environment:
-      - NODE_ENV=production
-      - DAI_PORT=3002
-      - JWT_SECRET=${JWT_SECRET}
-      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST}
-      - CLICKHOUSE_PORT=${CLICKHOUSE_PORT}
-      - CLICKHOUSE_DB=${CLICKHOUSE_DB}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-    ports: ['3002:3002']
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  svc-reports:
-    build: ./services/svc-reports
-    environment:
-      - NODE_ENV=production
-      - REPORTS_PORT=3003
-      - JWT_SECRET=${JWT_SECRET}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-    ports: ['3003:3003']
-    volumes: ['./backend/uploads:/app/uploads', './backend/temp:/app/temp']
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  svc-users:
-    build: ./services/svc-users
-    environment:
-      - NODE_ENV=production
-      - USERS_PORT=3004
-      - JWT_SECRET=${JWT_SECRET}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-    ports: ['3004:3004']
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-  # Monolito legacy — se mantiene en :3099 durante la transición
-  backend-legacy:
-    build: ./backend
-    environment:
-      - PORT=3099
-      - MONOLITH_MODE=true
-      - JWT_SECRET=${JWT_SECRET}
-    ports: ['3099:3099']
-    restart: unless-stopped
-
-  # ── API Gateway ────────────────────────────────────────────────
-  api-gateway:
-    build: ./services/api-gateway
-    environment:
-      - NODE_ENV=production
-      - GATEWAY_PORT=3000
-      - SVC_AUTH_URL=http://svc-auth:3001
-      - SVC_DAI_URL=http://svc-dai:3002
-      - SVC_REPORTS_URL=http://svc-reports:3003
-      - SVC_USERS_URL=http://svc-users:3004
-      - MONOLITH_URL=http://backend-legacy:3099
-      - CORS_ORIGIN=${CORS_ORIGIN}
-    ports: ['3000:3000']
+  # ── Frontend React/Vite + nginx ──────────────────────────────
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-hernan-saroa}/viits-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./viits-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
     depends_on:
-      svc-auth:    { condition: service_healthy }
-      svc-dai:     { condition: service_healthy }
-      svc-reports: { condition: service_healthy }
-      svc-users:   { condition: service_healthy }
-    restart: unless-stopped
-
-  # ── Frontend React ─────────────────────────────────────────────
-  viits-frontend:
-    build: ./viits-frontend
-    environment:
-      - VITE_API_URL=http://api-gateway:3000
-    ports: ['5173:80']
-    depends_on: [api-gateway]
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
-  redis_data:
+  backend_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local

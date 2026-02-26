@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log*
+.env
+.env.*
+data/*.db
+data/*.db-wal
+data/*.db-shm
+logs/
+uploads/
+temp/
+*.log
+*.txt
+test-*.js
+check-db.js
+server-debug.log
+debug-update.log

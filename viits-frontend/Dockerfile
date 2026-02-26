@@ -2,9 +2,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install deps first (cache layer)
+# Build argument — can override API URL at build time
+# Default: empty (nginx proxies /api/* to backend container)
+ARG VITE_API_URL=""
+ENV VITE_API_URL=$VITE_API_URL
+
+# Install ALL deps (devDeps needed for tsc + vite build)
 COPY package*.json ./
-RUN npm ci --omit=dev && npm ci
+RUN npm ci
 
 # Copy source and build
 COPY . .

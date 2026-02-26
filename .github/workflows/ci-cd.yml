@@ -8,10 +8,11 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  # e.g. ghcr.io/hernan-saroa/viits
   IMAGE_PREFIX: ${{ github.repository_owner }}/viits
 
 jobs:
-  # ── 1. Frontend TypeScript Check + Build ──────────────────────
+  # ── 1. Frontend: TypeScript check + Vite build ────────────────
   frontend-check:
     name: Frontend (TypeScript + Build)
     runs-on: ubuntu-latest
@@ -43,11 +44,11 @@ jobs:
         with:
           name: frontend-dist
           path: viits-frontend/dist/
-          retention-days: 7
+          retention-days: 3
 
-  # ── 2. Backend tests ──────────────────────────────────────────
+  # ── 2. Backend: install + optional tests ──────────────────────
   backend-test:
-    name: Backend (Lint + Tests)
+    name: Backend (Install + Tests)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -72,7 +73,7 @@ jobs:
           NODE_ENV: test
           JWT_SECRET: test_secret_for_ci
 
-  # ── 3. Docker Build & Push (only on main) ─────────────────────
+  # ── 3. Docker Build & Push (solo en push a main) ──────────────
   docker-push:
     name: Docker Build & Push
     runs-on: ubuntu-latest
@@ -86,12 +87,10 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: viits-frontend, context: ./viits-frontend }
-          - { name: api-gateway,    context: ./services/api-gateway }
-          - { name: svc-auth,       context: ./services/svc-auth }
-          - { name: svc-dai,        context: ./services/svc-dai }
-          - { name: svc-reports,    context: ./services/svc-reports }
-          - { name: svc-users,      context: ./services/svc-users }
+          - name: viits-backend
+            context: ./backend
+          - name: viits-frontend
+            context: ./viits-frontend
 
     steps:
       - uses: actions/checkout@v4
@@ -126,7 +125,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── 4. Deploy (SSH to server on main) ─────────────────────────
+  # ── 4. Deploy via SSH ─────────────────────────────────────────
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
@@ -145,7 +144,9 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /opt/viits
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker system prune -f
-            echo "✅ Deploy completado: $(date)"
+            # Pull the new images and restart containers gracefully
+            IMAGE_TAG=sha-${{ github.sha }} docker compose pull
+            IMAGE_TAG=sha-${{ github.sha }} docker compose up -d --remove-orphans
+            # Clean up unused images to save disk space
+            docker image prune -f
+            echo "✅ Deploy completado: $(date) — SHA: ${{ github.sha }}"
