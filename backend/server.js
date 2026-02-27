@@ -18,7 +18,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 // Cargar variables de entorno
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
