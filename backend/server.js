@@ -128,7 +128,7 @@ app.use('/api/reports', jsonParser);  // Safe: express.json() only parses applic
 app.use('/api/alerts', jsonParser);
 
 // Servir archivos estáticos desde frontend/
-app.use(express.static(path.join(process.cwd(), '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/temp', express.static(path.join(__dirname, 'temp')));
 
@@ -175,25 +175,25 @@ app.use('/api/alerts', alertsRoutes);
 
 // Ruta principal - redirigir al micrositio
 app.get('/', (req, res) => {
-    res.sendFile(path.join(process.cwd(), '../frontend/00-INICIO-PROYECTO.html'));
+    res.sendFile(path.join(__dirname, '../frontend/00-INICIO-PROYECTO.html'));
 });
 
 // Admin panel
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(process.cwd(), '../frontend/login.html'));
+    res.sendFile(path.join(__dirname, '../frontend/login.html'));
 });
 
 // Otras páginas
 app.get('/participacion-ciudadana', (req, res) => {
-    res.sendFile(path.join(process.cwd(), '../frontend/participacion-ciudadana.html'));
+    res.sendFile(path.join(__dirname, '../frontend/participacion-ciudadana.html'));
 });
 
 app.get('/documentos', (req, res) => {
-    res.sendFile(path.join(process.cwd(), '../frontend/documentos.html'));
+    res.sendFile(path.join(__dirname, '../frontend/documentos.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(process.cwd(), '../frontend/dashboard-sectores-viales.html'));
+    res.sendFile(path.join(__dirname, '../frontend/dashboard-sectores-viales.html'));
 });
 
 // ========================================
