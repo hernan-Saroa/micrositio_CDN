@@ -949,7 +949,7 @@ async function createSliderImage(formData) {
 
 // Función para editar imagen del slider
 function editSliderImage(id) {
-    const image = sliderImages.find(img => img.id === id);
+    const image = sliderImages.find(img => String(img.id) === String(id));
     if (!image) {
         alert('Imagen no encontrada');
         return;
