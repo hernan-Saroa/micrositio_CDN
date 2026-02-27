@@ -6,7 +6,7 @@ const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const { createClient } = require('@clickhouse/client');
 const fs = require('fs');
 const path = require('path');
-const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
 const { Parser } = require('json2csv');
 
 // Función helper para formatear tamaño de archivo
@@ -189,11 +189,27 @@ async function processCsvGeneration(task) {
 
             const dbRows = await resultSet.json();
 
-            // ----------- LEER Y NORMALIZAR EXCEL ------------
+            // ----------- LEER Y NORMALIZAR EXCEL (exceljs) ------------
             const excelPath = path.join(__dirname, '../data/matriz_conteos_moviles.xlsx');
-            const workbook = xlsx.readFile(excelPath);
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const excelRaw = xlsx.utils.sheet_to_json(sheet, { defval: null });
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.readFile(excelPath);
+            const sheet = workbook.worksheets[0]; // primera hoja
+
+            let headers = [];
+            const excelRaw = [];
+            sheet.eachRow({ includeEmpty: false }, (row, rowIndex) => {
+                const values = row.values.slice(1); // exceljs es 1-indexed
+                if (rowIndex === 1) {
+                    headers = values.map(h => (h != null ? String(h) : ''));
+                } else {
+                    const obj = {};
+                    headers.forEach((h, i) => {
+                        const cell = values[i];
+                        obj[h] = (cell !== undefined && cell !== null) ? cell : null;
+                    });
+                    excelRaw.push(obj);
+                }
+            });
 
             const excelData = excelRaw.map(r => ({
                 id: r["ID"] != null ? String(r["ID"]).trim() : null,

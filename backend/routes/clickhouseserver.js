@@ -3,7 +3,7 @@ const router = express.Router();
 const { createClient } = require('@clickhouse/client');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const path = require('path');
 
 // 🔹 Configuración de ClickHouse
@@ -31,45 +31,47 @@ async function getClient() {
 }
 
 // 🔹 Función para cargar datos del Excel
-function loadExcelData() {
+async function loadExcelData() {
   try {
     const filePath = path.join(__dirname, '../data/catalogo_invias.xlsx');
-    const workbook = XLSX.readFile(filePath);
-    const sheet = workbook.Sheets['Información Vías'];
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    const sheet = workbook.getWorksheet('Información Vías');
 
     if (!sheet) {
       throw new Error('Hoja "Información Vías" no encontrada en el archivo Excel');
     }
 
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-    const headers = data[0];
+    const rows = [];
+    sheet.eachRow({ includeEmpty: false }, (row) => {
+      rows.push(row.values.slice(1)); // exceljs es 1-indexed; slice(1) da array 0-indexed
+    });
 
-    // Crear mapa por dispositivo (columna B, índice 1)
+    // Crear mapa por dispositivo (columna B, índice 1 → rows[][0]=A, rows[][1]=B)
     const deviceMap = new Map();
 
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      if (row[1]) { // Dispositivo
-        const type = row[5].trim().toLowerCase()
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[1]) { // Columna B: dispositivo
+        const type = (row[5] != null ? String(row[5]).trim() : '').toLowerCase();
         if (['wim', 'galibos', 'radares', 'conteos fijos'].includes(type)) {
-          const device = row[0].split('-').slice(0, 3).join('-');
+          const device = String(row[0]).split('-').slice(0, 3).join('-');
           deviceMap.set(device, {
-            departamento: row[1] || '', 
-            municipio: row[2] || '', 
-            codigo_ruta: row[6] || '', 
+            departamento: row[1] || '',
+            municipio: row[2] || '',
+            codigo_ruta: row[6] || '',
             ruta: row[7] || '',
-            codigo_tramo: row[8] || '', 
-            tramo: row[9] || '', 
-            sector: row[10] || '', 
-            administrador: row[11] || '', 
-            pr_aprox: row[12] || '' ,
-            street_view: row[15] || '' ,
+            codigo_tramo: row[8] || '',
+            tramo: row[9] || '',
+            sector: row[10] || '',
+            administrador: row[11] || '',
+            pr_aprox: row[12] || '',
+            street_view: row[15] || '',
           });
         }
       }
     }
-    console.log(`Datos del Excel cargados: ${deviceMap.size} dispositivos (incluidos dispositivos de WiM, Galibos, Radares y Conteos Fijos)`);
-    // console.log(deviceMap);
+    console.log(`Datos del Excel cargados: ${deviceMap.size} dispositivos (WiM, Galibos, Radares, Conteos Fijos)`);
     return deviceMap;
   } catch (error) {
     console.error('Error cargando datos del Excel:', error);
@@ -248,7 +250,7 @@ router.get('/road-analysis-dashboard', asyncHandler(async (req, res) => {
     const combinedResult = [...conteosResult, ...radaresResult, ...galibosResult, ...basculasResult];
 
     // 🔹 Cargar datos del Excel
-    const excelData = loadExcelData();
+    const excelData = await loadExcelData();
 
     // 🔹 Procesar resultados y enriquecer con datos del Excel
     const data = await Promise.all(combinedResult.map(async (row) => {
@@ -289,7 +291,7 @@ router.get('/road-analysis-dashboard', asyncHandler(async (req, res) => {
     const dispositivosArray = new Set(data.map(item => item.dispositivo));
     // Revisar qué claves del Excel faltan en el arreglo
     const missingDevices = [...excelData.keys()].filter(key => !dispositivosArray.has(key));
-    const deviceNotFound =[];
+    const deviceNotFound = [];
     if (missingDevices.length === 0) {
       console.log("✅ Todos los dispositivos del Excel están en el arreglo");
     } else {
@@ -417,7 +419,7 @@ router.get('/road-analysis-dashboard-by-device', asyncHandler(async (req, res) =
 
     const result = await executeQuery(query, params);
 
-    const excelData = loadExcelData();
+    const excelData = await loadExcelData();
     console.log('Resultado de filtrado:', result[0]);
     const dispositivo = result[0].dispositivo.split('-').slice(0, 3).join('-');
     const excelInfo = excelData.get(dispositivo) || {};
@@ -508,14 +510,20 @@ router.get('/tables', asyncHandler(async (req, res) => {
 router.get('/departamentos-sectores', asyncHandler(async (req, res) => {
   try {
     const filePath = path.join(__dirname, '../data/catalogo_invias.xlsx');
-    const workbook = XLSX.readFile(filePath);
-    const sheet = workbook.Sheets['Información Vías'];
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    const sheet = workbook.getWorksheet('Información Vías');
 
     if (!sheet) {
       throw new Error('Hoja "Información Vías" no encontrada en el archivo Excel');
     }
 
-    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    // Leer filas como arrays 0-indexed (equivalente a { header: 1 } en xlsx)
+    const rawRows = [];
+    sheet.eachRow({ includeEmpty: false }, (row) => {
+      rawRows.push(row.values.slice(1));
+    });
+    const data = rawRows;
 
     // Crear estructura: tipoDispositivo -> departamento -> sector -> dispositivos
     const tiposDispositivos = {};
