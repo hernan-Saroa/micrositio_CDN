@@ -255,7 +255,7 @@ function _renderStatBar() {
     const trendHtml = (t) => t === '+' ? '<span class="dai-stat-trend up"><i class="material-icons">trending_up</i></span>'
         : t === '-' ? '<span class="dai-stat-trend down"><i class="material-icons">trending_down</i></span>' : '';
 
-    bar.innerHTML = items.map((it, i) => `
+    bar.innerHTML = window.safeHTML(items.map((it, i) => `
         <div class="dai-stat-card ${it.cls} ${DAI.severityFilter === it.key ? 'active-filter' : ''}" style="--card-i:${i}"
              onclick="daiStatFilter('${it.key}')" title="Filtrar por ${it.label}">
             <div class="dai-stat-icon"><i class="material-icons">${it.icon}</i></div>
@@ -271,7 +271,7 @@ function _renderStatBar() {
         <div class="dai-stat-card sev-speed" style="--card-i:6" title="Tiempo promedio de respuesta">
             <div class="dai-stat-icon"><i class="material-icons">speed</i></div>
             <div><div class="dai-stat-num">${_elapsedMs(avgResp)}</div><div class="dai-stat-lbl">T. Respuesta</div></div>
-        </div>`;
+        </div>`);
     // Count-up animation
     requestAnimationFrame(() => _animateCountUp());
 }
@@ -390,7 +390,7 @@ function _renderLatencyDashboard() {
         challengeEl.textContent = `Reto 20s: ${pct.toFixed(1)}%`;
     }
 
-    container.innerHTML = `
+    container.innerHTML = window.safeHTML(`
         <div class="dai-lat-body">
             <div class="dai-lat-grid">
 
@@ -475,7 +475,7 @@ function _renderLatencyDashboard() {
 
             </div>
         </div>
-    `;
+    `);
 
     // Auto-collapse on small screens (width ≤ 900) OR limited height (≤ 850px)
     function _daiCheckLatencySpace() {
@@ -578,14 +578,18 @@ function _renderRows() {
         moreBtn = document.getElementById('daiMoreBtn');
     if (!list) return;
     const total = DAI.filtered.length, slice = DAI.filtered.slice(0, DAI.page * DAI.pageSize), hasMore = slice.length < total;
-    if (resEl) resEl.innerHTML = `Mostrando <strong>${slice.length}</strong> de <strong>${total}</strong> alertas`;
+    if (resEl) resEl.innerHTML = window.safeHTML(
+        `Mostrando <strong>${slice.length}</strong> de <strong>${total}</strong> alertas`
+    );
     if (pgEl) pgEl.textContent = `${slice.length}/${total}`;
     if (moreBtn) moreBtn.style.display = hasMore ? 'flex' : 'none';
-    if (!slice.length) { list.innerHTML = `<div class="dai-empty-state"><i class="material-icons">search_off</i><h4>Sin resultados</h4><p>Ajusta los filtros</p></div>`; return; }
+    if (!slice.length) { list.innerHTML = window.safeHTML(
+        `<div class="dai-empty-state"><i class="material-icons">search_off</i><h4>Sin resultados</h4><p>Ajusta los filtros</p></div>`
+    ); return; }
     // Marcar las primeras 5 alertas NO resueltas para animación de pulso
     const unresolved = slice.filter(a => a.estado !== 'resuelta');
     const pulseIds = new Set(unresolved.slice(0, 5).map(a => a.id));
-    list.innerHTML = slice.map((a, i) => _rowHTML(a, i, pulseIds.has(a.id))).join('');
+    list.innerHTML = window.safeHTML(slice.map((a, i) => _rowHTML(a, i, pulseIds.has(a.id))).join(''));
     // Actualizar urgencia sonora según alertas activas sin resolver
     const activeCount = DAI.all.filter(a => a.estado === 'activa' || a.estado === 'creado').length;
     DAI_SOUND.updateUrgency(activeCount);
@@ -673,7 +677,9 @@ function daiCloseDetail() {
 }
 function _renderDetailEmpty() {
     const pane = document.getElementById('daiDetailPane'); if (!pane) return;
-    pane.innerHTML = `<div class="dai-detail-empty"><i class="material-icons">touch_app</i><h4>Selecciona una alerta</h4><p>Clic en cualquier fila para gestionar, asignar, adjuntar y ver historial.</p></div>`;
+    pane.innerHTML = window.safeHTML(
+        `<div class="dai-detail-empty"><i class="material-icons">touch_app</i><h4>Selecciona una alerta</h4><p>Clic en cualquier fila para gestionar, asignar, adjuntar y ver historial.</p></div>`
+    );
 }
 
 // Tab switcher
@@ -706,7 +712,7 @@ function _renderDetail(a) {
         </div>
     ` : '';
 
-    pane.innerHTML = `
+    pane.innerHTML = window.safeHTML(`
     <!-- URGENCY BAR — visual pulse for active alerts -->
     <div class="dai-urgency-bar urg-${urg}" id="daiUrgencyBar"></div>
 
@@ -961,7 +967,7 @@ function _renderDetail(a) {
             </div>
         </div>
 
-    </div>`;
+    </div>`);
     // Draw CCTV canvas thumbnail after DOM update
     requestAnimationFrame(() => _drawCCTVCanvas(a));
 }
@@ -1067,7 +1073,7 @@ window.daiPlayVideo = function () {
     const preview = document.getElementById('daiVideoPreview');
     if (!preview) return;
 
-    preview.innerHTML = `
+    preview.innerHTML = window.safeHTML(`
         <div class="dai-video-player" id="daiVideoPlayer">
             <div class="dai-vp-screen">
                 <canvas id="daiPlayerCanvas" width="400" height="225"></canvas>
@@ -1102,7 +1108,7 @@ window.daiPlayVideo = function () {
                 </button>
             </div>
         </div>
-    `;
+    `);
     // Draw player canvas
     requestAnimationFrame(() => {
         _drawCCTVCanvas(a);
@@ -1214,7 +1220,7 @@ window.daiClosePlayer = function () {
     if (!a) return;
     const preview = document.getElementById('daiVideoPreview');
     if (!preview || !a.evidencia) return;
-    preview.innerHTML = `
+    preview.innerHTML = window.safeHTML(`
         <div class="dai-video-thumb" id="daiVideoThumb" onclick="daiPlayVideo()">
             <canvas id="daiCCTVCanvas" width="400" height="225"></canvas>
             <div class="dai-video-overlay">
@@ -1229,7 +1235,7 @@ window.daiClosePlayer = function () {
                 </div>
             </div>
         </div>
-    `;
+    `);
     requestAnimationFrame(() => _drawCCTVCanvas(a));
 };
 
@@ -1242,7 +1248,7 @@ window.daiVideoFullscreen = function () {
     modal = document.createElement('div');
     modal.id = 'daiVideoModal';
     modal.className = 'dai-video-modal';
-    modal.innerHTML = `
+    modal.innerHTML = window.safeHTML(`
         <div class="dai-vm-backdrop" onclick="daiCloseVideoModal()"></div>
         <div class="dai-vm-container">
             <div class="dai-vm-header">
@@ -1266,7 +1272,7 @@ window.daiVideoFullscreen = function () {
                 <span><i class="material-icons">badge</i>${a.id}</span>
             </div>
         </div>
-    `;
+    `);
     document.body.appendChild(modal);
     requestAnimationFrame(() => {
         modal.classList.add('show');
@@ -1317,7 +1323,7 @@ window.daiQuickResolve = function () {
     const div = document.createElement('div');
     div.id = 'daiResolvePanel';
     div.className = 'dai-resolve-panel show';
-    div.innerHTML = `
+    div.innerHTML = window.safeHTML(`
         <div class="dai-resolve-title"><i class="material-icons">check_circle</i> ¿Cómo se resolvió?</div>
         <div class="dai-resolve-options">
             ${RESOLUTION_METHODS.map(m => `
@@ -1341,7 +1347,7 @@ window.daiQuickResolve = function () {
                 Cancelar
             </button>
         </div>
-    `;
+    `);
     qa.insertAdjacentElement('afterend', div);
 };
 
@@ -1424,7 +1430,7 @@ window.daiQuickAssign = function () {
     const div = document.createElement('div');
     div.id = 'daiAssignPanel';
     div.className = 'dai-inline-panel show';
-    div.innerHTML = `
+    div.innerHTML = window.safeHTML(`
         <div class="dai-inline-title" style="color:#4f46e5"><i class="material-icons">person_add</i> Asignar a usuario</div>
         <div class="dai-assign-users">
             ${DAI_USERS.map(u => `
@@ -1448,7 +1454,7 @@ window.daiQuickAssign = function () {
                 Cancelar
             </button>
         </div>
-    `;
+    `);
     qa.insertAdjacentElement('afterend', div);
 };
 
@@ -1494,7 +1500,7 @@ window.daiQuickEmail = function () {
     const div = document.createElement('div');
     div.id = 'daiEmailPanel';
     div.className = 'dai-inline-panel show';
-    div.innerHTML = `
+    div.innerHTML = window.safeHTML(`
         <div class="dai-inline-title" style="color:#2563eb"><i class="material-icons">email</i> Enviar por correo</div>
         <div class="dai-email-form">
             <div class="dai-email-field">
@@ -1514,7 +1520,7 @@ window.daiQuickEmail = function () {
                 Cancelar
             </button>
         </div>
-    `;
+    `);
     qa.insertAdjacentElement('afterend', div);
     setTimeout(() => document.getElementById('daiInlineEmailTo')?.focus(), 300);
 };
@@ -1664,12 +1670,14 @@ window.closeDaiFilterModal = function () {
 };
 function _buildFilterModalContent() {
     const tiposEl = document.getElementById('daiModalTipos');
-    if (tiposEl) tiposEl.innerHTML = DAI_TIPOS.map(t => `
+    if (tiposEl) tiposEl.innerHTML = window.safeHTML(DAI_TIPOS.map(t => `
         <span class="dai-tipo-tag ${DAI.f.tipos.has(t) ? 'active' : ''}" onclick="daiToggleTipoTag(this,'${t.replace(/'/g, "\\\'")}')">
-            ${t}</span>`).join('');
+            ${t}</span>`).join(''));
     const depEl = document.getElementById('daiModalDep');
     if (depEl) {
-        depEl.innerHTML = `<option value="">Todos</option>` + DEP_NAMES.map(d => `<option value="${d}" ${DAI.f.dep === d ? 'selected' : ''}>${d}</option>`).join('');
+        depEl.innerHTML = window.safeHTML(
+            `<option value="">Todos</option>` + DEP_NAMES.map(d => `<option value="${d}" ${DAI.f.dep === d ? 'selected' : ''}>${d}</option>`).join('')
+        );
         depEl.onchange = () => { DAI.f.dep = depEl.value; _updateTramoOpts(depEl.value); };
     }
     _updateTramoOpts(DAI.f.dep);
@@ -1682,7 +1690,9 @@ function _buildFilterModalContent() {
 function _updateTramoOpts(dep) {
     const el = document.getElementById('daiModalTramo'); if (!el) return;
     const tramos = dep ? (DAI_DEPTOS[dep]?.tramos || []) : [];
-    el.innerHTML = `<option value="">Todos</option>` + tramos.map(t => `<option value="${t}" ${DAI.f.tramo === t ? 'selected' : ''}>${t}</option>`).join('');
+    el.innerHTML = window.safeHTML(
+        `<option value="">Todos</option>` + tramos.map(t => `<option value="${t}" ${DAI.f.tramo === t ? 'selected' : ''}>${t}</option>`).join('')
+    );
     el.onchange = () => DAI.f.tramo = el.value;
 }
 window.daiToggleTipoTag = function (el, t) {
@@ -1722,7 +1732,7 @@ function _toast(msg, icon = 'info', type = 'info') {
     if (!c) { c = document.createElement('div'); c.id = 'toast-container'; c.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;'; document.body.appendChild(c); }
     const t = document.createElement('div');
     t.className = `toast toast-${type}`;
-    t.innerHTML = `<i class="material-icons">${icon}</i><span>${msg}</span>`;
+    t.innerHTML = window.safeHTML(`<i class="material-icons">${icon}</i><span>${msg}</span>`);
     c.appendChild(t);
     setTimeout(() => t.classList.add('show'), 10);
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
@@ -2139,7 +2149,7 @@ window.addEventListener('resize', _daiFixHeight);
         var toast = document.createElement('div');
         toast.className = 'alert-toast alert-toast-' + alert.sev;
         toast.innerHTML =
-            '<div class="alert-toast-strip ' + alert.sev + '"></div>' +
+            window.safeHTML('<div class="alert-toast-strip ' + alert.sev + '"></div>' +
             '<div class="alert-toast-icon"><i class="material-icons">' + (sevIcon[alert.sev] || 'warning') + '</i></div>' +
             '<div class="alert-toast-body">' +
             '<div class="alert-toast-title">' +
@@ -2150,7 +2160,7 @@ window.addEventListener('resize', _daiFixHeight);
             '<span><i class="material-icons" style="font-size:12px;vertical-align:-2px;">router</i> ' + alert.disp.replace('INV-DAI-', '') + '</span>' +
             '</div>' +
             '</div>' +
-            '<button class="alert-toast-close" onclick="this.parentElement.remove()"><i class="material-icons">close</i></button>';
+            '<button class="alert-toast-close" onclick="this.parentElement.remove()"><i class="material-icons">close</i></button>');
 
         // Click to navigate to alert
         toast.addEventListener('click', function (e) {
@@ -2183,10 +2193,10 @@ window.addEventListener('resize', _daiFixHeight);
         if (!el) return;
         if (connected) {
             el.className = 'dai-live-indicator live';
-            el.innerHTML = '<span class="dai-live-dot"></span> En vivo';
+            el.innerHTML = window.safeHTML('<span class="dai-live-dot"></span> En vivo');
         } else {
             el.className = 'dai-live-indicator offline';
-            el.innerHTML = '<span class="dai-live-dot"></span> Reconectando…';
+            el.innerHTML = window.safeHTML('<span class="dai-live-dot"></span> Reconectando…');
         }
     }
 

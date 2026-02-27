@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -239,25 +239,36 @@
             }
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔒 Seguridad OWASP</h1>
-            <p>Sistema VIITS - Instituto Nacional de Vías (INVIAS)</p>
+            <h1>ðŸ”’ Seguridad OWASP</h1>
+            <p>Sistema VIITS - Instituto Nacional de VÃ­as (INVIAS)</p>
             <div>
                 <span class="badge">OWASP Top 10 - 2021</span>
-                <span class="badge">✅ Validado</span>
+                <span class="badge">âœ… Validado</span>
                 <span class="badge">Documentado</span>
             </div>
         </header>
 
         <div class="content">
-            <!-- Estadísticas -->
+            <!-- EstadÃ­sticas -->
             <div class="stats">
                 <div class="stat-card">
                     <div class="stat-number">10</div>
-                    <div class="stat-label">Categorías OWASP</div>
+                    <div class="stat-label">CategorÃ­as OWASP</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">100%</div>
@@ -269,19 +280,19 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">0</div>
-                    <div class="stat-label">Vulnerabilidades Críticas</div>
+                    <div class="stat-label">Vulnerabilidades CrÃ­ticas</div>
                 </div>
             </div>
 
-            <!-- Alerta de éxito -->
+            <!-- Alerta de Ã©xito -->
             <div class="alert">
-                <h3>✅ Sistema Verificado y Seguro</h3>
-                <p>El Sistema VIITS ha sido implementado siguiendo las mejores prácticas de seguridad del OWASP Top 10 - 2021. Todas las categorías han sido validadas y documentadas.</p>
+                <h3>âœ… Sistema Verificado y Seguro</h3>
+                <p>El Sistema VIITS ha sido implementado siguiendo las mejores prÃ¡cticas de seguridad del OWASP Top 10 - 2021. Todas las categorÃ­as han sido validadas y documentadas.</p>
             </div>
 
             <!-- OWASP Top 10 -->
             <div class="section">
-                <h2>🛡️ OWASP Top 10 - 2021</h2>
+                <h2>ðŸ›¡ï¸ OWASP Top 10 - 2021</h2>
                 <div class="grid">
                     <!-- A01 -->
                     <div class="owasp-card critical">
@@ -291,7 +302,7 @@
                             Control de acceso con fallas que permite acceso no autorizado.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> JWT, RBAC, validación de sesiones, prevención IDOR
+                            <strong>Implementado:</strong> JWT, RBAC, validaciÃ³n de sesiones, prevenciÃ³n IDOR
                         </div>
                     </div>
 
@@ -300,7 +311,7 @@
                         <div class="owasp-number">A02</div>
                         <div class="owasp-title">Cryptographic Failures</div>
                         <div class="owasp-description">
-                            Fallas criptográficas que exponen datos sensibles.
+                            Fallas criptogrÃ¡ficas que exponen datos sensibles.
                         </div>
                         <div class="implementation">
                             <strong>Implementado:</strong> Bcrypt (12 rounds), HTTPS obligatorio, JWT secrets seguros, Helmet.js
@@ -315,7 +326,7 @@
                             Inyecciones SQL, NoSQL, comandos OS y otras.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Queries parametrizadas, sanitización de entrada, express-validator, prevención XSS
+                            <strong>Implementado:</strong> Queries parametrizadas, sanitizaciÃ³n de entrada, express-validator, prevenciÃ³n XSS
                         </div>
                     </div>
 
@@ -324,10 +335,10 @@
                         <div class="owasp-number">A04</div>
                         <div class="owasp-title">Insecure Design</div>
                         <div class="owasp-description">
-                            Diseño inseguro con fallas arquitectónicas.
+                            DiseÃ±o inseguro con fallas arquitectÃ³nicas.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Rate limiting, límites de recursos, validación de flujo de negocio
+                            <strong>Implementado:</strong> Rate limiting, lÃ­mites de recursos, validaciÃ³n de flujo de negocio
                         </div>
                     </div>
 
@@ -339,7 +350,7 @@
                             Configuraciones incorrectas de seguridad.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Variables en .env, headers seguros, CORS configurado, modo producción
+                            <strong>Implementado:</strong> Variables en .env, headers seguros, CORS configurado, modo producciÃ³n
                         </div>
                     </div>
 
@@ -360,10 +371,10 @@
                         <div class="owasp-number">A07</div>
                         <div class="owasp-title">Authentication Failures</div>
                         <div class="owasp-description">
-                            Fallas en autenticación e identificación.
+                            Fallas en autenticaciÃ³n e identificaciÃ³n.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Contraseñas fuertes (12+ chars), 2FA, prevención de enumeración, rate limiting
+                            <strong>Implementado:</strong> ContraseÃ±as fuertes (12+ chars), 2FA, prevenciÃ³n de enumeraciÃ³n, rate limiting
                         </div>
                     </div>
 
@@ -375,7 +386,7 @@
                             Fallas en integridad de software y datos.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Validación de archivos, checksums, package-lock.json, límites de tamaño
+                            <strong>Implementado:</strong> ValidaciÃ³n de archivos, checksums, package-lock.json, lÃ­mites de tamaÃ±o
                         </div>
                     </div>
 
@@ -387,7 +398,7 @@
                             Falta de logging y monitoreo adecuado.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Winston logs, rotación diaria, auditoría en BD, eventos de seguridad
+                            <strong>Implementado:</strong> Winston logs, rotaciÃ³n diaria, auditorÃ­a en BD, eventos de seguridad
                         </div>
                     </div>
 
@@ -399,7 +410,7 @@
                             SSRF permite peticiones no autorizadas del servidor.
                         </div>
                         <div class="implementation">
-                            <strong>Implementado:</strong> Validación de URLs, bloqueo de IPs privadas, whitelist de dominios
+                            <strong>Implementado:</strong> ValidaciÃ³n de URLs, bloqueo de IPs privadas, whitelist de dominios
                         </div>
                     </div>
                 </div>
@@ -407,92 +418,92 @@
 
             <!-- Checklist -->
             <div class="section">
-                <h2>✅ Checklist de Verificación</h2>
+                <h2>âœ… Checklist de VerificaciÃ³n</h2>
                 <div class="checklist">
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Autenticación JWT implementada y validada</span>
+                        <span class="icon">âœ“</span>
+                        <span>AutenticaciÃ³n JWT implementada y validada</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
+                        <span class="icon">âœ“</span>
                         <span>Control de acceso basado en roles (RBAC)</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Encriptación bcrypt con 12 rounds</span>
+                        <span class="icon">âœ“</span>
+                        <span>EncriptaciÃ³n bcrypt con 12 rounds</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Queries parametrizadas (prevención SQL injection)</span>
+                        <span class="icon">âœ“</span>
+                        <span>Queries parametrizadas (prevenciÃ³n SQL injection)</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Sanitización de entrada implementada</span>
+                        <span class="icon">âœ“</span>
+                        <span>SanitizaciÃ³n de entrada implementada</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
+                        <span class="icon">âœ“</span>
                         <span>Rate limiting en rutas sensibles</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
+                        <span class="icon">âœ“</span>
                         <span>Headers de seguridad con Helmet.js</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
+                        <span class="icon">âœ“</span>
                         <span>Variables sensibles en .env (no versionado)</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Dependencias sin vulnerabilidades críticas</span>
+                        <span class="icon">âœ“</span>
+                        <span>Dependencias sin vulnerabilidades crÃ­ticas</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Contraseñas fuertes (mínimo 12 caracteres)</span>
+                        <span class="icon">âœ“</span>
+                        <span>ContraseÃ±as fuertes (mÃ­nimo 12 caracteres)</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
+                        <span class="icon">âœ“</span>
                         <span>2FA disponible para administradores</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Validación de integridad de archivos</span>
+                        <span class="icon">âœ“</span>
+                        <span>ValidaciÃ³n de integridad de archivos</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Sistema de logs con Winston (rotación diaria)</span>
+                        <span class="icon">âœ“</span>
+                        <span>Sistema de logs con Winston (rotaciÃ³n diaria)</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Auditoría en base de datos PostgreSQL</span>
+                        <span class="icon">âœ“</span>
+                        <span>AuditorÃ­a en base de datos PostgreSQL</span>
                     </div>
                     <div class="checklist-item">
-                        <span class="icon">✓</span>
-                        <span>Validación y sanitización de URLs (prevención SSRF)</span>
+                        <span class="icon">âœ“</span>
+                        <span>ValidaciÃ³n y sanitizaciÃ³n de URLs (prevenciÃ³n SSRF)</span>
                     </div>
                 </div>
             </div>
 
             <!-- Acciones -->
             <div class="section">
-                <h2>📚 Documentación y Pruebas</h2>
-                <p>Accede a la documentación completa y ejecuta las pruebas de seguridad:</p>
+                <h2>ðŸ“š DocumentaciÃ³n y Pruebas</h2>
+                <p>Accede a la documentaciÃ³n completa y ejecuta las pruebas de seguridad:</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="SEGURIDAD-OWASP.md" class="btn btn-success">📖 Ver Documentación Completa</a>
-                    <a href="#" onclick="alert('Ejecutar: ./test-security-owasp.sh')" class="btn">🧪 Ejecutar Pruebas</a>
-                    <a href="backend/middleware/owaspSecurity.js" class="btn btn-secondary">💻 Ver Código</a>
+                    <a href="SEGURIDAD-OWASP.md" class="btn btn-success">ðŸ“– Ver DocumentaciÃ³n Completa</a>
+                    <a href="#" onclick="alert('Ejecutar: ./test-security-owasp.sh')" class="btn">ðŸ§ª Ejecutar Pruebas</a>
+                    <a href="backend/middleware/owaspSecurity.js" class="btn btn-secondary">ðŸ’» Ver CÃ³digo</a>
                 </div>
             </div>
 
             <!-- Comandos -->
             <div class="section">
-                <h2>⚡ Comandos Rápidos</h2>
+                <h2>âš¡ Comandos RÃ¡pidos</h2>
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; font-family: monospace;">
                     <p><strong># Ejecutar pruebas de seguridad OWASP</strong></p>
                     <p style="background: #1e3c72; color: white; padding: 10px; margin: 10px 0; border-radius: 5px;">
                         $ ./test-security-owasp.sh
                     </p>
                     
-                    <p style="margin-top: 20px;"><strong># Auditoría de dependencias</strong></p>
+                    <p style="margin-top: 20px;"><strong># AuditorÃ­a de dependencias</strong></p>
                     <p style="background: #1e3c72; color: white; padding: 10px; margin: 10px 0; border-radius: 5px;">
                         $ cd backend && npm audit
                     </p>
@@ -506,14 +517,15 @@
         </div>
 
         <footer>
-            <h3>Instituto Nacional de Vías (INVIAS)</h3>
+            <h3>Instituto Nacional de VÃ­as (INVIAS)</h3>
             <p>Sistema VIITS - Seguridad OWASP Top 10 Verificada</p>
             <p style="margin-top: 20px;">
-                <strong>Versión:</strong> 1.0.0 | 
-                <strong>Estado:</strong> ✅ Seguro | 
+                <strong>VersiÃ³n:</strong> 1.0.0 | 
+                <strong>Estado:</strong> âœ… Seguro | 
                 <strong>Fecha:</strong> 13 de Octubre, 2025
             </p>
         </footer>
     </div>
 </body>
 </html>
+

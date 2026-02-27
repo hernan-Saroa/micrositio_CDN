@@ -324,7 +324,7 @@ async function loadAuditLogs(page = 1) {
         console.error('Error al cargar logs de auditoría:', error);
         // Mostrar mensaje de error en la tabla
         const tbody = document.getElementById('auditTableBody');
-        tbody.innerHTML = `
+        tbody.innerHTML = window.safeHTML(`
             <tr>
                 <td colspan="6" style="text-align: center; color: var(--error); padding: 2rem;">
                     <i class="material-icons" style="font-size: 48px; margin-bottom: 1rem;">error</i>
@@ -332,7 +332,7 @@ async function loadAuditLogs(page = 1) {
                     Error al cargar logs de auditoría. Verifica la conexión con la base de datos.
                 </td>
             </tr>
-        `;
+        `);
     }
 }
 
@@ -382,17 +382,17 @@ function displayAuditLogs(auditLogs) {
     const tbody = document.getElementById('auditTableBody');
 
     if (!auditLogs || auditLogs.length === 0) {
-        tbody.innerHTML = `
+        tbody.innerHTML = window.safeHTML(`
             <tr>
                 <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">
                     No hay registros de auditoría disponibles
             </td>
         </tr>
-        `;
+        `);
         return;
     }
 
-    tbody.innerHTML = auditLogs.map(log => {
+    tbody.innerHTML = window.safeHTML(auditLogs.map(log => {
         const createdDate = new Date(log.created_at).toLocaleDateString('es-CO', {
             year: 'numeric',
             month: '2-digit',
@@ -419,7 +419,7 @@ function displayAuditLogs(auditLogs) {
                 <td>${log.ip_address || 'N/A'}</td>
             </tr>
         `;
-    }).join('');
+    }).join(''));
 }
 
 // Función auxiliar para obtener nombre display de acción
@@ -527,7 +527,7 @@ async function loadUsers() {
         console.error('Error al cargar usuarios:', error);
         // Mostrar mensaje de error en la tabla
         const tbody = document.getElementById('usersTableBody');
-        tbody.innerHTML = `
+        tbody.innerHTML = window.safeHTML(`
             <tr>
                 <td colspan="6" style="text-align: center; color: var(--error); padding: 2rem;">
                     <i class="material-icons" style="font-size: 48px; margin-bottom: 1rem;">error</i>
@@ -535,7 +535,7 @@ async function loadUsers() {
                     Error al cargar usuarios. Verifica la conexión con la base de datos.
                 </td>
             </tr>
-        `;
+        `);
     }
 }
 
@@ -544,17 +544,17 @@ function displayUsers(users) {
     const tbody = document.getElementById('usersTableBody');
 
     if (users.length === 0) {
-        tbody.innerHTML = `
+        tbody.innerHTML = window.safeHTML(`
             <tr>
                 <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">
                     No hay usuarios registrados
                 </td>
             </tr>
-        `;
+        `);
         return;
     }
 
-    tbody.innerHTML = users.map(user => {
+    tbody.innerHTML = window.safeHTML(users.map(user => {
         const createdDate = new Date(user.created_at).toLocaleDateString('es-CO');
         const lastLogin = getRelativeTime(user.last_login);
 
@@ -576,7 +576,7 @@ function displayUsers(users) {
                 <td>${createdDate}</td>
             </tr>
         `;
-    }).join('');
+    }).join(''));
 }
 
 // Función auxiliar para obtener clase del badge del rol
@@ -667,12 +667,12 @@ async function handleUploadFormSubmit(event) {
     const submitBtn = document.querySelector('#uploadModal button[type="submit"]');
     if (submitBtn) {
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="material-icons">hourglass_empty</i> Subiendo...';
+        submitBtn.innerHTML = window.safeHTML('<i class="material-icons">hourglass_empty</i> Subiendo...');
         submitBtn.disabled = true;
 
         // Restaurar botón después
         setTimeout(() => {
-            submitBtn.innerHTML = originalText;
+            submitBtn.innerHTML = window.safeHTML(originalText);
             submitBtn.disabled = false;
         }, 1000);
     }
@@ -802,13 +802,13 @@ async function loadSliderImages() {
         const sliderSection = document.getElementById('slider');
         const grid = sliderSection ? sliderSection.querySelector('.grid') : null;
         if (grid) {
-            grid.innerHTML = `
+            grid.innerHTML = window.safeHTML(`
                 <div style="grid-column: 1 / -1; text-align: center; color: var(--error); padding: 2rem;">
                     <i class="material-icons" style="font-size: 48px; margin-bottom: 1rem;">error</i>
                     <br>
                     Error al cargar imágenes del slider. Verifica la conexión con la base de datos.
                 </div>
-            `;
+            `);
         }
     }
 }
@@ -819,17 +819,17 @@ function displaySliderImages(images) {
     if (!grid) return;
 
     if (!images || images.length === 0) {
-        grid.innerHTML = `
+        grid.innerHTML = window.safeHTML(`
             <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #6b7280;">
                 <i class="material-icons" style="font-size: 48px; margin-bottom: 1rem;">image</i>
                 <br>
                 No hay imágenes en el slider. Haz clic en "Agregar Imagen" para comenzar.
             </div>
-        `;
+        `);
         return;
     }
 
-    grid.innerHTML = images.map(image => {
+    grid.innerHTML = window.safeHTML(images.map(image => {
         const hasRealImage = image.image_path && image.image_path !== 'placeholder.jpg';
         const imageUrl = hasRealImage ? `/uploads/slider/${image.image_path}` : '';
         const isActive = image.is_active;
@@ -874,7 +874,7 @@ function displaySliderImages(images) {
                 </div>
             </div>
         `;
-    }).join('');
+    }).join(''));
 }
 
 // Mostrar slides archivados
@@ -885,11 +885,13 @@ function displayArchivedSliders(archived) {
     if (!grid) return;
 
     if (!archived || archived.length === 0) {
-        grid.innerHTML = '<p style="color:#9ca3af;font-size:0.875rem;padding:1rem;">No hay slides archivados.</p>';
+        grid.innerHTML = window.safeHTML(
+            '<p style="color:#9ca3af;font-size:0.875rem;padding:1rem;">No hay slides archivados.</p>'
+        );
         return;
     }
 
-    grid.innerHTML = archived.map(image => {
+    grid.innerHTML = window.safeHTML(archived.map(image => {
         const imageUrl = `/uploads/slider/${image.image_path}`;
         return `
             <div style="background:#f8fafc;border-radius:12px;overflow:hidden;border:1px dashed #e2e8f0;opacity:0.85;">
@@ -909,7 +911,7 @@ function displayArchivedSliders(archived) {
                 </div>
             </div>
         `;
-    }).join('');
+    }).join(''));
 }
 
 // Toggle acordeón archivados
@@ -1033,7 +1035,7 @@ function openEditSliderModal(image) {
     // Crear modal de edición dinámicamente
     const editModal = document.createElement('div');
     editModal.id = 'editSliderModal';
-    editModal.innerHTML = `
+    editModal.innerHTML = window.safeHTML(`
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Editar Imagen del Slider</h3>
@@ -1220,7 +1222,7 @@ function openEditSliderModal(image) {
                 </button>
             </div>
         </div>
-    `;
+    `);
 
     // Agregar clase modal
     editModal.className = 'modal active';
@@ -1387,7 +1389,7 @@ async function handleEditSliderFormSubmit(event) {
         const submitBtn = document.querySelector('#editSliderModal button[type="submit"]');
         if (submitBtn) {
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="material-icons">hourglass_empty</i> Guardando...';
+            submitBtn.innerHTML = window.safeHTML('<i class="material-icons">hourglass_empty</i> Guardando...');
             submitBtn.disabled = true;
         }
 
@@ -1422,7 +1424,7 @@ async function handleEditSliderFormSubmit(event) {
         // Restaurar botón
         const submitBtn = document.querySelector('#editSliderModal button[type="submit"]');
         if (submitBtn) {
-            submitBtn.innerHTML = '<i class="material-icons">save</i> Guardar Cambios';
+            submitBtn.innerHTML = window.safeHTML('<i class="material-icons">save</i> Guardar Cambios');
             submitBtn.disabled = false;
         }
     }
@@ -1494,12 +1496,12 @@ async function handleSliderFormSubmit(event) {
     const submitBtn = document.querySelector('#sliderModal button[type="submit"]');
     if (submitBtn) {
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="material-icons">hourglass_empty</i> Subiendo...';
+        submitBtn.innerHTML = window.safeHTML('<i class="material-icons">hourglass_empty</i> Subiendo...');
         submitBtn.disabled = true;
 
         // Restaurar botón después
         setTimeout(() => {
-            submitBtn.innerHTML = originalText;
+            submitBtn.innerHTML = window.safeHTML(originalText);
             submitBtn.disabled = false;
         }, 1000);
     }
@@ -1846,9 +1848,11 @@ function _renderDaiTable() {
     const pageData = daiFiltradas.slice(start, start + DAI_PAGE_SIZE);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#6b7280;"><i class="material-icons" style="font-size:2rem;display:block;margin-bottom:0.5rem;">search_off</i>No se encontraron alertas</td></tr>';
+        tbody.innerHTML = window.safeHTML(
+            '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#6b7280;"><i class="material-icons" style="font-size:2rem;display:block;margin-bottom:0.5rem;">search_off</i>No se encontraron alertas</td></tr>'
+        );
     } else {
-        tbody.innerHTML = pageData.map(a => {
+        tbody.innerHTML = window.safeHTML(pageData.map(a => {
             const resolvBtn = a.estado !== 'resuelta'
                 ? '<button class="btn btn-primary" style="padding:0.3rem 0.6rem;font-size:0.8rem;margin-left:0.25rem;" onclick="resolverAlertaDAI(\'' + a.id + '\')" title="Marcar resuelta"><i class="material-icons" style="font-size:1rem;">check</i></button>'
                 : '';
@@ -1865,7 +1869,7 @@ function _renderDaiTable() {
                 + resolvBtn
                 + '</td>'
                 + '</tr>';
-        }).join('');
+        }).join(''));
     }
 
     const paginDiv = document.getElementById('daiPagination');
@@ -1949,8 +1953,6 @@ function exportAlertasDAI() {
 }
 
 // Logout confirm helpers
-function showLogoutConfirm() { showModal("logoutConfirmModal"); }
-function confirmLogout() { closeModal("logoutConfirmModal"); handleLogout(); }
 
 
 // ========================================
@@ -2014,7 +2016,7 @@ async function loadDownloadsAdmin(page = 1) {
         }
 
         // Render table
-        dlTableContainer.innerHTML = renderDownloadsTable(downloads);
+        dlTableContainer.innerHTML = window.safeHTML(renderDownloadsTable(downloads));
         dlTableContainer.style.display = 'block';
 
         // Pagination
@@ -2411,7 +2413,7 @@ async function loadAuditAdmin(page = 1) {
         }
 
         // Render table
-        auTableContainer.innerHTML = renderAuditTable(logs);
+        auTableContainer.innerHTML = window.safeHTML(renderAuditTable(logs));
         auTableContainer.style.display = 'block';
 
         // Pagination
@@ -2594,7 +2596,7 @@ async function cfgRequestToken() {
     }
     _cfgEmail = email;
     const btn = document.getElementById('cfgBtnRequestToken');
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="material-icons">hourglass_top</i> Enviando...'; }
+    if (btn) { btn.disabled = true; btn.innerHTML = window.safeHTML('<i class="material-icons">hourglass_top</i> Enviando...'); }
     try {
         const res = await fetch('/api/auth/forgot-password', {
             method: 'POST',
@@ -2608,7 +2610,7 @@ async function cfgRequestToken() {
     } catch (err) {
         cfgShowMsg('cfgMsg1', 'error', err.message);
     } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="material-icons">send</i> Enviar Token de Verificacion'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = window.safeHTML('<i class="material-icons">send</i> Enviar Token de Verificacion'); }
     }
 }
 
@@ -2797,33 +2799,37 @@ function dbRenderChart(trend) {
             '</div>';
     });
     html += '</div>';
-    container.innerHTML = html;
+    container.innerHTML = window.safeHTML(html);
 }
 
 function dbRenderRecentReports(reports) {
     var tbody = document.getElementById('dbRecentReports');
     if (!tbody) return;
     if (!reports || !reports.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin reportes</td></tr>';
+        tbody.innerHTML = window.safeHTML(
+            '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin reportes</td></tr>'
+        );
         return;
     }
-    tbody.innerHTML = reports.map(function (r) {
+    tbody.innerHTML = window.safeHTML(reports.map(function (r) {
         return '<tr>' +
             '<td><span class="db-cell-title">' + dbEsc(r.title) + '</span></td>' +
             '<td>' + dbFormatSize(r.file_size) + '</td>' +
             '<td>' + dbFormatDate(r.created_at) + '</td>' +
             '</tr>';
-    }).join('');
+    }).join(''));
 }
 
 function dbRenderRecentDownloads(downloads) {
     var tbody = document.getElementById('dbRecentDownloads');
     if (!tbody) return;
     if (!downloads || !downloads.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin descargas</td></tr>';
+        tbody.innerHTML = window.safeHTML(
+            '<tr><td colspan="3" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin descargas</td></tr>'
+        );
         return;
     }
-    tbody.innerHTML = downloads.map(function (d) {
+    tbody.innerHTML = window.safeHTML(downloads.map(function (d) {
         var statusClass = d.status === 'completed' ? 'db-status-ok' : d.status === 'failed' ? 'db-status-fail' : 'db-status-pending';
         var statusLabel = d.status === 'completed' ? 'Exitosa' : d.status === 'failed' ? 'Fallida' : d.status;
         return '<tr>' +
@@ -2831,17 +2837,19 @@ function dbRenderRecentDownloads(downloads) {
             '<td><span class="' + statusClass + '">' + statusLabel + '</span></td>' +
             '<td>' + dbFormatDate(d.created_at) + '</td>' +
             '</tr>';
-    }).join('');
+    }).join(''));
 }
 
 function dbRenderRecentAudit(audit) {
     var tbody = document.getElementById('dbRecentAudit');
     if (!tbody) return;
     if (!audit || !audit.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin actividad</td></tr>';
+        tbody.innerHTML = window.safeHTML(
+            '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);padding:1.5rem">Sin actividad</td></tr>'
+        );
         return;
     }
-    tbody.innerHTML = audit.map(function (a) {
+    tbody.innerHTML = window.safeHTML(audit.map(function (a) {
         var statusClass = a.status === 'success' ? 'db-status-ok' : 'db-status-fail';
         var statusLabel = a.status === 'success' ? 'OK' : 'Error';
         return '<tr>' +
@@ -2851,7 +2859,7 @@ function dbRenderRecentAudit(audit) {
             '<td><span class="' + statusClass + '">' + statusLabel + '</span></td>' +
             '<td>' + dbFormatDate(a.created_at) + '</td>' +
             '</tr>';
-    }).join('');
+    }).join(''));
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -3164,7 +3172,7 @@ function anEsc(s) {
 
 function anRenderTrend(trend) {
     var container = document.getElementById('anTrendChart');
-    if (!container || !trend.length) { if (container) container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:2rem;">Sin datos</p>'; return; }
+    if (!container || !trend.length) { if (container) container.innerHTML = window.safeHTML('<p style="text-align:center;color:#94a3b8;padding:2rem;">Sin datos</p>'); return; }
     var max = 1;
     trend.forEach(function (t) { if (t.visitors > max) max = t.visitors; });
     var html = '<div class="an-chart-bars">';
@@ -3177,13 +3185,13 @@ function anRenderTrend(trend) {
             '</div>';
     });
     html += '</div>';
-    container.innerHTML = html;
+    container.innerHTML = window.safeHTML(html);
 }
 
 function anRenderByPage(pages) {
     var container = document.getElementById('anByPage');
     if (!container) return;
-    if (!pages.length) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:1rem;">Sin datos</p>'; return; }
+    if (!pages.length) { container.innerHTML = window.safeHTML('<p style="text-align:center;color:#94a3b8;padding:1rem;">Sin datos</p>'); return; }
     var max = 1;
     pages.forEach(function (p) { if (p.visitors > max) max = p.visitors; });
     var pageLabels = { landing: 'Inicio', participacion: 'Participación', documentos: 'Documentos', sectores: 'Sectores Viales' };
@@ -3202,13 +3210,13 @@ function anRenderByPage(pages) {
             '</div>';
     });
     html += '</div>';
-    container.innerHTML = html;
+    container.innerHTML = window.safeHTML(html);
 }
 
 function anRenderPieList(containerId, items, key, valKey, colors) {
     var container = document.getElementById(containerId);
     if (!container) return;
-    if (!items.length) { container.innerHTML = '<p style="color:#94a3b8;font-size:.78rem;">Sin datos</p>'; return; }
+    if (!items.length) { container.innerHTML = window.safeHTML('<p style="color:#94a3b8;font-size:.78rem;">Sin datos</p>'); return; }
     var total = 0;
     items.forEach(function (i) { total += parseInt(i[valKey] || 0); });
     var html = '';
@@ -3223,13 +3231,15 @@ function anRenderPieList(containerId, items, key, valKey, colors) {
             '<span class="an-pie-n">(' + i[valKey] + ')</span>' +
             '</div>';
     });
-    container.innerHTML = html;
+    container.innerHTML = window.safeHTML(html);
 }
 
 function anRenderSectionHeat(heat) {
     var tbody = document.querySelector('#anSectionTable tbody');
     if (!tbody) return;
-    if (!heat.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">Sin datos</td></tr>'; return; }
+    if (!heat.length) { tbody.innerHTML = window.safeHTML(
+        '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">Sin datos</td></tr>'
+    ); return; }
     var max = 1;
     heat.forEach(function (h) { if (h.views > max) max = h.views; });
     var pageLabels = { landing: 'Inicio', participacion: 'Participación', documentos: 'Documentos', sectores: 'Sectores' };
@@ -3246,13 +3256,15 @@ function anRenderSectionHeat(heat) {
             '<td><div class="an-heat-bar"><div class="an-heat-fill" style="width:' + pct + '%"></div></div></td>' +
             '</tr>';
     });
-    tbody.innerHTML = html;
+    tbody.innerHTML = window.safeHTML(html);
 }
 
 function anRenderClicks(clicks) {
     var tbody = document.querySelector('#anClicksTable tbody');
     if (!tbody) return;
-    if (!clicks.length) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#94a3b8;">Sin datos</td></tr>'; return; }
+    if (!clicks.length) { tbody.innerHTML = window.safeHTML(
+        '<tr><td colspan="3" style="text-align:center;color:#94a3b8;">Sin datos</td></tr>'
+    ); return; }
     var pageLabels = { landing: 'Inicio', participacion: 'Participación', documentos: 'Documentos', sectores: 'Sectores' };
     var html = '';
     clicks.forEach(function (c) {
@@ -3262,7 +3274,7 @@ function anRenderClicks(clicks) {
             '<td><strong>' + c.clicks + '</strong></td>' +
             '</tr>';
     });
-    tbody.innerHTML = html;
+    tbody.innerHTML = window.safeHTML(html);
 }
 
 // ========================================
@@ -3506,13 +3518,13 @@ function renderNotifAlerts() {
     const limited = filtered.slice(0, 50);
 
     if (limited.length === 0) {
-        body.innerHTML = `
+        body.innerHTML = window.safeHTML(`
             <div class="notif-empty">
                 <i class="material-icons">notifications_off</i>
                 <p>${_notifFilter === 'criticas' ? 'Sin alertas críticas pendientes' :
                 _notifFilter === 'pendientes' ? 'Sin alertas pendientes' :
                     'Sin alertas registradas'}</p>
-            </div>`;
+            </div>`);
         return;
     }
 
@@ -3579,7 +3591,7 @@ function renderNotifAlerts() {
         </div>`;
     }
 
-    body.innerHTML = html;
+    body.innerHTML = window.safeHTML(html);
 }
 
 /** Switch notification filter tab */

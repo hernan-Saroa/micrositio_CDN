@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Despliegue Completo - Proyecto VIITS</title>
+    <title>ðŸš€ Despliegue Completo - Proyecto VIITS</title>
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
@@ -234,30 +234,41 @@
             line-height: 1.6;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Proyecto VIITS - Despliegue Completo</h1>
+            <h1>ðŸš€ Proyecto VIITS - Despliegue Completo</h1>
             <p>Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</p>
-            <p style="margin-top: 1rem; color: #1f2937;"><strong>INVIAS - Instituto Nacional de Vías | Colombia</strong></p>
+            <p style="margin-top: 1rem; color: #1f2937;"><strong>INVIAS - Instituto Nacional de VÃ­as | Colombia</strong></p>
         </div>
         
         <div class="status-banner">
-            ✅ PROYECTO 100% VERIFICADO Y LISTO PARA DESPLEGAR
+            âœ… PROYECTO 100% VERIFICADO Y LISTO PARA DESPLEGAR
         </div>
         
         <div class="content">
-            <!-- Verificación Completa -->
+            <!-- VerificaciÃ³n Completa -->
             <div class="section">
                 <h2>
                     <span class="material-icons">verified</span>
-                    Estado de Verificación
+                    Estado de VerificaciÃ³n
                 </h2>
                 <div class="checklist">
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
-                        <span>Todas las páginas principales funcionando (6/6)</span>
+                        <span>Todas las pÃ¡ginas principales funcionando (6/6)</span>
                     </div>
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
@@ -269,7 +280,7 @@
                     </div>
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
-                        <span>Navegación completa entre componentes</span>
+                        <span>NavegaciÃ³n completa entre componentes</span>
                     </div>
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
@@ -277,20 +288,20 @@
                     </div>
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
-                        <span>Documentación completa generada</span>
+                        <span>DocumentaciÃ³n completa generada</span>
                     </div>
                     <div class="checklist-item">
                         <span class="material-icons">check_circle</span>
-                        <span>Verificación de integridad: 100% (24/24 checks)</span>
+                        <span>VerificaciÃ³n de integridad: 100% (24/24 checks)</span>
                     </div>
                 </div>
             </div>
             
-            <!-- Acciones Rápidas -->
+            <!-- Acciones RÃ¡pidas -->
             <div class="section">
                 <h2>
                     <span class="material-icons">flash_on</span>
-                    Acciones Rápidas
+                    Acciones RÃ¡pidas
                 </h2>
                 <div class="quick-actions">
                     <a href="00-INICIO-PROYECTO.html" class="quick-action-btn">
@@ -299,7 +310,7 @@
                     </a>
                     <a href="index.html" class="quick-action-btn">
                         <span class="material-icons">public</span>
-                        Micrositio Público
+                        Micrositio PÃºblico
                     </a>
                     <a href="login.html" class="quick-action-btn">
                         <span class="material-icons">admin_panel_settings</span>
@@ -307,99 +318,99 @@
                     </a>
                     <a href="GUIA-DESPLIEGUE-COMPLETO.md" class="quick-action-btn" download>
                         <span class="material-icons">description</span>
-                        Guía Completa
+                        GuÃ­a Completa
                     </a>
                 </div>
             </div>
             
-            <!-- Páginas Principales -->
+            <!-- PÃ¡ginas Principales -->
             <div class="section">
                 <h2>
                     <span class="material-icons">web</span>
-                    Páginas Principales
+                    PÃ¡ginas Principales
                 </h2>
                 <div class="cards-grid">
                     <div class="card">
-                        <h3><span class="material-icons">home</span> Micrositio Público</h3>
-                        <p>Página principal con estadísticas en tiempo real, slider de imágenes y dashboard interactivo.</p>
-                        <a href="index.html">Abrir Micrositio →</a>
+                        <h3><span class="material-icons">home</span> Micrositio PÃºblico</h3>
+                        <p>PÃ¡gina principal con estadÃ­sticas en tiempo real, slider de imÃ¡genes y dashboard interactivo.</p>
+                        <a href="index.html">Abrir Micrositio â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">login</span> Login Administrativo</h3>
                         <p>Acceso al panel administrativo. Modo demo activo (cualquier credencial funciona).</p>
-                        <a href="login.html">Ir al Login →</a>
+                        <a href="login.html">Ir al Login â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">dashboard</span> Panel Administrativo</h3>
-                        <p>Dashboard completo para gestión de contenidos y administración del sistema.</p>
-                        <a href="admin-panel.html">Ver Panel →</a>
+                        <p>Dashboard completo para gestiÃ³n de contenidos y administraciÃ³n del sistema.</p>
+                        <a href="admin-panel.html">Ver Panel â†’</a>
                     </div>
                     
                     <div class="card">
-                        <h3><span class="material-icons">groups</span> Participación Ciudadana</h3>
-                        <p>Plataforma para descarga de datos de tráfico vehicular con autenticación.</p>
-                        <a href="participacion-ciudadana.html">Ir a Plataforma →</a>
+                        <h3><span class="material-icons">groups</span> ParticipaciÃ³n Ciudadana</h3>
+                        <p>Plataforma para descarga de datos de trÃ¡fico vehicular con autenticaciÃ³n.</p>
+                        <a href="participacion-ciudadana.html">Ir a Plataforma â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">folder</span> Documentos</h3>
-                        <p>Repositorio de informes públicos y documentación técnica descargable.</p>
-                        <a href="documentos.html">Ver Documentos →</a>
+                        <p>Repositorio de informes pÃºblicos y documentaciÃ³n tÃ©cnica descargable.</p>
+                        <a href="documentos.html">Ver Documentos â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">bar_chart</span> Dashboard Sectores</h3>
-                        <p>Visualización interactiva de 57 sectores viales con datos reales.</p>
-                        <a href="dashboard-sectores-viales.html">Ver Dashboard →</a>
+                        <p>VisualizaciÃ³n interactiva de 57 sectores viales con datos reales.</p>
+                        <a href="dashboard-sectores-viales.html">Ver Dashboard â†’</a>
                     </div>
                 </div>
             </div>
             
-            <!-- Documentación -->
+            <!-- DocumentaciÃ³n -->
             <div class="section">
                 <h2>
                     <span class="material-icons">menu_book</span>
-                    Documentación
+                    DocumentaciÃ³n
                 </h2>
                 <div class="cards-grid">
                     <div class="card">
-                        <h3><span class="material-icons">article</span> Guía de Despliegue Completo</h3>
-                        <p>Guía exhaustiva con soluciones, instrucciones de backend y troubleshooting.</p>
-                        <a href="GUIA-DESPLIEGUE-COMPLETO.md" download>Descargar Guía →</a>
+                        <h3><span class="material-icons">article</span> GuÃ­a de Despliegue Completo</h3>
+                        <p>GuÃ­a exhaustiva con soluciones, instrucciones de backend y troubleshooting.</p>
+                        <a href="GUIA-DESPLIEGUE-COMPLETO.md" download>Descargar GuÃ­a â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">description</span> Instrucciones Finales</h3>
                         <p>Documento con resumen ejecutivo y pasos de despliegue simplificados.</p>
-                        <a href="INSTRUCCIONES-DESPLIEGUE-FINAL.txt" download>Ver Instrucciones →</a>
+                        <a href="INSTRUCCIONES-DESPLIEGUE-FINAL.txt" download>Ver Instrucciones â†’</a>
                     </div>
                     
                     <div class="card">
                         <h3><span class="material-icons">info</span> Leer Primero</h3>
-                        <p>Instrucciones básicas de visualización y configuración inicial.</p>
-                        <a href="LEER-PRIMERO.txt" download>Abrir Documento →</a>
+                        <p>Instrucciones bÃ¡sicas de visualizaciÃ³n y configuraciÃ³n inicial.</p>
+                        <a href="LEER-PRIMERO.txt" download>Abrir Documento â†’</a>
                     </div>
                     
                     <div class="card">
-                        <h3><span class="material-icons">verified_user</span> Verificación Admin Panel</h3>
-                        <p>Estado y configuración del panel administrativo.</p>
-                        <a href="VERIFICACION-ADMIN-PANEL.txt" download>Ver Verificación →</a>
+                        <h3><span class="material-icons">verified_user</span> VerificaciÃ³n Admin Panel</h3>
+                        <p>Estado y configuraciÃ³n del panel administrativo.</p>
+                        <a href="VERIFICACION-ADMIN-PANEL.txt" download>Ver VerificaciÃ³n â†’</a>
                     </div>
                 </div>
             </div>
             
-            <!-- Estadísticas del Sistema -->
+            <!-- EstadÃ­sticas del Sistema -->
             <div class="section">
                 <h2>
                     <span class="material-icons">analytics</span>
-                    Estadísticas del Sistema
+                    EstadÃ­sticas del Sistema
                 </h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h4>15,000+</h4>
-                        <p>Kilómetros de vías monitoreadas</p>
+                        <p>KilÃ³metros de vÃ­as monitoreadas</p>
                     </div>
                     <div class="stat-card">
                         <h4>1,200+</h4>
@@ -419,7 +430,7 @@
                     </div>
                     <div class="stat-card">
                         <h4>100%</h4>
-                        <p>Verificación exitosa</p>
+                        <p>VerificaciÃ³n exitosa</p>
                     </div>
                 </div>
             </div>
@@ -431,18 +442,18 @@
                     Correcciones Aplicadas
                 </h2>
                 <div class="alert-info">
-                    <p><strong>✅ Referencias corregidas en index.html:</strong></p>
-                    <p>• Línea 1936: Navbar principal - participacion-ciudadana.html ✓</p>
-                    <p>• Línea 1958: Menú móvil - participacion-ciudadana.html ✓</p>
-                    <p>• Línea 2664: Botón CTA - participacion-ciudadana.html ✓</p>
-                    <p style="margin-top: 1rem;"><strong>✅ Integración del Admin Panel:</strong></p>
-                    <p>• login.html → admin-panel.html: Funcional ✓</p>
-                    <p>• admin-panel.html → login.html: Funcional ✓</p>
-                    <p>• Modo demostración configurado correctamente ✓</p>
+                    <p><strong>âœ… Referencias corregidas en index.html:</strong></p>
+                    <p>â€¢ LÃ­nea 1936: Navbar principal - participacion-ciudadana.html âœ“</p>
+                    <p>â€¢ LÃ­nea 1958: MenÃº mÃ³vil - participacion-ciudadana.html âœ“</p>
+                    <p>â€¢ LÃ­nea 2664: BotÃ³n CTA - participacion-ciudadana.html âœ“</p>
+                    <p style="margin-top: 1rem;"><strong>âœ… IntegraciÃ³n del Admin Panel:</strong></p>
+                    <p>â€¢ login.html â†’ admin-panel.html: Funcional âœ“</p>
+                    <p>â€¢ admin-panel.html â†’ login.html: Funcional âœ“</p>
+                    <p>â€¢ Modo demostraciÃ³n configurado correctamente âœ“</p>
                 </div>
             </div>
             
-            <!-- Información del Equipo -->
+            <!-- InformaciÃ³n del Equipo -->
             <div class="section">
                 <h2>
                     <span class="material-icons">people</span>
@@ -450,17 +461,17 @@
                 </h2>
                 <div class="cards-grid">
                     <div class="card">
-                        <h3><span class="material-icons">person</span> Javier Velásquez</h3>
-                        <p>Líder Técnico de Plataforma de Gestión, Analítica e Infraestructura</p>
+                        <h3><span class="material-icons">person</span> Javier VelÃ¡squez</h3>
+                        <p>LÃ­der TÃ©cnico de Plataforma de GestiÃ³n, AnalÃ­tica e Infraestructura</p>
                     </div>
                     
                     <div class="card">
-                        <h3><span class="material-icons">person</span> Juan Sebastián Pérez</h3>
+                        <h3><span class="material-icons">person</span> Juan SebastiÃ¡n PÃ©rez</h3>
                         <p>Analista de Requerimientos del Proyecto VIITS</p>
                     </div>
                     
                     <div class="card">
-                        <h3><span class="material-icons">person</span> Hernán Darío Buitrago</h3>
+                        <h3><span class="material-icons">person</span> HernÃ¡n DarÃ­o Buitrago</h3>
                         <p>Gerente de Desarrollo del Sistema VIITS</p>
                     </div>
                 </div>
@@ -468,11 +479,12 @@
             
             <!-- Footer -->
             <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #e5e7eb;">
-                <p style="font-size: 1.2rem; color: #1f2937; font-weight: 600;">Instituto Nacional de Vías (INVIAS) - Colombia</p>
+                <p style="font-size: 1.2rem; color: #1f2937; font-weight: 600;">Instituto Nacional de VÃ­as (INVIAS) - Colombia</p>
                 <p style="color: #6b7280; margin-top: 0.5rem;">Sistema VIITS - Octubre 13, 2025</p>
-                <p style="color: #10b981; margin-top: 1rem; font-weight: 600;">✅ Proyecto 100% Verificado y Listo para Desplegar</p>
+                <p style="color: #10b981; margin-top: 1rem; font-weight: 600;">âœ… Proyecto 100% Verificado y Listo para Desplegar</p>
             </div>
         </div>
     </div>
 </body>
 </html>
+

@@ -259,7 +259,7 @@ function createDynamicSlider(images) {
     }
 
     // Limpiar contenido existente
-    sliderWrapper.innerHTML = '';
+    sliderWrapper.innerHTML = window.safeHTML('');
 
     // Filtrar solo imágenes activas y ordenar por posición
     const activeImages = images.filter(img => img.is_active).sort((a, b) => a.position - b.position);
@@ -299,7 +299,7 @@ function createDynamicSlider(images) {
         const hasRealImage = image.image_path && image.image_path !== 'placeholder.jpg';
 
         // Misma estructura HTML exacta del slider estático aprobado
-        slide.innerHTML = `
+        slide.innerHTML = window.safeHTML(`
             <div class="slide-content">
                 <div class="hero-content">
                     <div class="hero-badge" style="${badgeBg}">
@@ -318,7 +318,7 @@ function createDynamicSlider(images) {
                 </div>
             </div>
             ${hasRealImage ? `<div class="slide-background" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('/uploads/slider/${image.image_path}');background-size:cover;background-position:center;z-index:-1;opacity:${(image.image_opacity !== undefined && image.image_opacity !== null) ? image.image_opacity : 0.35};" aria-hidden="true"></div>` : ''}
-        `;
+        `);
 
         sliderWrapper.appendChild(slide);
     });
@@ -350,7 +350,7 @@ function showStaticSlider() {
     if (!sliderWrapper) return;
 
     // Restaurar contenido estático original
-    sliderWrapper.innerHTML = `
+    sliderWrapper.innerHTML = window.safeHTML(`
         <!-- Slide 1 - Principal -->
         <div class="slide slide-1 active">
             <div class="slide-content">
@@ -504,7 +504,7 @@ function showStaticSlider() {
                 </div>
             </div>
         </div>
-    `;
+    `);
 
     // Actualizar variables globales
     const newTotalSlides = 5;
@@ -530,7 +530,7 @@ function updateSliderIndicators(totalSlidesCount) {
     if (!indicatorsContainer) return;
 
     // Limpiar indicadores existentes
-    indicatorsContainer.innerHTML = '';
+    indicatorsContainer.innerHTML = window.safeHTML('');
 
     // Crear nuevos indicadores
     for (let i = 0; i < totalSlidesCount; i++) {
@@ -814,7 +814,7 @@ function generateDepartmentList(data) {
         if (departmentSelector) {
             // Limpiar opciones existentes excepto "Todos los departamentos"
             const firstOption = departmentSelector.querySelector('option[value="all"]');
-            departmentSelector.innerHTML = '';
+            departmentSelector.innerHTML = window.safeHTML('');
 
             // Agregar opción "Todos los departamentos"
             if (firstOption) {
@@ -999,7 +999,9 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             if (i == 2) {
                 kpi = data.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             }
-            kpiValue.innerHTML = `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`;
+            kpiValue.innerHTML = window.safeHTML(
+                `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`
+            );
         }
 
         // KPI 2: promedio vs anteayer
@@ -1008,11 +1010,11 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             const icon = dataTrend.esAumento ? 'trending_up' : 'trending_down';
             const color = dataTrend.esAumento ? '#10b981' : '#ef4444';
             const signo = dataTrend.esAumento ? '+' : '-';
-            kpiTrend.innerHTML = `
+            kpiTrend.innerHTML = window.safeHTML(`
                 <i class="material-icons" style="color: ${color}; font-size: 18px;" aria-hidden="true">${icon}</i>
                 <span style="color: ${color}; font-weight: 600;">${signo}${dataTrend.porcentaje}%</span>
                 <span style="color: #6b7280;">vs anteayer</span>
-            `;
+            `);
             kpiTrend.className = `kpi-trend ${dataTrend.esAumento ? 'positive' : 'negative'}`;
         }
 
@@ -1022,11 +1024,11 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             const icon = dataTrend8.esAumento ? 'trending_up' : 'trending_down';
             const color = dataTrend8.esAumento ? '#10b981' : '#ef4444';
             const signo = dataTrend8.esAumento ? '+' : '-';
-            kpiTrend8.innerHTML = `
+            kpiTrend8.innerHTML = window.safeHTML(`
                 <i class="material-icons" style="color: ${color}; font-size: 18px;" aria-hidden="true">${icon}</i>
                 <span style="color: ${color}; font-weight: 600;">${signo}${dataTrend8.porcentaje}%</span>
                 <span style="color: #6b7280;">vs el ${day} pasado</span>
-            `;
+            `);
             kpiTrend8.className = `kpi-trend-8 ${dataTrend8.esAumento ? 'positive' : 'negative'}`;
         }
     }
@@ -2020,7 +2022,7 @@ function initPeriodSelector() {
     //     { value: 'lastYear', text: 'Último año', selected: false }
     // );
 
-    selector.innerHTML = '';
+    selector.innerHTML = window.safeHTML('');
     options.forEach(opt => {
         const option = document.createElement('option');
         option.value = opt.value;
@@ -2053,7 +2055,7 @@ function renderReports(reports) {
     if (!grid) return;
 
     // Limpiar contenido existente
-    grid.innerHTML = '';
+    grid.innerHTML = window.safeHTML('');
 
     reports.forEach((report, index) => {
         const reportCard = createReportCard(report, index);
@@ -2107,7 +2109,7 @@ function createReportCard(report, index) {
     if (index === 4) icon = 'show_chart';
     if (index === 5) icon = 'assessment';
 
-    card.innerHTML = `
+    card.innerHTML = window.safeHTML(`
         <div class="report-header">
             <i class="material-icons" style="color: var(--color-primary);" aria-hidden="true">${icon}</i>
             <!-- ${report.isFeatured ? '<span class="report-badge">DESTACADO</span>' : ''} -->
@@ -2131,7 +2133,7 @@ function createReportCard(report, index) {
                 <i class="material-icons">download</i>
             </button>
         </div>
-    `;
+    `);
 
     return card;
 }

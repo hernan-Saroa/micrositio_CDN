@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎉 Bienvenido - Sistema VIITS</title>
+    <title>ðŸŽ‰ Bienvenido - Sistema VIITS</title>
     <style>
         * {
             margin: 0;
@@ -144,7 +144,7 @@
             color: #666;
         }
         .info li:before {
-            content: "✅ ";
+            content: "âœ… ";
             color: #4CAF50;
             font-weight: bold;
         }
@@ -169,13 +169,24 @@
             }
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="welcome-card">
-        <div class="logo">🎉</div>
-        <h1>¡Bienvenido!</h1>
+        <div class="logo">ðŸŽ‰</div>
+        <h1>Â¡Bienvenido!</h1>
         <p class="subtitle">Sistema VIITS desplegado exitosamente</p>
-        <div class="badge">✅ 100% FUNCIONAL</div>
+        <div class="badge">âœ… 100% FUNCIONAL</div>
         
         <div class="stats">
             <div class="stat">
@@ -194,48 +205,49 @@
 
         <div class="buttons">
             <a href="RESUMEN-DESPLIEGUE.html" class="btn btn-primary">
-                📊 Ver Resumen Completo
+                ðŸ“Š Ver Resumen Completo
             </a>
             <a href="INDEX-PROYECTO.html" class="btn btn-secondary">
-                🗂️ Explorar Proyecto
+                ðŸ—‚ï¸ Explorar Proyecto
             </a>
         </div>
 
         <div class="info">
-            <h3>🚀 ¿Qué incluye tu proyecto?</h3>
+            <h3>ðŸš€ Â¿QuÃ© incluye tu proyecto?</h3>
             <ul>
                 <li>Backend completo con Node.js/Express</li>
-                <li>6 páginas frontend responsive</li>
-                <li>Sistema de autenticación JWT + 2FA</li>
+                <li>6 pÃ¡ginas frontend responsive</li>
+                <li>Sistema de autenticaciÃ³n JWT + 2FA</li>
                 <li>Base de datos PostgreSQL configurada</li>
-                <li>11 documentos de guía y manuales</li>
-                <li>Scripts de inicio automático</li>
+                <li>11 documentos de guÃ­a y manuales</li>
+                <li>Scripts de inicio automÃ¡tico</li>
                 <li>API REST con 15+ endpoints</li>
                 <li>Modo demo sin backend</li>
             </ul>
         </div>
 
         <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 30px; border-radius: 20px; margin-top: 30px; color: white;">
-            <h3 style="margin-bottom: 15px;">🎯 Comienza Aquí</h3>
+            <h3 style="margin-bottom: 15px;">ðŸŽ¯ Comienza AquÃ­</h3>
             <p style="font-size: 1.1em; margin-bottom: 20px;">Elige tu siguiente paso:</p>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <a href="START-HERE.md" style="background: rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 25px; color: white; text-decoration: none;">
-                    📖 Guía de Inicio
+                    ðŸ“– GuÃ­a de Inicio
                 </a>
                 <a href="index.html" style="background: rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 25px; color: white; text-decoration: none;">
-                    🌐 Ver Demo
+                    ðŸŒ Ver Demo
                 </a>
                 <a href="INSTALACION-RAPIDA.md" style="background: rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 25px; color: white; text-decoration: none;">
-                    ⚡ Instalar
+                    âš¡ Instalar
                 </a>
             </div>
         </div>
 
         <div class="footer">
-            <p><strong>Instituto Nacional de Vías (INVIAS) - Colombia</strong></p>
+            <p><strong>Instituto Nacional de VÃ­as (INVIAS) - Colombia</strong></p>
             <p>Sistema de Vigilancia Inteligente v1.0.0</p>
-            <p style="margin-top: 10px;">Estado: ✅ Producción Ready | Fecha: 13 de Octubre, 2025</p>
+            <p style="margin-top: 10px;">Estado: âœ… ProducciÃ³n Ready | Fecha: 13 de Octubre, 2025</p>
         </div>
     </div>
 </body>
 </html>
+

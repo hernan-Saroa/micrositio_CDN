@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -205,11 +205,22 @@
             margin-left: 10px;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚦 VIITS - Sistema de Vigilancia Inteligente</h1>
+            <h1>ðŸš¦ VIITS - Sistema de Vigilancia Inteligente</h1>
             <p>Sistema de Infraestructura de Transporte y Seguridad - INVIAS</p>
         </div>
         
@@ -217,8 +228,8 @@
             <div class="alert">
                 <span class="material-icons">info</span>
                 <div class="alert-content">
-                    <h3>📋 Inicio Rápido</h3>
-                    <p>Este es el índice principal del proyecto VIITS. Desde aquí puedes acceder a todos los componentes del sistema: micrositio público, panel administrativo, dashboards y documentación completa.</p>
+                    <h3>ðŸ“‹ Inicio RÃ¡pido</h3>
+                    <p>Este es el Ã­ndice principal del proyecto VIITS. Desde aquÃ­ puedes acceder a todos los componentes del sistema: micrositio pÃºblico, panel administrativo, dashboards y documentaciÃ³n completa.</p>
                 </div>
             </div>
             
@@ -234,9 +245,9 @@
                         <div class="card-icon">
                             <span class="material-icons">public</span>
                         </div>
-                        <div class="card-title">🌐 Micrositio Público</div>
+                        <div class="card-title">ðŸŒ Micrositio PÃºblico</div>
                         <div class="card-description">
-                            Página principal del sistema VIITS con información institucional, estadísticas en tiempo real y acceso a servicios para ciudadanos.
+                            PÃ¡gina principal del sistema VIITS con informaciÃ³n institucional, estadÃ­sticas en tiempo real y acceso a servicios para ciudadanos.
                         </div>
                     </a>
                     
@@ -244,9 +255,9 @@
                         <div class="card-icon">
                             <span class="material-icons">dashboard</span>
                         </div>
-                        <div class="card-title">📊 Dashboard Sectores Viales</div>
+                        <div class="card-title">ðŸ“Š Dashboard Sectores Viales</div>
                         <div class="card-description">
-                            Visualización interactiva de estadísticas de tráfico por sectores viales con gráficos Chart.js y datos reales de 57 sectores.
+                            VisualizaciÃ³n interactiva de estadÃ­sticas de trÃ¡fico por sectores viales con grÃ¡ficos Chart.js y datos reales de 57 sectores.
                         </div>
                     </a>
                     
@@ -254,9 +265,9 @@
                         <div class="card-icon">
                             <span class="material-icons">how_to_vote</span>
                         </div>
-                        <div class="card-title">👥 Participación Ciudadana</div>
+                        <div class="card-title">ðŸ‘¥ ParticipaciÃ³n Ciudadana</div>
                         <div class="card-description">
-                            Plataforma para ciudadanos con autenticación 2FA, descarga de datos y consulta de información de transporte.
+                            Plataforma para ciudadanos con autenticaciÃ³n 2FA, descarga de datos y consulta de informaciÃ³n de transporte.
                         </div>
                     </a>
                     
@@ -264,9 +275,9 @@
                         <div class="card-icon">
                             <span class="material-icons">description</span>
                         </div>
-                        <div class="card-title">📄 Documentos</div>
+                        <div class="card-title">ðŸ“„ Documentos</div>
                         <div class="card-description">
-                            Repositorio de documentación técnica, normativa y recursos del sistema VIITS.
+                            Repositorio de documentaciÃ³n tÃ©cnica, normativa y recursos del sistema VIITS.
                         </div>
                     </a>
                     
@@ -274,9 +285,9 @@
                         <div class="card-icon">
                             <span class="material-icons">admin_panel_settings</span>
                         </div>
-                        <div class="card-title">🔐 Panel Administrativo</div>
+                        <div class="card-title">ðŸ” Panel Administrativo</div>
                         <div class="card-description">
-                            Acceso al sistema de administración para oficiales de INVIAS. Gestión de contenido, usuarios y configuración.
+                            Acceso al sistema de administraciÃ³n para oficiales de INVIAS. GestiÃ³n de contenido, usuarios y configuraciÃ³n.
                         </div>
                     </a>
                     
@@ -284,22 +295,22 @@
                         <div class="card-icon">
                             <span class="material-icons">settings</span>
                         </div>
-                        <div class="card-title">⚙️ Admin Dashboard</div>
+                        <div class="card-title">âš™ï¸ Admin Dashboard</div>
                         <div class="card-description">
-                            Panel completo de administración con todas las funcionalidades de gestión del sistema.
+                            Panel completo de administraciÃ³n con todas las funcionalidades de gestiÃ³n del sistema.
                         </div>
                     </a>
                 </div>
             </div>
             
-            <!-- Guías y Documentación -->
+            <!-- GuÃ­as y DocumentaciÃ³n -->
             <div class="section">
                 <h2>
                     <span class="material-icons">menu_book</span>
-                    Documentación y Guías
+                    DocumentaciÃ³n y GuÃ­as
                 </h2>
                 
-                <h3>📖 Guías de Inicio</h3>
+                <h3>ðŸ“– GuÃ­as de Inicio</h3>
                 <ul class="doc-list">
                     <li class="doc-item">
                         <a href="INICIO-AQUI.html">
@@ -310,7 +321,7 @@
                     <li class="doc-item">
                         <a href="INDICE-NAVEGACION.html">
                             <span class="material-icons">explore</span>
-                            <span><strong>INDICE-NAVEGACION.html</strong> - Índice completo de navegación</span>
+                            <span><strong>INDICE-NAVEGACION.html</strong> - Ãndice completo de navegaciÃ³n</span>
                         </a>
                     </li>
                     <li class="doc-item">
@@ -321,12 +332,12 @@
                     </li>
                 </ul>
                 
-                <h3>📝 Documentación Técnica (Markdown)</h3>
+                <h3>ðŸ“ DocumentaciÃ³n TÃ©cnica (Markdown)</h3>
                 <ul class="doc-list">
                     <li class="doc-item">
                         <a href="INICIO-RAPIDO.md" download>
                             <span class="material-icons">speed</span>
-                            <span><strong>INICIO-RAPIDO.md</strong> - Guía de inicio rápido del sistema</span>
+                            <span><strong>INICIO-RAPIDO.md</strong> - GuÃ­a de inicio rÃ¡pido del sistema</span>
                         </a>
                     </li>
                     <li class="doc-item">
@@ -338,13 +349,13 @@
                     <li class="doc-item">
                         <a href="INDICE-HTML-VIITS.md" download>
                             <span class="material-icons">list</span>
-                            <span><strong>INDICE-HTML-VIITS.md</strong> - Índice de archivos HTML</span>
+                            <span><strong>INDICE-HTML-VIITS.md</strong> - Ãndice de archivos HTML</span>
                         </a>
                     </li>
                     <li class="doc-item">
                         <a href="GUIA-MODIFICACION-DETALLADA.md" download>
                             <span class="material-icons">edit</span>
-                            <span><strong>GUIA-MODIFICACION-DETALLADA.md</strong> - Guía para modificaciones</span>
+                            <span><strong>GUIA-MODIFICACION-DETALLADA.md</strong> - GuÃ­a para modificaciones</span>
                         </a>
                     </li>
                     <li class="doc-item">
@@ -356,23 +367,23 @@
                     <li class="doc-item">
                         <a href="COMPARACION-ANTES-DESPUES.md" download>
                             <span class="material-icons">compare</span>
-                            <span><strong>COMPARACION-ANTES-DESPUES.md</strong> - Comparación de versiones</span>
+                            <span><strong>COMPARACION-ANTES-DESPUES.md</strong> - ComparaciÃ³n de versiones</span>
                         </a>
                     </li>
                     <li class="doc-item">
                         <a href="SNIPPETS-CODIGO.md" download>
                             <span class="material-icons">code</span>
-                            <span><strong>SNIPPETS-CODIGO.md</strong> - Fragmentos de código útiles</span>
+                            <span><strong>SNIPPETS-CODIGO.md</strong> - Fragmentos de cÃ³digo Ãºtiles</span>
                         </a>
                     </li>
                 </ul>
             </div>
             
-            <!-- Información del Sistema -->
+            <!-- InformaciÃ³n del Sistema -->
             <div class="section">
                 <h2>
                     <span class="material-icons">info</span>
-                    Información del Sistema
+                    InformaciÃ³n del Sistema
                 </h2>
                 
                 <div class="cards-grid">
@@ -380,7 +391,7 @@
                         <div class="card-icon">
                             <span class="material-icons">straighten</span>
                         </div>
-                        <div class="card-title">📏 Cobertura</div>
+                        <div class="card-title">ðŸ“ Cobertura</div>
                         <div class="card-description">
                             <strong>15,000+ km</strong> de infraestructura vial nacional monitoreada en <strong>28+ departamentos</strong> de Colombia con <strong>1,200+ dispositivos ITS</strong>.
                         </div>
@@ -390,11 +401,11 @@
                         <div class="card-icon">
                             <span class="material-icons">speed</span>
                         </div>
-                        <div class="card-title">🚗 Estadísticas</div>
+                        <div class="card-title">ðŸš— EstadÃ­sticas</div>
                         <div class="card-description">
                             <strong>71.1 km/h</strong> velocidad promedio<br>
-                            <strong>5,822</strong> vehículos/día<br>
-                            <strong>1,205</strong> vehículos/día excediendo límites
+                            <strong>5,822</strong> vehÃ­culos/dÃ­a<br>
+                            <strong>1,205</strong> vehÃ­culos/dÃ­a excediendo lÃ­mites
                         </div>
                     </div>
                     
@@ -402,9 +413,9 @@
                         <div class="card-icon">
                             <span class="material-icons">groups</span>
                         </div>
-                        <div class="card-title">👥 Usuarios</div>
+                        <div class="card-title">ðŸ‘¥ Usuarios</div>
                         <div class="card-description">
-                            Sistema diseñado para <strong>15+ millones</strong> de usuarios potenciales: oficiales INVIAS, ciudadanos y agencias gubernamentales.
+                            Sistema diseÃ±ado para <strong>15+ millones</strong> de usuarios potenciales: oficiales INVIAS, ciudadanos y agencias gubernamentales.
                         </div>
                     </div>
                 </div>
@@ -413,7 +424,7 @@
         
         <div class="footer">
             <p><strong>VIITS - Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</strong></p>
-            <p>Instituto Nacional de Vías (INVIAS) - Colombia</p>
+            <p>Instituto Nacional de VÃ­as (INVIAS) - Colombia</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">
                 Cumplimiento: Gov.co Design Standards | WCAG 2.1 AA | Seguridad Gubernamental
             </p>

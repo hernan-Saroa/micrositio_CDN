@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -230,15 +230,26 @@
             opacity: 0.9;
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🏛️ Sistema VIITS</h1>
+            <h1>ðŸ›ï¸ Sistema VIITS</h1>
             <p>Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</p>
-            <p><strong>Instituto Nacional de Vías (INVIAS) - Colombia</strong></p>
+            <p><strong>Instituto Nacional de VÃ­as (INVIAS) - Colombia</strong></p>
             <div>
-                <span class="badge">✅ Producción Ready</span>
+                <span class="badge">âœ… ProducciÃ³n Ready</span>
                 <span class="badge">v1.0.0</span>
                 <span class="badge">100% Funcional</span>
             </div>
@@ -246,11 +257,11 @@
 
         <div class="content">
             <div class="alert alert-success">
-                <strong>🎉 ¡Proyecto Completamente Desplegado!</strong><br>
-                Todos los archivos están organizados y listos para usar. El sistema incluye backend completo, frontend, documentación exhaustiva y está 100% listo para producción.
+                <strong>ðŸŽ‰ Â¡Proyecto Completamente Desplegado!</strong><br>
+                Todos los archivos estÃ¡n organizados y listos para usar. El sistema incluye backend completo, frontend, documentaciÃ³n exhaustiva y estÃ¡ 100% listo para producciÃ³n.
             </div>
 
-            <!-- Estadísticas -->
+            <!-- EstadÃ­sticas -->
             <div class="stats">
                 <div class="stat">
                     <div class="stat-number">50+</div>
@@ -258,11 +269,11 @@
                 </div>
                 <div class="stat">
                     <div class="stat-number">8</div>
-                    <div class="stat-label">Módulos Backend</div>
+                    <div class="stat-label">MÃ³dulos Backend</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">6</div>
-                    <div class="stat-label">Páginas Frontend</div>
+                    <div class="stat-label">PÃ¡ginas Frontend</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">15+</div>
@@ -270,126 +281,126 @@
                 </div>
             </div>
 
-            <!-- Enlaces Rápidos -->
+            <!-- Enlaces RÃ¡pidos -->
             <div class="quick-links">
-                <h3>🚀 Accesos Rápidos</h3>
-                <a href="index.html" target="_blank">🏠 Sitio Principal</a>
-                <a href="login.html" target="_blank">🔐 Panel Admin</a>
-                <a href="participacion-ciudadana.html" target="_blank">👥 Participación</a>
-                <a href="dashboard-sectores-viales.html" target="_blank">📊 Dashboard</a>
-                <a href="documentos.html" target="_blank">📄 Documentos</a>
+                <h3>ðŸš€ Accesos RÃ¡pidos</h3>
+                <a href="index.html" target="_blank">ðŸ  Sitio Principal</a>
+                <a href="login.html" target="_blank">ðŸ” Panel Admin</a>
+                <a href="participacion-ciudadana.html" target="_blank">ðŸ‘¥ ParticipaciÃ³n</a>
+                <a href="dashboard-sectores-viales.html" target="_blank">ðŸ“Š Dashboard</a>
+                <a href="documentos.html" target="_blank">ðŸ“„ Documentos</a>
             </div>
 
-            <!-- Documentación -->
+            <!-- DocumentaciÃ³n -->
             <div class="section">
-                <h2>📚 Documentación</h2>
+                <h2>ðŸ“š DocumentaciÃ³n</h2>
                 <div class="grid">
                     <div class="card" onclick="window.open('README.md', '_blank')">
-                        <div class="icon">📖</div>
+                        <div class="icon">ðŸ“–</div>
                         <h3>README Principal</h3>
-                        <p>Guía completa del proyecto con toda la información esencial.</p>
+                        <p>GuÃ­a completa del proyecto con toda la informaciÃ³n esencial.</p>
                     </div>
                     <div class="card" onclick="window.open('00-LEER-PRIMERO.md', '_blank')">
-                        <div class="icon">⭐</div>
+                        <div class="icon">â­</div>
                         <h3>Leer Primero</h3>
                         <p>Resumen ejecutivo de todo lo realizado y el estado del proyecto.</p>
                     </div>
                     <div class="card" onclick="window.open('INSTALACION-RAPIDA.md', '_blank')">
-                        <div class="icon">⚡</div>
-                        <h3>Instalación Rápida</h3>
-                        <p>Despliega el sistema en 5 minutos con esta guía paso a paso.</p>
+                        <div class="icon">âš¡</div>
+                        <h3>InstalaciÃ³n RÃ¡pida</h3>
+                        <p>Despliega el sistema en 5 minutos con esta guÃ­a paso a paso.</p>
                     </div>
                     <div class="card" onclick="window.open('QUICK-START.md', '_blank')">
-                        <div class="icon">🎯</div>
+                        <div class="icon">ðŸŽ¯</div>
                         <h3>Quick Start</h3>
-                        <p>Comandos esenciales para iniciar rápidamente.</p>
+                        <p>Comandos esenciales para iniciar rÃ¡pidamente.</p>
                     </div>
                     <div class="card" onclick="window.open('README-PRODUCCION.md', '_blank')">
-                        <div class="icon">🚀</div>
-                        <h3>Guía de Producción</h3>
-                        <p>Documentación completa para despliegue en producción (15,000+ palabras).</p>
+                        <div class="icon">ðŸš€</div>
+                        <h3>GuÃ­a de ProducciÃ³n</h3>
+                        <p>DocumentaciÃ³n completa para despliegue en producciÃ³n (15,000+ palabras).</p>
                     </div>
                     <div class="card" onclick="window.open('GUIA-DESPLIEGUE-COMPLETO.md', '_blank')">
-                        <div class="icon">📋</div>
+                        <div class="icon">ðŸ“‹</div>
                         <h3>Despliegue Completo</h3>
-                        <p>Guía detallada paso a paso del proceso de despliegue.</p>
+                        <p>GuÃ­a detallada paso a paso del proceso de despliegue.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Frontend -->
             <div class="section">
-                <h2>🎨 Aplicaciones Frontend</h2>
+                <h2>ðŸŽ¨ Aplicaciones Frontend</h2>
                 <div class="grid">
                     <div class="card" onclick="window.open('index.html', '_blank')">
-                        <div class="icon">🏠</div>
+                        <div class="icon">ðŸ </div>
                         <h3>Sitio Principal</h3>
-                        <p>Página pública del sistema con información general y slider.</p>
+                        <p>PÃ¡gina pÃºblica del sistema con informaciÃ³n general y slider.</p>
                     </div>
                     <div class="card" onclick="window.open('login.html', '_blank')">
-                        <div class="icon">🔐</div>
+                        <div class="icon">ðŸ”</div>
                         <h3>Login Administrativo</h3>
-                        <p>Sistema de autenticación con JWT y 2FA.</p>
+                        <p>Sistema de autenticaciÃ³n con JWT y 2FA.</p>
                     </div>
                     <div class="card" onclick="window.open('admin-panel.html', '_blank')">
-                        <div class="icon">⚙️</div>
-                        <h3>Panel de Administración</h3>
-                        <p>Panel completo con gestión de reportes, usuarios, slider y más.</p>
+                        <div class="icon">âš™ï¸</div>
+                        <h3>Panel de AdministraciÃ³n</h3>
+                        <p>Panel completo con gestiÃ³n de reportes, usuarios, slider y mÃ¡s.</p>
                     </div>
                     <div class="card" onclick="window.open('participacion-ciudadana.html', '_blank')">
-                        <div class="icon">👥</div>
-                        <h3>Participación Ciudadana</h3>
-                        <p>Plataforma para descargas de documentos públicos.</p>
+                        <div class="icon">ðŸ‘¥</div>
+                        <h3>ParticipaciÃ³n Ciudadana</h3>
+                        <p>Plataforma para descargas de documentos pÃºblicos.</p>
                     </div>
                     <div class="card" onclick="window.open('dashboard-sectores-viales.html', '_blank')">
-                        <div class="icon">📊</div>
+                        <div class="icon">ðŸ“Š</div>
                         <h3>Dashboard Sectores</h3>
-                        <p>Visualización de datos y estadísticas de tráfico.</p>
+                        <p>VisualizaciÃ³n de datos y estadÃ­sticas de trÃ¡fico.</p>
                     </div>
                     <div class="card" onclick="window.open('documentos.html', '_blank')">
-                        <div class="icon">📄</div>
+                        <div class="icon">ðŸ“„</div>
                         <h3>Repositorio Documentos</h3>
-                        <p>Gestión y visualización de informes y documentos.</p>
+                        <p>GestiÃ³n y visualizaciÃ³n de informes y documentos.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Backend -->
             <div class="section">
-                <h2>⚙️ Backend & API</h2>
+                <h2>âš™ï¸ Backend & API</h2>
                 <div class="alert">
-                    <strong>📁 Ubicación:</strong> <code>/backend/</code><br>
-                    <strong>🚀 Iniciar:</strong> <code>cd backend && npm install && npm start</code><br>
-                    <strong>📡 API Base:</strong> <code>http://localhost:3000/api</code>
+                    <strong>ðŸ“ UbicaciÃ³n:</strong> <code>/backend/</code><br>
+                    <strong>ðŸš€ Iniciar:</strong> <code>cd backend && npm install && npm start</code><br>
+                    <strong>ðŸ“¡ API Base:</strong> <code>http://localhost:3000/api</code>
                 </div>
                 <div class="grid">
                     <div class="card">
-                        <div class="icon">🔧</div>
+                        <div class="icon">ðŸ”§</div>
                         <h3>server.js</h3>
                         <p>Servidor principal Express con todas las configuraciones.</p>
                     </div>
                     <div class="card">
-                        <div class="icon">🗄️</div>
+                        <div class="icon">ðŸ—„ï¸</div>
                         <h3>Base de Datos</h3>
                         <p>PostgreSQL con schema completo en /backend/database/schema.sql</p>
                     </div>
                     <div class="card">
-                        <div class="icon">🔐</div>
-                        <h3>Autenticación</h3>
+                        <div class="icon">ðŸ”</div>
+                        <h3>AutenticaciÃ³n</h3>
                         <p>JWT + 2FA implementado en /backend/middleware/auth.js</p>
                     </div>
                     <div class="card">
-                        <div class="icon">📡</div>
+                        <div class="icon">ðŸ“¡</div>
                         <h3>API Routes</h3>
                         <p>15+ endpoints en /backend/routes/ para todas las funcionalidades.</p>
                     </div>
                     <div class="card">
-                        <div class="icon">📝</div>
+                        <div class="icon">ðŸ“</div>
                         <h3>Logger</h3>
                         <p>Sistema de logs con Winston en /backend/utils/logger.js</p>
                     </div>
                     <div class="card">
-                        <div class="icon">⚠️</div>
+                        <div class="icon">âš ï¸</div>
                         <h3>Error Handler</h3>
                         <p>Manejo centralizado de errores en /backend/middleware/</p>
                     </div>
@@ -398,19 +409,19 @@
 
             <!-- Seguridad OWASP -->
             <div class="section">
-                <h2>🔒 Seguridad OWASP Top 10</h2>
+                <h2>ðŸ”’ Seguridad OWASP Top 10</h2>
                 <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); padding: 30px; border-radius: 15px; color: white; margin: 20px 0;">
-                    <h3 style="margin-bottom: 15px;">✅ Sistema Validado y Seguro</h3>
+                    <h3 style="margin-bottom: 15px;">âœ… Sistema Validado y Seguro</h3>
                     <p style="font-size: 1.05em; line-height: 1.7;">
-                        El Sistema VIITS ha sido implementado siguiendo las mejores prácticas de seguridad del <strong>OWASP Top 10 - 2021</strong>.
-                        Todas las 10 categorías críticas han sido implementadas, validadas y documentadas.
+                        El Sistema VIITS ha sido implementado siguiendo las mejores prÃ¡cticas de seguridad del <strong>OWASP Top 10 - 2021</strong>.
+                        Todas las 10 categorÃ­as crÃ­ticas han sido implementadas, validadas y documentadas.
                     </p>
                 </div>
 
                 <div style="display: flex; justify-content: space-around; flex-wrap: wrap; margin: 30px 0;">
                     <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; min-width: 120px; margin: 10px;">
                         <div style="font-size: 2.2em; font-weight: bold;">10</div>
-                        <div style="font-size: 0.9em; opacity: 0.9;">Categorías</div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">CategorÃ­as</div>
                     </div>
                     <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border-radius: 10px; min-width: 120px; margin: 10px;">
                         <div style="font-size: 2.2em; font-weight: bold;">100%</div>
@@ -428,128 +439,129 @@
 
                 <div class="grid">
                     <div class="card" onclick="window.open('SEGURIDAD-OWASP.html', '_blank')">
-                        <div class="icon">🔒</div>
+                        <div class="icon">ðŸ”’</div>
                         <h3>Vista Interactiva</h3>
-                        <p>Página visual con todas las implementaciones de seguridad OWASP.</p>
+                        <p>PÃ¡gina visual con todas las implementaciones de seguridad OWASP.</p>
                     </div>
                     <div class="card" onclick="window.open('SEGURIDAD-OWASP.md', '_blank')">
-                        <div class="icon">📖</div>
-                        <h3>Documentación Completa</h3>
-                        <p>Guía exhaustiva con ejemplos, pruebas y mejores prácticas.</p>
+                        <div class="icon">ðŸ“–</div>
+                        <h3>DocumentaciÃ³n Completa</h3>
+                        <p>GuÃ­a exhaustiva con ejemplos, pruebas y mejores prÃ¡cticas.</p>
                     </div>
                     <div class="card" onclick="window.open('backend/middleware/owaspSecurity.js', '_blank')">
-                        <div class="icon">💻</div>
-                        <h3>Código de Seguridad</h3>
+                        <div class="icon">ðŸ’»</div>
+                        <h3>CÃ³digo de Seguridad</h3>
                         <p>Middleware con todas las validaciones OWASP implementadas.</p>
                     </div>
                     <div class="card" onclick="alert('Ejecutar en terminal: ./test-security-owasp.sh')">
-                        <div class="icon">🧪</div>
+                        <div class="icon">ðŸ§ª</div>
                         <h3>Pruebas Automatizadas</h3>
-                        <p>Script ejecutable para validar todas las categorías OWASP.</p>
+                        <p>Script ejecutable para validar todas las categorÃ­as OWASP.</p>
                     </div>
                 </div>
 
                 <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-top: 25px;">
-                    <h4 style="margin-bottom: 15px; color: #1e3c72;">🛡️ Validaciones Implementadas:</h4>
+                    <h4 style="margin-bottom: 15px; color: #1e3c72;">ðŸ›¡ï¸ Validaciones Implementadas:</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
-                        <div style="padding: 8px;">✅ <strong>A01</strong> - JWT + RBAC + Prevención IDOR</div>
-                        <div style="padding: 8px;">✅ <strong>A02</strong> - Bcrypt (12 rounds) + HTTPS</div>
-                        <div style="padding: 8px;">✅ <strong>A03</strong> - Queries parametrizadas + Sanitización</div>
-                        <div style="padding: 8px;">✅ <strong>A04</strong> - Rate limiting (5 login/15min)</div>
-                        <div style="padding: 8px;">✅ <strong>A05</strong> - Headers seguros + CORS</div>
-                        <div style="padding: 8px;">✅ <strong>A06</strong> - npm audit sin vulnerabilidades</div>
-                        <div style="padding: 8px;">✅ <strong>A07</strong> - Passwords fuertes + 2FA</div>
-                        <div style="padding: 8px;">✅ <strong>A08</strong> - Validación archivos + checksums</div>
-                        <div style="padding: 8px;">✅ <strong>A09</strong> - Winston logs + Auditoría BD</div>
-                        <div style="padding: 8px;">✅ <strong>A10</strong> - Validación URLs + Bloqueo SSRF</div>
+                        <div style="padding: 8px;">âœ… <strong>A01</strong> - JWT + RBAC + PrevenciÃ³n IDOR</div>
+                        <div style="padding: 8px;">âœ… <strong>A02</strong> - Bcrypt (12 rounds) + HTTPS</div>
+                        <div style="padding: 8px;">âœ… <strong>A03</strong> - Queries parametrizadas + SanitizaciÃ³n</div>
+                        <div style="padding: 8px;">âœ… <strong>A04</strong> - Rate limiting (5 login/15min)</div>
+                        <div style="padding: 8px;">âœ… <strong>A05</strong> - Headers seguros + CORS</div>
+                        <div style="padding: 8px;">âœ… <strong>A06</strong> - npm audit sin vulnerabilidades</div>
+                        <div style="padding: 8px;">âœ… <strong>A07</strong> - Passwords fuertes + 2FA</div>
+                        <div style="padding: 8px;">âœ… <strong>A08</strong> - ValidaciÃ³n archivos + checksums</div>
+                        <div style="padding: 8px;">âœ… <strong>A09</strong> - Winston logs + AuditorÃ­a BD</div>
+                        <div style="padding: 8px;">âœ… <strong>A10</strong> - ValidaciÃ³n URLs + Bloqueo SSRF</div>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="SEGURIDAD-OWASP.html" class="btn btn-primary" style="margin: 5px;">🔒 Ver Seguridad</a>
-                    <a href="SEGURIDAD-OWASP.md" class="btn btn-secondary" style="margin: 5px;">📖 Documentación</a>
+                    <a href="SEGURIDAD-OWASP.html" class="btn btn-primary" style="margin: 5px;">ðŸ”’ Ver Seguridad</a>
+                    <a href="SEGURIDAD-OWASP.md" class="btn btn-secondary" style="margin: 5px;">ðŸ“– DocumentaciÃ³n</a>
                 </div>
             </div>
 
-            <!-- Inicio Rápido -->
+            <!-- Inicio RÃ¡pido -->
             <div class="section">
-                <h2>🎯 Comenzar Ahora</h2>
+                <h2>ðŸŽ¯ Comenzar Ahora</h2>
                 <div style="text-align: center; padding: 20px;">
-                    <h3 style="margin-bottom: 20px;">Elige tu modo de operación:</h3>
+                    <h3 style="margin-bottom: 20px;">Elige tu modo de operaciÃ³n:</h3>
                     
                     <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin: 20px 0;">
-                        <h4 style="color: #4CAF50; margin-bottom: 15px;">🎪 Modo Demo (Sin Backend)</h4>
+                        <h4 style="color: #4CAF50; margin-bottom: 15px;">ðŸŽª Modo Demo (Sin Backend)</h4>
                         <p>Perfecto para demos y presentaciones inmediatas</p>
-                        <button class="btn btn-primary" onclick="window.open('index.html', '_blank')">🚀 Abrir Demo</button>
+                        <button class="btn btn-primary" onclick="window.open('index.html', '_blank')">ðŸš€ Abrir Demo</button>
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
                             Usa cualquier email/password para el login administrativo
                         </p>
                     </div>
 
                     <div style="background: #f8f9fa; padding: 30px; border-radius: 15px; margin: 20px 0;">
-                        <h4 style="color: #2196F3; margin-bottom: 15px;">🏭 Modo Producción (Con Backend)</h4>
+                        <h4 style="color: #2196F3; margin-bottom: 15px;">ðŸ­ Modo ProducciÃ³n (Con Backend)</h4>
                         <p>Para funcionalidad completa con base de datos</p>
-                        <button class="btn btn-secondary" onclick="window.open('INSTALACION-RAPIDA.md', '_blank')">📖 Ver Instalación</button>
+                        <button class="btn btn-secondary" onclick="window.open('INSTALACION-RAPIDA.md', '_blank')">ðŸ“– Ver InstalaciÃ³n</button>
                         <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
-                            Instalación en 5 minutos con Node.js y PostgreSQL
+                            InstalaciÃ³n en 5 minutos con Node.js y PostgreSQL
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Características -->
+            <!-- CaracterÃ­sticas -->
             <div class="section">
-                <h2>✨ Características Principales</h2>
+                <h2>âœ¨ CaracterÃ­sticas Principales</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                     <div style="background: #e3f2fd; padding: 15px; border-radius: 10px;">
-                        <strong>🔐 Seguridad Robusta</strong>
+                        <strong>ðŸ” Seguridad Robusta</strong>
                         <p>JWT, 2FA, bcrypt, rate limiting, CORS, Helmet</p>
                     </div>
                     <div style="background: #f3e5f5; padding: 15px; border-radius: 10px;">
-                        <strong>📊 Dashboard Completo</strong>
-                        <p>Estadísticas en tiempo real, gráficos interactivos</p>
+                        <strong>ðŸ“Š Dashboard Completo</strong>
+                        <p>EstadÃ­sticas en tiempo real, grÃ¡ficos interactivos</p>
                     </div>
                     <div style="background: #fff3e0; padding: 15px; border-radius: 10px;">
-                        <strong>📄 Gestión Documental</strong>
-                        <p>Upload, edición, descarga de PDFs y documentos</p>
+                        <strong>ðŸ“„ GestiÃ³n Documental</strong>
+                        <p>Upload, ediciÃ³n, descarga de PDFs y documentos</p>
                     </div>
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 10px;">
-                        <strong>👥 Multi-Usuario</strong>
-                        <p>Roles, permisos, auditoría completa</p>
+                        <strong>ðŸ‘¥ Multi-Usuario</strong>
+                        <p>Roles, permisos, auditorÃ­a completa</p>
                     </div>
                     <div style="background: #fce4ec; padding: 15px; border-radius: 10px;">
-                        <strong>🗺️ Datos Geográficos</strong>
+                        <strong>ðŸ—ºï¸ Datos GeogrÃ¡ficos</strong>
                         <p>PostGIS para sectores viales y mapas</p>
                     </div>
                     <div style="background: #e0f2f1; padding: 15px; border-radius: 10px;">
-                        <strong>📱 Responsive Design</strong>
-                        <p>Funciona perfectamente en móvil y desktop</p>
+                        <strong>ðŸ“± Responsive Design</strong>
+                        <p>Funciona perfectamente en mÃ³vil y desktop</p>
                     </div>
                 </div>
             </div>
 
             <!-- Credenciales -->
             <div class="alert">
-                <strong>🔑 Credenciales por Defecto:</strong><br>
+                <strong>ðŸ”‘ Credenciales por Defecto:</strong><br>
                 <strong>Email:</strong> admin@invias.gov.co<br>
                 <strong>Password:</strong> admin123<br>
-                <strong>⚠️ IMPORTANTE:</strong> Cambiar inmediatamente en producción
+                <strong>âš ï¸ IMPORTANTE:</strong> Cambiar inmediatamente en producciÃ³n
             </div>
 
         </div>
 
         <footer>
-            <h3>Instituto Nacional de Vías (INVIAS)</h3>
+            <h3>Instituto Nacional de VÃ­as (INVIAS)</h3>
             <p>Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</p>
             <p style="margin-top: 20px;">
-                <strong>Versión:</strong> 1.0.0 | 
-                <strong>Estado:</strong> ✅ Producción Ready | 
+                <strong>VersiÃ³n:</strong> 1.0.0 | 
+                <strong>Estado:</strong> âœ… ProducciÃ³n Ready | 
                 <strong>Fecha:</strong> 13 de Octubre, 2025
             </p>
             <p style="margin-top: 10px; opacity: 0.8;">
-                Equipo de Desarrollo: Javier Velásquez, Juan Sebastián Pérez, Hernán Darío Buitrago
+                Equipo de Desarrollo: Javier VelÃ¡squez, Juan SebastiÃ¡n PÃ©rez, HernÃ¡n DarÃ­o Buitrago
             </p>
         </footer>
     </div>
 </body>
 </html>
+

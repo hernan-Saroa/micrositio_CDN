@@ -225,7 +225,7 @@ function renderDocuments() {
     const emptyState = document.getElementById('emptyState');
     
     if (filteredDocuments.length === 0) {
-        tbody.innerHTML = '';
+        tbody.innerHTML = window.safeHTML('');
         emptyState.style.display = 'block';
         document.getElementById('pagination').style.display = 'none';
         return;
@@ -238,7 +238,7 @@ function renderDocuments() {
     const endIndex = startIndex + itemsPerPage;
     const pageDocuments = filteredDocuments.slice(startIndex, endIndex);
     
-    tbody.innerHTML = pageDocuments.map(doc => `
+    tbody.innerHTML = window.safeHTML(pageDocuments.map(doc => `
         <tr>
             <td>
                 <div class="doc-icon">
@@ -264,7 +264,7 @@ function renderDocuments() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `).join(''));
     
     renderPagination();
 }
@@ -315,7 +315,7 @@ function renderPagination() {
     const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
     
     if (totalPages <= 1) {
-        pagination.innerHTML = '';
+        pagination.innerHTML = window.safeHTML('');
         return;
     }
     
@@ -343,7 +343,7 @@ function renderPagination() {
         </button>
     `;
     
-    pagination.innerHTML = html;
+    pagination.innerHTML = window.safeHTML(html);
 }
 
 // Función para cambiar página

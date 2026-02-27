@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✅ Despliegue Completo - Sistema VIITS</title>
+    <title>âœ… Despliegue Completo - Sistema VIITS</title>
     <style>
         * {
             margin: 0;
@@ -201,21 +201,32 @@
             .content { padding: 20px; }
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+  window.safeHTML = function(htmlString) {
+    if (typeof DOMPurify === "undefined") return htmlString;
+    return DOMPurify.sanitize(htmlString, {
+      ADD_ATTR: ["target"], // permitir target="_blank" etc
+      USE_PROFILES: { html: true }
+    });
+  };
+</script>
+
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>✅ ¡DESPLIEGUE COMPLETADO!</h1>
+            <h1>âœ… Â¡DESPLIEGUE COMPLETADO!</h1>
             <p class="subtitle">Sistema VIITS - Totalmente Funcional</p>
             <div class="success-badge">
-                🎉 100% OPERACIONAL
+                ðŸŽ‰ 100% OPERACIONAL
             </div>
         </div>
 
         <div class="content">
-            <!-- Estadísticas -->
+            <!-- EstadÃ­sticas -->
             <div class="section">
-                <h2>📊 Estadísticas del Despliegue</h2>
+                <h2>ðŸ“Š EstadÃ­sticas del Despliegue</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number">38</div>
@@ -223,11 +234,11 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">6</div>
-                        <div class="stat-label">Páginas HTML</div>
+                        <div class="stat-label">PÃ¡ginas HTML</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">8</div>
-                        <div class="stat-label">Módulos Backend</div>
+                        <div class="stat-label">MÃ³dulos Backend</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">15+</div>
@@ -235,65 +246,65 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">11</div>
-                        <div class="stat-label">Documentos Guía</div>
+                        <div class="stat-label">Documentos GuÃ­a</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">617KB</div>
-                        <div class="stat-label">Tamaño Total</div>
+                        <div class="stat-label">TamaÃ±o Total</div>
                     </div>
                 </div>
             </div>
 
             <!-- Checklist -->
             <div class="section">
-                <h2>✅ Verificación Completa</h2>
+                <h2>âœ… VerificaciÃ³n Completa</h2>
                 <div class="checklist">
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
                             <strong>Backend Completo</strong> - Server.js, rutas, middlewares, configuraciones
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
-                            <strong>Frontend Integrado</strong> - 6 páginas HTML con diseño responsive
+                            <strong>Frontend Integrado</strong> - 6 pÃ¡ginas HTML con diseÃ±o responsive
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
                             <strong>Base de Datos</strong> - Schema PostgreSQL completo con datos de ejemplo
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
                             <strong>Seguridad</strong> - JWT, 2FA, bcrypt, rate limiting, CORS, Helmet
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
-                            <strong>Documentación</strong> - 11 documentos con más de 20,000 palabras
+                            <strong>DocumentaciÃ³n</strong> - 11 documentos con mÃ¡s de 20,000 palabras
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
-                            <strong>Scripts</strong> - Inicio automático para Linux y Windows
+                            <strong>Scripts</strong> - Inicio automÃ¡tico para Linux y Windows
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
                             <strong>Modo Demo</strong> - Funciona sin backend para demostraciones
                         </div>
                     </div>
                     <div class="check-item">
-                        <span class="check-icon">✅</span>
+                        <span class="check-icon">âœ…</span>
                         <div>
-                            <strong>Listo para Producción</strong> - Configuración completa y optimizada
+                            <strong>Listo para ProducciÃ³n</strong> - ConfiguraciÃ³n completa y optimizada
                         </div>
                     </div>
                 </div>
@@ -301,54 +312,54 @@
 
             <!-- Archivos Principales -->
             <div class="section">
-                <h2>📁 Archivos Principales Desplegados</h2>
+                <h2>ðŸ“ Archivos Principales Desplegados</h2>
                 <div class="files-grid">
                     <div class="file-card">
-                        <h4>📖 README.md</h4>
-                        <p>Documentación principal del proyecto con toda la información esencial</p>
+                        <h4>ðŸ“– README.md</h4>
+                        <p>DocumentaciÃ³n principal del proyecto con toda la informaciÃ³n esencial</p>
                     </div>
                     <div class="file-card">
-                        <h4>🌐 INDEX-PROYECTO.html</h4>
-                        <p>Página índice interactiva para navegar todo el proyecto</p>
+                        <h4>ðŸŒ INDEX-PROYECTO.html</h4>
+                        <p>PÃ¡gina Ã­ndice interactiva para navegar todo el proyecto</p>
                     </div>
                     <div class="file-card">
-                        <h4>⚡ INSTALACION-RAPIDA.md</h4>
-                        <p>Guía para desplegar en 5 minutos</p>
+                        <h4>âš¡ INSTALACION-RAPIDA.md</h4>
+                        <p>GuÃ­a para desplegar en 5 minutos</p>
                     </div>
                     <div class="file-card">
-                        <h4>🚀 README-PRODUCCION.md</h4>
-                        <p>Guía completa de despliegue en producción (15,000+ palabras)</p>
+                        <h4>ðŸš€ README-PRODUCCION.md</h4>
+                        <p>GuÃ­a completa de despliegue en producciÃ³n (15,000+ palabras)</p>
                     </div>
                     <div class="file-card">
-                        <h4>🏠 index.html</h4>
-                        <p>Sitio web principal público del sistema</p>
+                        <h4>ðŸ  index.html</h4>
+                        <p>Sitio web principal pÃºblico del sistema</p>
                     </div>
                     <div class="file-card">
-                        <h4>🔐 login.html</h4>
+                        <h4>ðŸ” login.html</h4>
                         <p>Sistema de login administrativo con JWT</p>
                     </div>
                     <div class="file-card">
-                        <h4>⚙️ admin-panel.html</h4>
+                        <h4>âš™ï¸ admin-panel.html</h4>
                         <p>Panel administrativo completo con todas las funciones</p>
                     </div>
                     <div class="file-card">
-                        <h4>🗄️ backend/server.js</h4>
+                        <h4>ðŸ—„ï¸ backend/server.js</h4>
                         <p>Servidor Express principal con todas las configuraciones</p>
                     </div>
                     <div class="file-card">
-                        <h4>💾 backend/database/schema.sql</h4>
+                        <h4>ðŸ’¾ backend/database/schema.sql</h4>
                         <p>Schema completo de PostgreSQL listo para importar</p>
                     </div>
                     <div class="file-card">
-                        <h4>🔧 backend/package.json</h4>
+                        <h4>ðŸ”§ backend/package.json</h4>
                         <p>Todas las dependencias de Node.js necesarias</p>
                     </div>
                     <div class="file-card">
-                        <h4>🛡️ backend/middleware/auth.js</h4>
-                        <p>Sistema de autenticación JWT + 2FA</p>
+                        <h4>ðŸ›¡ï¸ backend/middleware/auth.js</h4>
+                        <p>Sistema de autenticaciÃ³n JWT + 2FA</p>
                     </div>
                     <div class="file-card">
-                        <h4>📡 backend/routes/*</h4>
+                        <h4>ðŸ“¡ backend/routes/*</h4>
                         <p>8 archivos de rutas para todas las funcionalidades API</p>
                     </div>
                 </div>
@@ -356,51 +367,51 @@
 
             <!-- Instrucciones -->
             <div class="instructions">
-                <h3>🚀 ¡Comienza Ahora!</h3>
+                <h3>ðŸš€ Â¡Comienza Ahora!</h3>
                 <div class="steps">
                     <div class="step">
-                        <div class="step-number">1️⃣</div>
-                        <h4>Abre el Índice</h4>
+                        <div class="step-number">1ï¸âƒ£</div>
+                        <h4>Abre el Ãndice</h4>
                         <p>Abre INDEX-PROYECTO.html en tu navegador para ver todo</p>
-                        <a href="INDEX-PROYECTO.html" class="btn" target="_blank">Abrir Índice</a>
+                        <a href="INDEX-PROYECTO.html" class="btn" target="_blank">Abrir Ãndice</a>
                     </div>
                     <div class="step">
-                        <div class="step-number">2️⃣</div>
+                        <div class="step-number">2ï¸âƒ£</div>
                         <h4>Prueba el Demo</h4>
                         <p>Abre index.html para ver el sitio funcionando</p>
                         <a href="index.html" class="btn" target="_blank">Ver Demo</a>
                     </div>
                     <div class="step">
-                        <div class="step-number">3️⃣</div>
-                        <h4>Lee la Guía</h4>
+                        <div class="step-number">3ï¸âƒ£</div>
+                        <h4>Lee la GuÃ­a</h4>
                         <p>Revisa INSTALACION-RAPIDA.md para el despliegue completo</p>
-                        <a href="INSTALACION-RAPIDA.md" class="btn" target="_blank">Ver Guía</a>
+                        <a href="INSTALACION-RAPIDA.md" class="btn" target="_blank">Ver GuÃ­a</a>
                     </div>
                     <div class="step">
-                        <div class="step-number">4️⃣</div>
+                        <div class="step-number">4ï¸âƒ£</div>
                         <h4>Despliega</h4>
                         <p>Sigue los pasos para instalar en tu servidor</p>
-                        <a href="README-PRODUCCION.md" class="btn" target="_blank">Guía Completa</a>
+                        <a href="README-PRODUCCION.md" class="btn" target="_blank">GuÃ­a Completa</a>
                     </div>
                 </div>
             </div>
 
             <!-- Alertas -->
             <div class="alert alert-success">
-                <strong>✅ Todo Listo para Producción</strong><br>
-                El sistema está completamente desplegado, documentado y listo para usar. Todos los archivos están organizados y funcionales al 100%.
+                <strong>âœ… Todo Listo para ProducciÃ³n</strong><br>
+                El sistema estÃ¡ completamente desplegado, documentado y listo para usar. Todos los archivos estÃ¡n organizados y funcionales al 100%.
             </div>
 
             <div class="alert">
-                <strong>🔑 Credenciales por Defecto:</strong><br>
+                <strong>ðŸ”‘ Credenciales por Defecto:</strong><br>
                 Email: admin@invias.gov.co<br>
                 Password: admin123<br>
-                <strong>⚠️ IMPORTANTE:</strong> Cambiar inmediatamente en producción
+                <strong>âš ï¸ IMPORTANTE:</strong> Cambiar inmediatamente en producciÃ³n
             </div>
 
-            <!-- Tecnologías -->
+            <!-- TecnologÃ­as -->
             <div class="section">
-                <h2>🛠️ Stack Tecnológico</h2>
+                <h2>ðŸ› ï¸ Stack TecnolÃ³gico</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; text-align: center;">
                         <h3>Backend</h3>
@@ -423,20 +434,21 @@
         </div>
 
         <div class="footer">
-            <h2>🏛️ Instituto Nacional de Vías (INVIAS)</h2>
+            <h2>ðŸ›ï¸ Instituto Nacional de VÃ­as (INVIAS)</h2>
             <p style="font-size: 1.2em; margin: 20px 0;">Sistema de Vigilancia Inteligente de Infraestructura de Transporte y Seguridad</p>
             <p style="margin-top: 30px;">
-                <strong>Versión:</strong> 1.0.0 | 
-                <strong>Estado:</strong> ✅ Producción Ready | 
+                <strong>VersiÃ³n:</strong> 1.0.0 | 
+                <strong>Estado:</strong> âœ… ProducciÃ³n Ready | 
                 <strong>Fecha:</strong> 13 de Octubre, 2025
             </p>
             <p style="margin-top: 20px; opacity: 0.8;">
-                Equipo: Javier Velásquez • Juan Sebastián Pérez • Hernán Darío Buitrago
+                Equipo: Javier VelÃ¡squez â€¢ Juan SebastiÃ¡n PÃ©rez â€¢ HernÃ¡n DarÃ­o Buitrago
             </p>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.3);">
-                <p>🎊 ¡DESPLIEGUE 100% EXITOSO! 🎊</p>
+                <p>ðŸŽŠ Â¡DESPLIEGUE 100% EXITOSO! ðŸŽŠ</p>
             </div>
         </div>
     </div>
 </body>
 </html>
+

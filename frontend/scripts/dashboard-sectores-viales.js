@@ -157,7 +157,7 @@ function generateDepartmentList(data) {
         if (departmentSelector) {
             // Limpiar opciones existentes excepto "Todos los departamentos"
             const firstOption = departmentSelector.querySelector('option[value=""]');
-            departmentSelector.innerHTML = '';
+            departmentSelector.innerHTML = window.safeHTML('');
 
             // Agregar opción "Todos los departamentos"
             if (firstOption) {
@@ -344,7 +344,9 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             if (i == 2 ) {
                 kpi = data.toLocaleString('es-CO', {minimumFractionDigits: 1, maximumFractionDigits: 1});
             }
-            kpiValue.innerHTML = `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`;
+            kpiValue.innerHTML = window.safeHTML(
+                `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`
+            );
         }
         
         // KPI 2: promedio vs anteayer
@@ -353,11 +355,11 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             const icon = dataTrend.esAumento ? 'trending_up' : 'trending_down';
             const color = dataTrend.esAumento ? '#10b981' : '#ef4444';
             const signo = dataTrend.esAumento ? '+' : '-';
-            kpiTrend.innerHTML = `
+            kpiTrend.innerHTML = window.safeHTML(`
                 <i class="material-icons" style="color: ${color}; font-size: 18px;" aria-hidden="true">${icon}</i>
                 <span style="color: ${color}; font-weight: 600;">${signo}${dataTrend.porcentaje}%</span>
                 <span style="color: #6b7280;">vs anteayer</span>
-            `;
+            `);
             kpiTrend.className = `kpi-trend ${dataTrend.esAumento ? 'positive' : 'negative'}`;
         }
 
@@ -367,11 +369,11 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
             const icon = dataTrend8.esAumento ? 'trending_up' : 'trending_down';
             const color = dataTrend8.esAumento ? '#10b981' : '#ef4444';
             const signo = dataTrend8.esAumento ? '+' : '-';
-            kpiTrend8.innerHTML = `
+            kpiTrend8.innerHTML = window.safeHTML(`
                 <i class="material-icons" style="color: ${color}; font-size: 18px;" aria-hidden="true">${icon}</i>
                 <span style="color: ${color}; font-weight: 600;">${signo}${dataTrend8.porcentaje}%</span>
                 <span style="color: #6b7280;">vs el ${day} pasado</span>
-            `;
+            `);
             kpiTrend8.className = `kpi-trend-8 ${dataTrend8.esAumento ? 'positive' : 'negative'}`;
         }
     }
@@ -493,7 +495,7 @@ function initPeriodSelector() {
     //     { value: 'lastYear', text: 'Último año', selected: false }
     // );
     // Limpiar y agregar opciones
-    selector.innerHTML = '';
+    selector.innerHTML = window.safeHTML('');
     options.forEach(opt => {
         const option = document.createElement('option');
         option.value = opt.value;
@@ -581,7 +583,7 @@ function updateTableFromAPI() {
 
     // Actualizar tabla
     const tbody = document.getElementById('sectorsTableBody');
-    tbody.innerHTML = '';
+    tbody.innerHTML = window.safeHTML('');
     console.log('Datos por sector:', datosPorSector);
     Object.keys(datosPorSector).forEach((tramoKey, index) => {
         const tramoData = datosPorSector[tramoKey];
@@ -609,7 +611,7 @@ function updateTableFromAPI() {
             statusText = 'Normal';
         }
 
-        row.innerHTML = `
+        row.innerHTML = window.safeHTML(`
             <td><strong>${index + 1}</strong></td>
             <td>${tramoData.estado.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
             <td>${tramoData.municipio.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
@@ -621,7 +623,7 @@ function updateTableFromAPI() {
             <td>${Math.round(volumenPromedio).toLocaleString('es-CO')}</td>
             <td>${Math.round(excesoPromedio).toLocaleString('es-CO')}</td>
             <td><span class="badge ${statusBadge}">${statusText}</span></td>
-        `;
+        `);
         //<td><code>N/A</code></td>
         //<td><span class="badge ${statusBadge}">${statusText}</span></td>
 
@@ -630,7 +632,7 @@ function updateTableFromAPI() {
 
     deviceNotFound.forEach((tramoData, index) => {
         const row = document.createElement('tr');
-        row.innerHTML = `
+        row.innerHTML = window.safeHTML(`
             <td title="${tramoData.device}"><strong>${Object.keys(datosPorSector).length + index + 1}</strong></td>
             <td>${tramoData.departamento.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
             <td>${tramoData.municipio.toLowerCase().replace(/\S+/g, palabra => palabra.charAt(0).toUpperCase() + palabra.slice(1))}</td>
@@ -642,7 +644,7 @@ function updateTableFromAPI() {
             <td>0</td>
             <td>0</td>
             <td><span class="badge low-0" title="${tramoData.device}">--</span></td>
-        `;
+        `);
         tbody.appendChild(row);
     });
 }
@@ -960,9 +962,13 @@ function updateKPIs() {
     const avgVolume = Math.floor(filteredData.reduce((sum, s) => sum + s.volume, 0) / filteredData.length);
     const avgExcess = Math.floor(filteredData.reduce((sum, s) => sum + s.excess, 0) / filteredData.length);
     
-    document.getElementById('avgSpeed').innerHTML = `${avgSpeed} <span class="kpi-unit">km/h</span>`;
-    document.getElementById('avgVolume').innerHTML = `${avgVolume.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`;
-    document.getElementById('avgExcess').innerHTML = `${avgExcess.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`;
+    document.getElementById('avgSpeed').innerHTML = window.safeHTML(`${avgSpeed} <span class="kpi-unit">km/h</span>`);
+    document.getElementById('avgVolume').innerHTML = window.safeHTML(
+        `${avgVolume.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`
+    );
+    document.getElementById('avgExcess').innerHTML = window.safeHTML(
+        `${avgExcess.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`
+    );
 }
 
 // Crear/Actualizar gráfica
@@ -1111,7 +1117,7 @@ function updateChartType(type) {
 // Actualizar tabla
 function updateTable() {
     const tbody = document.getElementById('sectorsTableBody');
-    tbody.innerHTML = '';
+    tbody.innerHTML = window.safeHTML('');
     
     filteredData.forEach((sector, index) => {
         const row = document.createElement('tr');
@@ -1129,7 +1135,7 @@ function updateTable() {
             statusText = 'Bajo';
         }
         
-        row.innerHTML = `
+        row.innerHTML = window.safeHTML(`
             <td><strong>${index + 1}</strong></td>
             <td>${sector.dept}</td>
             <td><code>${sector.pr}</code></td>
@@ -1138,7 +1144,7 @@ function updateTable() {
             <td>${sector.volume.toLocaleString('es-CO')}</td>
             <td>${sector.excess.toLocaleString('es-CO')}</td>
             <td><span class="badge ${statusBadge}">${statusText}</span></td>
-        `;
+        `);
         
         tbody.appendChild(row);
     });
@@ -1707,7 +1713,7 @@ function filterTable() {
 
         if (showRow) {
             // Actualizar el índice de la fila visible
-            cells[0].innerHTML = `<strong>${visibleIndex}</strong>`;
+            cells[0].innerHTML = window.safeHTML(`<strong>${visibleIndex}</strong>`);
             rows[i].style.display = '';
             visibleIndex++;
         } else {
