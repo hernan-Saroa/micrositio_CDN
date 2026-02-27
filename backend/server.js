@@ -125,6 +125,7 @@ app.use('/api/config', jsonParser);
 app.use('/api/analytics', jsonParser);
 app.use('/api/downloads', jsonParser);
 app.use('/api/reports', jsonParser);  // Safe: express.json() only parses application/json, multer handles multipart separately
+app.use('/api/alerts', jsonParser);
 
 // Servir archivos estáticos desde frontend/
 app.use(express.static(path.join(process.cwd(), '../frontend')));

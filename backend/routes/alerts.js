@@ -14,15 +14,84 @@ const router = express.Router();
 const { query } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 
+// ── In-memory cache for severity configuration ────────────────────────
+let _severityMap = null; // { "Tipo de alerta": "critica" | "alta" | "media" | "baja" }
+
+async function getSeverityMap() {
+    if (_severityMap) return _severityMap;
+    try {
+        const res = await query("SELECT config_value FROM system_config WHERE config_key = 'dai_severity_map'");
+        const row = (res.rows || res)[0];
+        if (row && row.config_value) {
+            _severityMap = typeof row.config_value === 'string' ? JSON.parse(row.config_value) : row.config_value;
+        }
+    } catch (e) {
+        console.warn('[Severity] Could not load map from DB:', e.message);
+    }
+    return _severityMap || {};
+}
+
 // ── GET /api/alerts — Listar alertas (REST) ───────────────────────────
 router.get('/', async (req, res) => {
-    // Si el cache está vacío, intentar cargar de nuevo
     if (alertsHistory.length === 0) await loadHistoryFromDB();
-    res.json({
-        success: true,
-        alerts: alertsHistory,
-        timestamp: new Date().toISOString()
-    });
+    res.json({ success: true, alerts: alertsHistory, timestamp: new Date().toISOString() });
+});
+
+// ── GET /api/alerts/severity-config — Obtener mapa de severidades ───────
+router.get('/severity-config', authenticateToken, async (req, res) => {
+    try {
+        _severityMap = null; // force refresh
+        const map = await getSeverityMap();
+        res.json({ success: true, severityMap: map });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener configuración de severidades' });
+    }
+});
+
+// ── PUT /api/alerts/severity-config — Guardar mapa de severidades ───────
+router.put('/severity-config', authenticateToken, async (req, res) => {
+    const { severityMap } = req.body;
+    if (!severityMap || typeof severityMap !== 'object') {
+        return res.status(400).json({ error: 'severityMap requerido (objeto)' });
+    }
+
+    const VALID_SEVS = ['critica', 'alta', 'media', 'baja'];
+    for (const [tipo, sev] of Object.entries(severityMap)) {
+        if (!VALID_SEVS.includes(sev)) {
+            return res.status(400).json({ error: `Severidad inválida '${sev}' para tipo '${tipo}'` });
+        }
+    }
+
+    try {
+        const value = JSON.stringify(severityMap);
+        const existing = await query("SELECT id FROM system_config WHERE config_key = 'dai_severity_map'");
+        if ((existing.rows || existing).length > 0) {
+            await query(
+                "UPDATE system_config SET config_value = $1, updated_at = datetime('now'), updated_by = $2 WHERE config_key = 'dai_severity_map'",
+                [value, req.user.id]
+            );
+        } else {
+            await query(
+                "INSERT INTO system_config (config_key, config_value, description, updated_by) VALUES ('dai_severity_map', $1, 'Mapa de severidades por tipo de alerta DAI', $2)",
+                [value, req.user.id]
+            );
+        }
+        _severityMap = severityMap; // update cache immediately
+
+        // Audit log
+        try {
+            await query(
+                `INSERT INTO audit_logs (user_id, action, resource_type, new_values, ip_address, user_agent, status)
+                 VALUES ($1, 'update_config', 'dai_severity_map', $2, $3, $4, 'success')`,
+                [req.user.id, value, req.ip, req.get('User-Agent')]
+            );
+        } catch (_) { /* audit non-critical */ }
+
+        res.json({ success: true, message: 'Configuración de severidades guardada' });
+    } catch (err) {
+        console.error('Error saving severity config:', err);
+        res.status(500).json({ error: 'Error al guardar configuración' });
+    }
 });
 
 // ── POST /api/alerts/:id/lock — Bloquear alerta para edición ─────────────
@@ -175,9 +244,15 @@ async function generateOneAlert() {
     const info = DAI_DEPTOS[dep];
     const tramo = _pick(info.tramos);
     const tipo = _pick(DAI_TIPOS);
-    // Weighted severity: more critical/alta to keep it interesting
-    const sevRoll = Math.random();
-    const sev = sevRoll < 0.25 ? 'critica' : sevRoll < 0.50 ? 'alta' : sevRoll < 0.75 ? 'media' : 'baja';
+    // Use configured severity map; fall back to weighted random if not configured
+    const _map = await getSeverityMap();
+    let sev;
+    if (_map && _map[tipo]) {
+        sev = _map[tipo];
+    } else {
+        const sevRoll = Math.random();
+        sev = sevRoll < 0.25 ? 'critica' : sevRoll < 0.50 ? 'alta' : sevRoll < 0.75 ? 'media' : 'baja';
+    }
     const est = _pick(ESTADOS);
     const [lng, lat] = _rc(info.center);
     const fecha = new Date();
