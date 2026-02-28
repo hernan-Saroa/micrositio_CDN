@@ -531,10 +531,15 @@ router.get('/departamentos-sectores', asyncHandler(async (req, res) => {
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       if (row.length > 0) {
-        const dispositivo = row[0]; // Columna A: dispositivo
-        const departamento = row[1]; // Columna B: departamento
-        const tipo = row[5].trim().toLowerCase().replace(/\s+/g, '-'); // Columna B: departamento
-        const sector = row[10]; // Columna K: sector
+        const dispositivo = row[1] ? String(row[1]).trim() : ''; // Columna A: dispositivo
+        const departamento = row[2] ? String(row[2]).trim() : ''; // Columna B: departamento
+        const tipoRow = row[6] ? String(row[6]).trim() : ''; // Columna F
+
+        // Skip header rows. A valid device type won't be "Tipo de dispositivo"
+        if (tipoRow.toLowerCase() === 'tipo de dispositivo' || !tipoRow) continue;
+
+        const tipo = tipoRow ? tipoRow.toLowerCase().replace(/\s+/g, '-') : 'desconocido';
+        const sector = row[11] ? String(row[11]).trim() : ''; // Columna K: sector
 
         if (departamento && sector && dispositivo) {
           const deptKey = departamento.toLowerCase().replace(/\s+/g, '-'); // Normalizar key
