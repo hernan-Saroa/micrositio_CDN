@@ -73,7 +73,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // Límite de 100 peticiones por ventana
+    max: 1000, // Límite de 1000 peticiones por ventana
     message: 'Demasiadas peticiones desde esta IP, por favor intente más tarde.'
 });
 
