@@ -5,7 +5,7 @@
 // ============================================
 // INICIALIZACIÓN
 // ============================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Inicializar
     initPeriodSelector();
 
@@ -82,7 +82,7 @@ function getDateRange() {
     yesterday.setDate(yesterday.getDate() - 1);
     const endDate = new Date(yesterday);
     const startDate = new Date(yesterday);
-    
+
     switch (periodSelector) {
         case 'last7days':
             const today = new Date();
@@ -279,6 +279,7 @@ function processKPIData(data) {
 
 // Función para cargar KPIs desde localStorage
 function loadKPIsFromCache() {
+    let success = false;
     try {
         const cachedData = localStorage.getItem('kpiDataCache');
         if (cachedData) {
@@ -295,7 +296,7 @@ function loadKPIsFromCache() {
                 processKPIData(cache);
                 updateTrafficChart();
                 updateTableFromAPI();
-                return true;
+                success = true;
             } else {
                 console.log('Cache expirado, eliminando datos antiguos');
                 localStorage.removeItem('kpiDataCache');
@@ -304,7 +305,28 @@ function loadKPIsFromCache() {
     } catch (error) {
         console.error('Error al cargar KPIs desde cache:', error);
     }
-    return false;
+
+    if (!success) {
+        console.warn('⚠️ No hay datos en caché para mostrar. Mostrando valores por defecto.');
+
+        // Use document.querySelectorAll to find all 3 .kpi-value elements and set them to N/A
+        const kpiValues = document.querySelectorAll('.kpi-card .kpi-value');
+        kpiValues.forEach(el => {
+            el.innerHTML = `N/A <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;"></span>`;
+        });
+
+        // Hide the trend badges
+        const kpiTrends = document.querySelectorAll('.kpi-trend, .kpi-trend-8');
+        kpiTrends.forEach(el => {
+            el.style.display = 'none';
+        });
+
+        const tbody = document.getElementById('sectorsTableBody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="11" class="text-center">Datos no disponibles por el momento</td></tr>`;
+    }
+
+    hideLoadingModal && hideLoadingModal();
+    return success;
 }
 
 // Función para calcular tendencia (porcentaje de cambio)
@@ -324,7 +346,7 @@ function calcularTendencia(valorHoy, valorAyer) {
 function updateKPIElements(velocidad, volumen, exceso, velocidadTrend, volumenTrend, excesoTrend, velocidadTrend8, volumenTrend8, excesoTrend8) {
     const ayer = new Date();
     ayer.setDate(ayer.getDate() - 1);
-    const dia =ayer.toLocaleDateString('es-ES', { weekday: 'long' });
+    const dia = ayer.toLocaleDateString('es-ES', { weekday: 'long' });
     // Actualizar KPIs por volumen
     updateDataKPIs(1, volumen, volumenTrend, volumenTrend8, dia, 'vehículos/día');
     // Actualizar KPIs por velocidad
@@ -341,12 +363,12 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
         const kpiValue = elementKpiCart.querySelector('.kpi-value');
         if (kpiValue) {
             let kpi = data.toLocaleString('es-CO');
-            if (i == 2 ) {
-                kpi = data.toLocaleString('es-CO', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+            if (i == 2) {
+                kpi = data.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             }
             kpiValue.innerHTML = `${kpi} <span style="font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 500; color: #6b7280;">${unit}</span>`;
         }
-        
+
         // KPI 2: promedio vs anteayer
         const kpiTrend = elementKpiCart.querySelector('.kpi-trend');
         if (kpiTrend && dataTrend) {
@@ -378,62 +400,62 @@ function updateDataKPIs(i, data, dataTrend, dataTrend8, day, unit) {
 }
 
 let sectorsData = [
-    {dept: "Valle del Cauca", tramo: "1901. Cali - Cruce Ruta 40 (Loboguerrero)", pr: "20+0187", sector: "Cali - Cruce Ruta 40 (Loboguerrero)"},
-    {dept: "Valle del Cauca", tramo: "2302. Mediacanoa - La Unión - La Virginia", pr: "104+0936", sector: "Mediacanoa - Ansermanuevo"},
-    {dept: "Quindío", tramo: "4003A. Armenia - Ibagué", pr: "15+0521", sector: "Calarcá - Cajamarca"},
-    {dept: "Cundinamarca", tramo: "4510. Honda - Río Ermitaño", pr: "46+0284", sector: "Puerto Salgar - Río Ermitaño"},
-    {dept: "Valle del Cauca", tramo: "2301. Cali - Vijes - Mediacanoa", pr: "9+0074", sector: "Cali - Yumbo"},
-    {dept: "Boyacá", tramo: "6211. Sogamoso - Aguazul", pr: "37+0263", sector: "El Crucero - Aguazul"},
-    {dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "12+0320", sector: "Yopal - Paz de Ariporo"},
-    {dept: "Santander", tramo: "5504. La Palmera - Presidente", pr: "3+0387", sector: "La Palmera - Presidente"},
-    {dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "1+0629", sector: "Yopal - Paz de Ariporo"},
-    {dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "2+0718", sector: "Yopal - Paz de Ariporo"},
-    {dept: "Tolima", tramo: "3603. Ortega - Guamo", pr: "5+0940", sector: "Ortega - Guamo"},
-    {dept: "Valle del Cauca", tramo: "23VL01. Riofrío - Trujillo", pr: "12+0391", sector: "Glorieta Cencar - Aeropuerto - Cruce Ruta 25"},
-    {dept: "Valle del Cauca", tramo: "2505B. Por Definir", pr: "17+0415", sector: "Palmaseca - El Cerrito"},
-    {dept: "Boyacá", tramo: "6209. Barbosa - Tunja", pr: "32+0639", sector: "Barbosa - Tunja"},
-    {dept: "Valle del Cauca", tramo: "2506. La Victoria - Cerritos", pr: "48+0691", sector: "La Victoria - Cartago"},
-    {dept: "Cauca", tramo: "25CCB. Variante de Popayán", pr: "7+0636", sector: "Variante de Popayán"},
-    {dept: "Risaralda", tramo: "2507. Cerritos - Cauyá", pr: "1+0667", sector: "Cerritos - La Virginia"},
-    {dept: "Antioquia", tramo: "2512. Tarazá - Caucasia", pr: "37+0234", sector: "Tarazá - Caucasia"},
-    {dept: "Cauca", tramo: "2503. Mojarras - Popayán", pr: "111+0940", sector: "Mojarras - Popayán"},
-    {dept: "Cordoba", tramo: "2514. Planeta Rica - Chinú - Sincelejo", pr: "43+0214", sector: "Planeta Rica - La Ye"},
-    {dept: "Boyacá", tramo: "45A06. Puente Nacional - San Gil", pr: "33+0116", sector: "Puente Nacional - San Gil"},
-    {dept: "Cordoba", tramo: "2103. Montería - Lorica", pr: "10+0209", sector: "Paso Nacional por Cereté"},
-    {dept: "Cauca", tramo: "25CCB. Variante de Popayán", pr: "3+0238", sector: "Variante de Popayán"},
-    {dept: "Antioquia", tramo: "2510. Medellín - Los Llanos", pr: "81+0369", sector: "Hoyo Rico - Los Llanos"},
-    {dept: "Nariño", tramo: "2502. San Juan de Pasto - Mojarras", pr: "10+0958", sector: "San Juan de Pasto - Cano"},
-    {dept: "Valle del Cauca", tramo: "2505. Cali - Palmira - Andalucía", pr: "56+0540", sector: "Palmira - Buga"},
-    {dept: "Valle del Cauca", tramo: "2504A. Cruce Tramo 2504 - Puerto Tejada - Cruce Tramo 2505", pr: "41+0429", sector: "Límites Cauca - Palmira"},
-    {dept: "Quindío", tramo: "2901B. Armenia - Alcalá - Pereira", pr: "3+0421", sector: "Armenia - Montenegro - Alcalá"},
-    {dept: "Risaralda", tramo: "29RSC. Variante El Pollo - Chinchiná", pr: "8+0681", sector: "Intersección El Pollo - Intersección El Mandarino (3)"},
-    {dept: "Valle del Cauca", tramo: "3105. Alternas a la Troncal de Occidente", pr: "71+0448", sector: "Río Desbaratado - Palmira"},
-    {dept: "Quindío", tramo: "4003. Armenia - Ibagué", pr: "2+0164", sector: "Armenia - La Línea"},
-    {dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "112+0605", sector: "Cruce Ruta 40 (Loboguerrero) - Buga"},
-    {dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "49+0682", sector: "Córdoba - Cruce Ruta 40 (Loboguerrero)"},
-    {dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "15+0378", sector: "Intersección Citronela - Córdoba"},
-    {dept: "Boyacá", tramo: "45A05. Ubaté - Puente Nacional", pr: "56+0661", sector: "Ubaté - Puente Nacional"},
-    {dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "82+1982", sector: "San Gil - Bucaramanga"},
-    {dept: "Cundinamarca", tramo: "45A04. Bogotá - Ubaté", pr: "36+0241", sector: "Zipaquirá - Ubaté"},
-    {dept: "Santander", tramo: "45A06. Puente Nacional - San Gil", pr: "100+0545", sector: "Puente Nacional - San Gil"},
-    {dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "16+0604", sector: "San Gil - Bucaramanga"},
-    {dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "84+2171", sector: "San Gil - Bucaramanga"},
-    {dept: "Santander", tramo: "45A08. Bucaramanga - San Alberto", pr: "23+0931", sector: "Río Negro - San Alberto"},
-    {dept: "Santander", tramo: "4511. Río Ermitaño - La Lizama", pr: "40+0624", sector: "Río Ermitaño - La Lizama"},
-    {dept: "Santander", tramo: "4511. Río Ermitaño - La Lizama", pr: "42+0272", sector: "Río Ermitaño - La Lizama"},
-    {dept: "Cesar", tramo: "4515. La Mata - San Roque", pr: "77+0786", sector: "La Mata - San Roque"},
-    {dept: "Cesar", tramo: "4514. San Alberto - La Mata", pr: "64+0520", sector: "San Alberto - La Mata"},
-    {dept: "Santander", tramo: "4513. La Lizama - San Alberto", pr: "67+0695", sector: "La Lizama -Rio Sogamoso"},
-    {dept: "Cundinamarca", tramo: "4510. Honda - Río Ermitaño", pr: "65+0387", sector: "Puerto Salgar - Río Ermitaño"},
-    {dept: "Santander", tramo: "6207. Cruce Puerto Araujo - Landázuri", pr: "0+0098", sector: "Cruce Puerto Araujo - Landázuri"},
-    {dept: "Boyacá", tramo: "6404. Belén - Sácama", pr: "36+0786", sector: "Belén - Sácama"},
-    {dept: "Norte de Santander", tramo: "7008. Ocaña - Sardinata", pr: "15+0185", sector: "Ocaña - Alto del Pozo"},
-    {dept: "Nariño", tramo: "0801. Guachucal - Ipiales", pr: "19+0565", sector: "Guachucal - Ipiales"},
-    {dept: "Valle del Cauca", tramo: "2504. Popayán - Cali", pr: "111+0721", sector: "Puente Valencia sobre el río Cauca - Cali"},
-    {dept: "Cesar", tramo: "8004A. Valledupar - San Juan del Cesar", pr: "0+0381", sector: "Valledupar - San Juan del Cesar"},
-    {dept: "Valle del Cauca", tramo: "2505. Cali - Palmira - Andalucía", pr: "32+0138", sector: "Palmira - Buga"},
-    {dept: "Cesar", tramo: "8004. Valledupar - Manaure", pr: "2+0486", sector: "Valledupar - La Paz"},
-    {dept: "La Guajira", tramo: "8801. Buenavista - Maicao", pr: "21+0000", sector: "Buenavista - Cuestecitas"}
+    { dept: "Valle del Cauca", tramo: "1901. Cali - Cruce Ruta 40 (Loboguerrero)", pr: "20+0187", sector: "Cali - Cruce Ruta 40 (Loboguerrero)" },
+    { dept: "Valle del Cauca", tramo: "2302. Mediacanoa - La Unión - La Virginia", pr: "104+0936", sector: "Mediacanoa - Ansermanuevo" },
+    { dept: "Quindío", tramo: "4003A. Armenia - Ibagué", pr: "15+0521", sector: "Calarcá - Cajamarca" },
+    { dept: "Cundinamarca", tramo: "4510. Honda - Río Ermitaño", pr: "46+0284", sector: "Puerto Salgar - Río Ermitaño" },
+    { dept: "Valle del Cauca", tramo: "2301. Cali - Vijes - Mediacanoa", pr: "9+0074", sector: "Cali - Yumbo" },
+    { dept: "Boyacá", tramo: "6211. Sogamoso - Aguazul", pr: "37+0263", sector: "El Crucero - Aguazul" },
+    { dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "12+0320", sector: "Yopal - Paz de Ariporo" },
+    { dept: "Santander", tramo: "5504. La Palmera - Presidente", pr: "3+0387", sector: "La Palmera - Presidente" },
+    { dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "1+0629", sector: "Yopal - Paz de Ariporo" },
+    { dept: "Casanare", tramo: "6513. Yopal - Paz de Ariporo", pr: "2+0718", sector: "Yopal - Paz de Ariporo" },
+    { dept: "Tolima", tramo: "3603. Ortega - Guamo", pr: "5+0940", sector: "Ortega - Guamo" },
+    { dept: "Valle del Cauca", tramo: "23VL01. Riofrío - Trujillo", pr: "12+0391", sector: "Glorieta Cencar - Aeropuerto - Cruce Ruta 25" },
+    { dept: "Valle del Cauca", tramo: "2505B. Por Definir", pr: "17+0415", sector: "Palmaseca - El Cerrito" },
+    { dept: "Boyacá", tramo: "6209. Barbosa - Tunja", pr: "32+0639", sector: "Barbosa - Tunja" },
+    { dept: "Valle del Cauca", tramo: "2506. La Victoria - Cerritos", pr: "48+0691", sector: "La Victoria - Cartago" },
+    { dept: "Cauca", tramo: "25CCB. Variante de Popayán", pr: "7+0636", sector: "Variante de Popayán" },
+    { dept: "Risaralda", tramo: "2507. Cerritos - Cauyá", pr: "1+0667", sector: "Cerritos - La Virginia" },
+    { dept: "Antioquia", tramo: "2512. Tarazá - Caucasia", pr: "37+0234", sector: "Tarazá - Caucasia" },
+    { dept: "Cauca", tramo: "2503. Mojarras - Popayán", pr: "111+0940", sector: "Mojarras - Popayán" },
+    { dept: "Cordoba", tramo: "2514. Planeta Rica - Chinú - Sincelejo", pr: "43+0214", sector: "Planeta Rica - La Ye" },
+    { dept: "Boyacá", tramo: "45A06. Puente Nacional - San Gil", pr: "33+0116", sector: "Puente Nacional - San Gil" },
+    { dept: "Cordoba", tramo: "2103. Montería - Lorica", pr: "10+0209", sector: "Paso Nacional por Cereté" },
+    { dept: "Cauca", tramo: "25CCB. Variante de Popayán", pr: "3+0238", sector: "Variante de Popayán" },
+    { dept: "Antioquia", tramo: "2510. Medellín - Los Llanos", pr: "81+0369", sector: "Hoyo Rico - Los Llanos" },
+    { dept: "Nariño", tramo: "2502. San Juan de Pasto - Mojarras", pr: "10+0958", sector: "San Juan de Pasto - Cano" },
+    { dept: "Valle del Cauca", tramo: "2505. Cali - Palmira - Andalucía", pr: "56+0540", sector: "Palmira - Buga" },
+    { dept: "Valle del Cauca", tramo: "2504A. Cruce Tramo 2504 - Puerto Tejada - Cruce Tramo 2505", pr: "41+0429", sector: "Límites Cauca - Palmira" },
+    { dept: "Quindío", tramo: "2901B. Armenia - Alcalá - Pereira", pr: "3+0421", sector: "Armenia - Montenegro - Alcalá" },
+    { dept: "Risaralda", tramo: "29RSC. Variante El Pollo - Chinchiná", pr: "8+0681", sector: "Intersección El Pollo - Intersección El Mandarino (3)" },
+    { dept: "Valle del Cauca", tramo: "3105. Alternas a la Troncal de Occidente", pr: "71+0448", sector: "Río Desbaratado - Palmira" },
+    { dept: "Quindío", tramo: "4003. Armenia - Ibagué", pr: "2+0164", sector: "Armenia - La Línea" },
+    { dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "112+0605", sector: "Cruce Ruta 40 (Loboguerrero) - Buga" },
+    { dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "49+0682", sector: "Córdoba - Cruce Ruta 40 (Loboguerrero)" },
+    { dept: "Valle del Cauca", tramo: "4001. Buenaventura - Cruce Ruta 25 (Buga)", pr: "15+0378", sector: "Intersección Citronela - Córdoba" },
+    { dept: "Boyacá", tramo: "45A05. Ubaté - Puente Nacional", pr: "56+0661", sector: "Ubaté - Puente Nacional" },
+    { dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "82+1982", sector: "San Gil - Bucaramanga" },
+    { dept: "Cundinamarca", tramo: "45A04. Bogotá - Ubaté", pr: "36+0241", sector: "Zipaquirá - Ubaté" },
+    { dept: "Santander", tramo: "45A06. Puente Nacional - San Gil", pr: "100+0545", sector: "Puente Nacional - San Gil" },
+    { dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "16+0604", sector: "San Gil - Bucaramanga" },
+    { dept: "Santander", tramo: "45A07. San Gil - Bucaramanga", pr: "84+2171", sector: "San Gil - Bucaramanga" },
+    { dept: "Santander", tramo: "45A08. Bucaramanga - San Alberto", pr: "23+0931", sector: "Río Negro - San Alberto" },
+    { dept: "Santander", tramo: "4511. Río Ermitaño - La Lizama", pr: "40+0624", sector: "Río Ermitaño - La Lizama" },
+    { dept: "Santander", tramo: "4511. Río Ermitaño - La Lizama", pr: "42+0272", sector: "Río Ermitaño - La Lizama" },
+    { dept: "Cesar", tramo: "4515. La Mata - San Roque", pr: "77+0786", sector: "La Mata - San Roque" },
+    { dept: "Cesar", tramo: "4514. San Alberto - La Mata", pr: "64+0520", sector: "San Alberto - La Mata" },
+    { dept: "Santander", tramo: "4513. La Lizama - San Alberto", pr: "67+0695", sector: "La Lizama -Rio Sogamoso" },
+    { dept: "Cundinamarca", tramo: "4510. Honda - Río Ermitaño", pr: "65+0387", sector: "Puerto Salgar - Río Ermitaño" },
+    { dept: "Santander", tramo: "6207. Cruce Puerto Araujo - Landázuri", pr: "0+0098", sector: "Cruce Puerto Araujo - Landázuri" },
+    { dept: "Boyacá", tramo: "6404. Belén - Sácama", pr: "36+0786", sector: "Belén - Sácama" },
+    { dept: "Norte de Santander", tramo: "7008. Ocaña - Sardinata", pr: "15+0185", sector: "Ocaña - Alto del Pozo" },
+    { dept: "Nariño", tramo: "0801. Guachucal - Ipiales", pr: "19+0565", sector: "Guachucal - Ipiales" },
+    { dept: "Valle del Cauca", tramo: "2504. Popayán - Cali", pr: "111+0721", sector: "Puente Valencia sobre el río Cauca - Cali" },
+    { dept: "Cesar", tramo: "8004A. Valledupar - San Juan del Cesar", pr: "0+0381", sector: "Valledupar - San Juan del Cesar" },
+    { dept: "Valle del Cauca", tramo: "2505. Cali - Palmira - Andalucía", pr: "32+0138", sector: "Palmira - Buga" },
+    { dept: "Cesar", tramo: "8004. Valledupar - Manaure", pr: "2+0486", sector: "Valledupar - La Paz" },
+    { dept: "La Guajira", tramo: "8801. Buenavista - Maicao", pr: "21+0000", sector: "Buenavista - Cuestecitas" }
 ];
 
 // Los departamentos se cargan dinámicamente desde la API en generateDepartmentList()
@@ -453,40 +475,40 @@ function initPeriodSelector() {
     console.log('Inicializando selector de periodo');
     const selector = document.getElementById('periodFilter');
     if (!selector) return;
-    
+
     // Obtener fecha de ayer
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     // Opción de los últimos 7 días (rango completo)
     const last7DaysStart = new Date(yesterday);
     last7DaysStart.setDate(last7DaysStart.getDate() - 6);
-    
+
     const formatDate = (date) => {
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         return `${date.getDate()} ${months[date.getMonth()]}`;
     };
-    
+
     // Opción principal: Últimos 7 días (con rango de fechas)
     const options = [
         { value: 'last7days', text: `Últimos 7 días (${formatDate(last7DaysStart)} - ${formatDate(yesterday)})`, selected: true }
     ];
-    
+
     // Opciones individuales por día (solo últimos 7 días)
     for (let i = 0; i < 7; i++) {
         const date = new Date(yesterday);
         date.setDate(date.getDate() - i);
-        
+
         const dayLabel = i === 0 ? 'Ayer' : formatDate(date);
         const fullDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        
+
         options.push({
             value: `day-${i}`,
             text: `${dayLabel} (${fullDate})`,
             selected: false
         });
     }
-    
+
     // options.push(
     //     { value: 'lastMonth', text: 'Último mes', selected: false },
     //     { value: 'lastQuarter', text: 'Último trimestre', selected: false },
@@ -617,7 +639,7 @@ function updateTableFromAPI() {
             <td>${tramoData.codigo_tramo} · ${tramoData.tramo}</td>
             <td>${tramoData.sector}</td>
             <td>${tramoData.pr_aprox}</td>
-            <td>${velocidadPromedio.toLocaleString('es-CO', {minimumFractionDigits: 1, maximumFractionDigits: 1})}</td>
+            <td>${velocidadPromedio.toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</td>
             <td>${Math.round(volumenPromedio).toLocaleString('es-CO')}</td>
             <td>${Math.round(excesoPromedio).toLocaleString('es-CO')}</td>
             <td><span class="badge ${statusBadge}">${statusText}</span></td>
@@ -792,10 +814,10 @@ function updateTrafficChart() {
         color = '#10b981';
         bgColor = 'rgba(16, 185, 129, 0.7)';
         metricKey = vehicleType === 'all' ? 'volumen' :
-                    vehicleType === 'motorcycles' ? 'volumen' : 'volumen'; // Adaptar según datos disponibles
+            vehicleType === 'motorcycles' ? 'volumen' : 'volumen'; // Adaptar según datos disponibles
         metricLabel = vehicleType === 'all' ? 'Volumen promedio (vehículos/día)' :
-                        vehicleType === 'motorcycles' ? 'Volumen promedio (vehículos/día)' :
-                        'Volumen promedio (vehículos/día)';
+            vehicleType === 'motorcycles' ? 'Volumen promedio (vehículos/día)' :
+                'Volumen promedio (vehículos/día)';
     } else if (metricType === 'excess') {
         color = '#ef4444';
         bgColor = 'rgba(239, 68, 68, 0.7)';
@@ -840,7 +862,7 @@ function updateTrafficChart() {
             indexAxis: 'y', // 🔄 Cambia los ejes (barras horizontales)
             responsive: true,
             maintainAspectRatio: false,
-            onClick: function(event, elements) {
+            onClick: function (event, elements) {
                 if (elements.length > 0) {
                     const index = elements[0].index;
                     selectedDeviceData = sortedData[index];
@@ -869,11 +891,11 @@ function updateTrafficChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        title: function(context) {
+                        title: function (context) {
                             const index = context[0].dataIndex;
                             return 'Código tramo: ' + sortedCodigoTramo[index] + '\nPR: ' + sortedPrAprox[index] + '\nSector: ' + sortedSectors[index];
                         },
-                        label: function(context) {
+                        label: function (context) {
                             const value = context.parsed.x;
                             if (metricType === 'speed') {
                                 return metricLabel + ': ' + value + ' km/h';
@@ -896,7 +918,7 @@ function updateTrafficChart() {
                         color: 'rgba(0, 0, 0, 0.1)'
                     },
                     ticks: {
-                        callback: function(value) {
+                        callback: function (value) {
                             if (metricType === 'speed') {
                                 return value;
                             }
@@ -959,7 +981,7 @@ function updateKPIs() {
     const avgSpeed = (filteredData.reduce((sum, s) => sum + s.speed, 0) / filteredData.length).toFixed(1);
     const avgVolume = Math.floor(filteredData.reduce((sum, s) => sum + s.volume, 0) / filteredData.length);
     const avgExcess = Math.floor(filteredData.reduce((sum, s) => sum + s.excess, 0) / filteredData.length);
-    
+
     document.getElementById('avgSpeed').innerHTML = `${avgSpeed} <span class="kpi-unit">km/h</span>`;
     document.getElementById('avgVolume').innerHTML = `${avgVolume.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`;
     document.getElementById('avgExcess').innerHTML = `${avgExcess.toLocaleString('es-CO')} <span class="kpi-unit">vehículos/día</span>`;
@@ -968,12 +990,12 @@ function updateKPIs() {
 // Crear/Actualizar gráfica
 function updateChart() {
     const metric = document.getElementById('metricFilter').value;
-    
+
     // Crear copia de datos para ordenar sin modificar el original
     let sortedData = [...filteredData];
-    
+
     // Ordenar de mayor a menor según la métrica seleccionada
-    switch(metric) {
+    switch (metric) {
         case 'speed':
             sortedData.sort((a, b) => b.speed - a.speed);
             break;
@@ -984,11 +1006,11 @@ function updateChart() {
             sortedData.sort((a, b) => b.excess - a.excess);
             break;
     }
-    
+
     const labels = sortedData.map((_, i) => `S${i + 1}`);
     let data, label, color;
-    
-    switch(metric) {
+
+    switch (metric) {
         case 'speed':
             data = sortedData.map(s => s.speed);
             label = 'Velocidad promedio (km/h)';
@@ -1005,11 +1027,11 @@ function updateChart() {
             color = 'rgb(239, 68, 68)';
             break;
     }
-    
+
     if (currentChart) {
         currentChart.destroy();
     }
-    
+
     const ctx = document.getElementById('sectorsChart').getContext('2d');
     currentChart = new Chart(ctx, {
         type: currentChartType,
@@ -1034,12 +1056,12 @@ function updateChart() {
                 },
                 tooltip: {
                     callbacks: {
-                        title: function(context) {
+                        title: function (context) {
                             const index = context[0].dataIndex;
                             const sector = sortedData[index];
                             return `PR: ${sector.pr}`;
                         },
-                        beforeBody: function(context) {
+                        beforeBody: function (context) {
                             const index = context[0].dataIndex;
                             const sector = sortedData[index];
                             return [
@@ -1047,7 +1069,7 @@ function updateChart() {
                                 `Departamento: ${sector.dept}`
                             ];
                         },
-                        label: function(context) {
+                        label: function (context) {
                             return `${label}: ${context.parsed.y.toLocaleString('es-CO')}`;
                         }
                     },
@@ -1098,13 +1120,13 @@ function updateChartType(type) {
     currentChartType = type;
     currentChart.config.type = type;
     currentChart.update();
-    
+
     // Actualizar botones
     document.querySelectorAll('.chart-controls .btn').forEach(btn => {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     // updateChart();
 }
 
@@ -1112,10 +1134,10 @@ function updateChartType(type) {
 function updateTable() {
     const tbody = document.getElementById('sectorsTableBody');
     tbody.innerHTML = '';
-    
+
     filteredData.forEach((sector, index) => {
         const row = document.createElement('tr');
-        
+
         // Determinar estado basado en exceso de velocidad
         let statusBadge, statusText;
         if (sector.excess > 1500) {
@@ -1128,7 +1150,7 @@ function updateTable() {
             statusBadge = 'low';
             statusText = 'Bajo';
         }
-        
+
         row.innerHTML = `
             <td><strong>${index + 1}</strong></td>
             <td>${sector.dept}</td>
@@ -1139,7 +1161,7 @@ function updateTable() {
             <td>${sector.excess.toLocaleString('es-CO')}</td>
             <td><span class="badge ${statusBadge}">${statusText}</span></td>
         `;
-        
+
         tbody.appendChild(row);
     });
 }
@@ -1200,9 +1222,9 @@ function showDailyChart() {
                 const fechaStr = formatDate(currentDate);
                 if (!datosPorFecha[fechaStr]) {
                     datosPorFecha[fechaStr] = {
-                    velocidad: 0,
-                    volumen: 0,
-                    exceso: 0
+                        velocidad: 0,
+                        volumen: 0,
+                        exceso: 0
                     };
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -1210,11 +1232,11 @@ function showDailyChart() {
 
             // (Opcional) Ordenar las fechas
             const datosOrdenados = Object.keys(datosPorFecha)
-            .sort((a, b) => new Date(a) - new Date(b))
-            .map(fecha => ({
-                fecha,
-                ...datosPorFecha[fecha]
-            }));
+                .sort((a, b) => new Date(a) - new Date(b))
+                .map(fecha => ({
+                    fecha,
+                    ...datosPorFecha[fecha]
+                }));
         }
 
         // Convertir a arrays ordenados por fecha
@@ -1243,21 +1265,21 @@ function showDailyChart() {
             color = '#3b82f6';
             bgColor = 'rgba(59, 130, 246, 0.7)';
             yAxisTitle = 'Velocidad promedio (km/h)';
-            yAxisCallback = function(value) { return value + ' km/h'; };
+            yAxisCallback = function (value) { return value + ' km/h'; };
         } else if (metricType === 'volume') {
             data = volumenes;
             label = 'Volumen de tráfico (# vehículos)';
             color = '#10b981';
             bgColor = 'rgba(16, 185, 129, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         } else if (metricType === 'excess') {
             data = excesos;
             label = 'Vehículos con velocidad mayor a 80km/h';
             color = '#ef4444';
             bgColor = 'rgba(239, 68, 68, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         }
 
         // Actualizar título
@@ -1297,7 +1319,7 @@ function showDailyChart() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    onClick: function(event, elements) {
+                    onClick: function (event, elements) {
                         if (elements.length > 0) {
                             const index = elements[0].index;
                             selectedSectorCharthour = fechas[index];
@@ -1323,7 +1345,7 @@ function showDailyChart() {
                             cornerRadius: 8,
                             displayColors: true,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const fechaIndex = context[0].dataIndex;
                                     return new Date(fechas[fechaIndex] + 'T00:00:00').toLocaleDateString('es-CO', {
                                         weekday: 'long',
@@ -1332,7 +1354,7 @@ function showDailyChart() {
                                         day: 'numeric'
                                     });
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed.y;
                                     if (metricType === 'speed') {
                                         return `${label}: ${value.toFixed(1)} km/h`;
@@ -1473,21 +1495,21 @@ async function showHoursChart() {
             color = '#3b82f6';
             bgColor = 'rgba(59, 130, 246, 0.7)';
             yAxisTitle = 'Velocidad promedio (km/h)';
-            yAxisCallback = function(value) { return value.toFixed(1) + ' km/h'; };
+            yAxisCallback = function (value) { return value.toFixed(1) + ' km/h'; };
         } else if (metricType === 'volume') {
             dataArray = totalRegistros;
             label = 'Volumen de tráfico (# vehículos)';
             color = '#10b981';
             bgColor = 'rgba(16, 185, 129, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         } else if (metricType === 'excess') {
             dataArray = registrosMayor80;
             label = 'Vehículos con velocidad mayor a 80km/h';
             color = '#ef4444';
             bgColor = 'rgba(239, 68, 68, 0.7)';
             yAxisTitle = 'Vehículos';
-            yAxisCallback = function(value) { return value.toLocaleString('es-CO'); };
+            yAxisCallback = function (value) { return value.toLocaleString('es-CO'); };
         }
 
         // Crear gráfica
@@ -1534,11 +1556,11 @@ async function showHoursChart() {
                             cornerRadius: 8,
                             displayColors: true,
                             callbacks: {
-                                title: function(context) {
+                                title: function (context) {
                                     const horaIndex = context[0].dataIndex;
                                     return `Hora: ${horas[horaIndex]}`;
                                 },
-                                label: function(context) {
+                                label: function (context) {
                                     const value = context.parsed.y;
                                     if (metricType === 'speed') {
                                         return `${label}: ${value.toFixed(1)} km/h`;
@@ -1618,7 +1640,7 @@ function formatHora(hora24) {
 
     // Si termina en ":00", lo quitamos
     horaFormateada = horaFormateada.replace(':00', '');
-    
+
     // Normalizar el texto para evitar espacios o caracteres invisibles
     horaFormateada = horaFormateada
         .replace(/\s*a\.?\s*m\.?/i, ' a.m')  // reemplaza "a. m." / "a.m." / "a. m."

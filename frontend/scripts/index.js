@@ -304,7 +304,7 @@ function createDynamicSlider(images) {
                 <div class="hero-content">
                     <div class="hero-badge" style="${badgeBg}">
                         <span style="width: 8px; height: 8px; background: ${(resolvedTextColor === '#ffffff' || resolvedTextColor === 'white') ? '#10b981' : 'var(--color-primary)'}; border-radius: 50%; animation: pulse 2s infinite;" aria-hidden="true"></span>
-                        <span style="color:${image.badge_color||'inherit'}">${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}</span>
+                        <span style="color:${image.badge_color || 'inherit'}">${image.badge_text || 'Sistema en línea • Monitoreo 24/7'}</span>
                     </div>
 
                     <h1 class="hero-title" style="${textColor}">
@@ -730,6 +730,32 @@ async function loadKPIs(isFirstLoad = false, maxRetries = 3) {
                 loadKPIsFromCache();
             }
         }
+    }
+}
+
+// Respaldo visual y lógico si la API falla
+function loadKPIsFromCache() {
+    try {
+        const cachedDataStr = localStorage.getItem('kpiDataCache');
+        if (cachedDataStr) {
+            const cacheData = JSON.parse(cachedDataStr);
+            console.log('✅ Datos cargados desde caché');
+            generateDepartmentList(cacheData.data);
+            processKPIData(cacheData);
+            updateTrafficChart();
+        } else {
+            console.warn('⚠️ No hay datos en caché para mostrar. Mostrando valores por defecto.');
+            // Limpiar "..." por N/A para no dejar cargando infinitamente
+            const idsToReset = ['totalVehicles', 'avgSpeed', 'totalDevices', 'totalActiveDevices'];
+            idsToReset.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = 'N/A';
+            });
+        }
+    } catch (e) {
+        console.error('Error cargando caché:', e);
+    } finally {
+        hideLoadingModal && hideLoadingModal();
     }
 }
 
