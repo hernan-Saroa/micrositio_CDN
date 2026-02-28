@@ -60,16 +60,16 @@
     <!-- CSS Externo -->
     <link rel="stylesheet" href="styles/index.css">
     <link rel="stylesheet" href="styles/compat.css">
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
-<script>
-  window.safeHTML = function(htmlString) {
-    if (typeof DOMPurify === "undefined") return htmlString;
-    return DOMPurify.sanitize(htmlString, {
-      ADD_ATTR: ["target"], // permitir target="_blank" etc
-      USE_PROFILES: { html: true }
-    });
-  };
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <script>
+        window.safeHTML = function (htmlString) {
+            if (typeof DOMPurify === "undefined") return htmlString;
+            return DOMPurify.sanitize(htmlString, {
+                ADD_ATTR: ["target"], // permitir target="_blank" etc
+                USE_PROFILES: { html: true }
+            });
+        };
+    </script>
 
 </head>
 
@@ -116,6 +116,7 @@
                     <a href="javascript:void(0)" onclick="scrollToSection('que-es')" class="navbar-link"
                         role="menuitem">Quiénes Somos</a>
                     <a href="documentos.html" class="navbar-link" role="menuitem">Información Pública</a>
+                    <a href="monitor-dai.html" class="navbar-link" role="menuitem">Alertas DAI / Cámaras</a>
                     <a href="participacion-ciudadana.html" class="navbar-link" role="menuitem"
                         style="background: linear-gradient(135deg, var(--color-primary), #ea580c); color: white; padding: 0.5rem 1rem; border-radius: 4px; border: none;"
                         aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
@@ -145,6 +146,7 @@
             <a href="#" class="mobile-menu-link active" aria-current="page">Inicio</a>
             <a href="javascript:void(0)" onclick="scrollToSection('que-es')" class="mobile-menu-link">Quiénes Somos</a>
             <a href="documentos.html" class="mobile-menu-link">Información Pública</a>
+            <a href="monitor-dai.html" class="mobile-menu-link">Alertas DAI / Cámaras</a>
             <a href="participacion-ciudadana.html" class="mobile-menu-link"
                 style="background: var(--color-primary); color: white; text-align: center; border-radius: 4px; border-left: none;"
                 aria-label="Participación Ciudadana - Acceso prioritario">Participación Ciudadana</a>
@@ -183,6 +185,70 @@
                         type="button">
                         <i class="material-icons" id="playPauseIcon">pause</i>
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accesos Rápidos Responsive -->
+        <section id="accesos-rapidos" style="background: white; padding: 2.5rem 0; border-bottom: 1px solid #e5e7eb;">
+            <div class="container" style="max-width: 1200px;">
+                <h2
+                    style="text-align: center; color: var(--color-primary); font-size: clamp(1.5rem, 4vw, 1.75rem); margin-top: 0; margin-bottom: 2rem; font-weight: 700;">
+                    Accesos Rápidos</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+
+                    <!-- Card 1: Participación Ciudadana -->
+                    <a href="participacion-ciudadana.html"
+                        style="text-decoration: none; color: inherit; display: block;">
+                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; align-items: center;"
+                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'"
+                            onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'">
+                            <div
+                                style="width: 64px; height: 64px; background: rgba(234, 88, 12, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                <i class="material-icons" style="font-size: 32px; color: #ea580c;">groups</i>
+                            </div>
+                            <h3
+                                style="font-size: 1.25rem; font-weight: 700; color: var(--color-secondary); margin: 0 0 0.5rem 0;">
+                                Participación Ciudadana</h3>
+                            <p style="font-size: 0.95rem; color: #6b7280; margin: 0; line-height: 1.5;">Formulario de
+                                PQRSD y reportes de la comunidad.</p>
+                        </div>
+                    </a>
+
+                    <!-- Card 2: Alertas DAI / Cámaras -->
+                    <a href="monitor-dai.html" style="text-decoration: none; color: inherit; display: block;">
+                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; align-items: center;"
+                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'"
+                            onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'">
+                            <div
+                                style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                <i class="material-icons" style="font-size: 32px; color: #10b981;">photo_camera</i>
+                            </div>
+                            <h3
+                                style="font-size: 1.25rem; font-weight: 700; color: var(--color-secondary); margin: 0 0 0.5rem 0;">
+                                Cámaras / Alertas DAI</h3>
+                            <p style="font-size: 0.95rem; color: #6b7280; margin: 0; line-height: 1.5;">Monitoreo en
+                                vivo de cámaras y Detección Automática de Incidentes.</p>
+                        </div>
+                    </a>
+
+                    <!-- Card 3: Documentos -->
+                    <a href="documentos.html" style="text-decoration: none; color: inherit; display: block;">
+                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; align-items: center;"
+                            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'"
+                            onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'">
+                            <div
+                                style="width: 64px; height: 64px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                <i class="material-icons" style="font-size: 32px; color: #3b82f6;">description</i>
+                            </div>
+                            <h3
+                                style="font-size: 1.25rem; font-weight: 700; color: var(--color-secondary); margin: 0 0 0.5rem 0;">
+                                Información Pública</h3>
+                            <p style="font-size: 0.95rem; color: #6b7280; margin: 0; line-height: 1.5;">Consulte
+                                informes, circulares y estadísticas de tránsito.</p>
+                        </div>
+                    </a>
+
                 </div>
             </div>
         </section>
