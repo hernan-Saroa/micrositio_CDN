@@ -231,7 +231,7 @@ loginForm.addEventListener('submit', async (e) => {
                 if (remaining <= 0) {
                     clearInterval(countdownInterval);
                     loginBtn.disabled = false;
-                    loginBtn.innerHTML = window.safeHTML('<i class="material-icons">login</i> Iniciar sesión');
+                    loginBtn.innerHTML = '<i class="material-icons">login</i> Iniciar sesión';
                     hideAlert();
                 }
             }, 1000);

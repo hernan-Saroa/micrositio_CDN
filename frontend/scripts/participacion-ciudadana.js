@@ -289,12 +289,12 @@ async function loadDownloadHistory(page = 1) {
         historyListCount.textContent = `Total registros: ${pagination.total}`;
 
         if (downloads.length === 0) {
-            historyList.innerHTML = window.safeHTML(`
+            historyList.innerHTML = `
                 <div class="empty-state">
                     <i class="material-icons">folder_open</i>
                     <p>No tienes descargas previas</p>
                 </div>
-            `);
+            `;
             return;
         }
 
@@ -391,7 +391,7 @@ async function loadDownloadHistory(page = 1) {
         // Generar controles de paginación
         const paginationControls = generatePaginationControls(pagination);
 
-        historyList.innerHTML = window.safeHTML(`
+        historyList.innerHTML = `
             <div class="history-table">
                 <table>
                     <thead>
@@ -413,15 +413,15 @@ async function loadDownloadHistory(page = 1) {
             </table>
             ${paginationControls}
         </div>
-    `);
+    `;
     } catch (error) {
         console.error('Error cargando historial:', error);
-        historyList.innerHTML = window.safeHTML(`
+        historyList.innerHTML = `
             <div class="empty-state">
                 <i class="material-icons">error</i>
                 <p>Error al cargar el historial de descargas</p>
             </div>
-        `);
+        `;
     }
 }
 
@@ -457,7 +457,7 @@ async function downloadFile(downloadId) {
         const downloadBtn = document.querySelector(`button[onclick="downloadFile('${downloadId}')"]`);
         if (downloadBtn) {
             downloadBtn.disabled = true;
-            downloadBtn.innerHTML = window.safeHTML('<i class="material-icons">hourglass_empty</i>');
+            downloadBtn.innerHTML = '<i class="material-icons">hourglass_empty</i>';
         }
 
         // Verificar estado de la descarga primero
@@ -531,7 +531,7 @@ async function downloadFile(downloadId) {
         const downloadBtn = document.querySelector(`button[onclick="downloadFile('${downloadId}')"]`);
         if (downloadBtn) {
             downloadBtn.disabled = false;
-            downloadBtn.innerHTML = window.safeHTML('<i class="material-icons">download</i>');
+            downloadBtn.innerHTML = '<i class="material-icons">download</i>';
         }
     }
 }
@@ -644,7 +644,7 @@ function updateDepartmentSelect() {
     const departmentSelect = document.getElementById('department');
     const filteredDepartments = getFilteredDepartments(departmentList);
 
-    departmentSelect.innerHTML = window.safeHTML('<option value="">Todos los departamentos</option>');
+    departmentSelect.innerHTML = '<option value="">Todos los departamentos</option>';
 
     // Ordenar y agregar al select
     Array.from(filteredDepartments.entries())
@@ -666,7 +666,7 @@ function updateSectors() {
     const department = document.getElementById('department').value;
     const sectorSelect = document.getElementById('sector');
 
-    sectorSelect.innerHTML = window.safeHTML('<option value="">Todos los sectores</option>');
+    sectorSelect.innerHTML = '<option value="">Todos los sectores</option>';
 
     if (department) {
         sectorSelect.disabled = false;
@@ -780,9 +780,9 @@ function updateStepDisplay() {
     });
 
     document.getElementById('btnBack').style.display = currentStep > 1 ? 'inline-flex' : 'none';
-    document.getElementById('btnNext').innerHTML = window.safeHTML(currentStep === 3
+    document.getElementById('btnNext').innerHTML = currentStep === 3
         ? 'Confirmar y Descargar <i class="material-icons">download</i>'
-        : 'Siguiente <i class="material-icons">arrow_forward</i>');
+        : 'Siguiente <i class="material-icons">arrow_forward</i>';
 }
 
 function updateSummary() {
@@ -941,9 +941,7 @@ async function sendVerificationCode() {
             const devBanner = document.createElement('div');
             devBanner.id = 'devCodeBanner';
             devBanner.style.cssText = 'background:#fef3c7;border:1.5px solid #f59e0b;border-radius:8px;padding:10px 14px;margin:10px 0 0;font-size:.82rem;color:#92400e;text-align:center;';
-            devBanner.innerHTML = window.safeHTML(
-                `⚠️ <strong>Dev:</strong> Email no configurado. Tu código es: <code style="font-weight:700;font-size:1.1rem;letter-spacing:3px;color:#d97706">${data.devCode}</code>`
-            );
+            devBanner.innerHTML = `⚠️ <strong>Dev:</strong> Email no configurado. Tu código es: <code style="font-weight:700;font-size:1.1rem;letter-spacing:3px;color:#d97706">${data.devCode}</code>`;
             document.getElementById('otpSection').appendChild(devBanner);
         }
 
@@ -1150,7 +1148,7 @@ async function processDownload() {
     try {
         // Mostrar loading
         document.getElementById('btnNext').disabled = true;
-        document.getElementById('btnNext').innerHTML = window.safeHTML('Procesando... <i class="material-icons">hourglass_empty</i>');
+        document.getElementById('btnNext').innerHTML = 'Procesando... <i class="material-icons">hourglass_empty</i>';
 
         // Enviar datos al backend para guardar la descarga
         const response = await fetch('/api/downloads', {
@@ -1185,7 +1183,7 @@ async function processDownload() {
     } finally {
         // Restaurar botón
         document.getElementById('btnNext').disabled = false;
-        document.getElementById('btnNext').innerHTML = window.safeHTML('Confirmar y Descargar <i class="material-icons">download</i>');
+        document.getElementById('btnNext').innerHTML = 'Confirmar y Descargar <i class="material-icons">download</i>';
     }
 }
 
@@ -1239,7 +1237,7 @@ function showVerificationCodePopup() {
     // Crear el popup
     const popup = document.createElement('div');
     popup.id = 'verificationCodePopup';
-    popup.innerHTML = window.safeHTML(`
+    popup.innerHTML = `
         <div class="popup-overlay">
             <div class="popup-content">
                 <div class="popup-icon">
@@ -1250,7 +1248,7 @@ function showVerificationCodePopup() {
                 <button class="btn btn-primary" onclick="closeVerificationCodePopup()">Entendido</button>
             </div>
         </div>
-    `);
+    `;
 
     // Agregar estilos CSS
     const style = document.createElement('style');

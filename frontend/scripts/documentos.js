@@ -225,7 +225,7 @@ function renderDocuments() {
     const emptyState = document.getElementById('emptyState');
     
     if (filteredDocuments.length === 0) {
-        tbody.innerHTML = window.safeHTML('');
+        tbody.innerHTML = '';
         emptyState.style.display = 'block';
         document.getElementById('pagination').style.display = 'none';
         return;
@@ -238,7 +238,7 @@ function renderDocuments() {
     const endIndex = startIndex + itemsPerPage;
     const pageDocuments = filteredDocuments.slice(startIndex, endIndex);
     
-    tbody.innerHTML = window.safeHTML(pageDocuments.map(doc => `
+    tbody.innerHTML = pageDocuments.map(doc => `
         <tr>
             <td>
                 <div class="doc-icon">
@@ -264,7 +264,7 @@ function renderDocuments() {
                 </button>
             </td>
         </tr>
-    `).join(''));
+    `).join('');
     
     renderPagination();
 }
