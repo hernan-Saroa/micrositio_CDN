@@ -2271,8 +2271,13 @@
                     <!-- ── Imagen + Vista Previa ── -->
                     <div class="form-group">
                         <label style="font-weight:600;">Imagen (opcional)</label>
-                        <input type="file" id="sliderImageInput" accept="image/*"
-                            onchange="handleImageSelection(event);livePreviewSlide('slider')">
+                        <div class="upload-area" id="sliderUploadArea" style="margin-top: 0.5rem; text-align: center; cursor: pointer;">
+                            <i class="material-icons" style="font-size: 48px; color: #9ca3af; margin-bottom: 8px;">cloud_upload</i>
+                            <p style="margin: 0; color: #4b5563; font-weight: 500;">Haz clic o arrastra una imagen aquí</p>
+                            <p style="margin-top: 4px; font-size: 0.85rem; color: #9ca3af;">JPEG, PNG, WEBP (Recomendado 1920x1080px)</p>
+                            <input type="file" id="sliderImageInput" accept="image/*" style="display: none;"
+                                onchange="handleImageSelection(event);livePreviewSlide('slider')">
+                        </div>
                     </div>
 
                     <!-- ── VISTA PREVIA EN VIVO ── -->
@@ -2448,3 +2453,4 @@
 
 
 </html>
+
