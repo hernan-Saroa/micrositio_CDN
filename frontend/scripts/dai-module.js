@@ -68,6 +68,8 @@ const _currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 window.DAI = window.DAI || {};
 Object.assign(window.DAI, {
     all: [], filtered: [], selected: null, page: 1, pageSize: 30, activeTab: 'detalle',
+    totalCount: 0,  // ← Total real de alertas en Elasticsearch
+    currentPeriod: 'today',  // ← Período actual (today, week, 24h)
     f: {
         search: '', autoMan: new Set(['Automático', 'Manual']),
         quickDate: '', severidad: new Set(SEV_LEVELS), estado: '',
@@ -229,7 +231,9 @@ function _updateLiveClock(a) {
 
 // ── Counts ────────────────────────────────────────────────────────────
 function _buildStatCounts() {
-    DAI.counts = { total: DAI.all.length, critica: 0, alta: 0, media: 0, baja: 0 };
+    // Usar total de Elasticsearch si está disponible, sino contar las alertas cargadas
+    const totalCount = DAI.totalCount || DAI.all.length;
+    DAI.counts = { total: totalCount, critica: 0, alta: 0, media: 0, baja: 0 };
     DAI.all.forEach(a => DAI.counts[a.sev]++);
 }
 
@@ -526,7 +530,18 @@ function daiToggleStatsSection() {
     // Fix height after transition
     setTimeout(function () { if (typeof _daiFixHeight === 'function') _daiFixHeight(); }, 450);
 }
-window.daiApplyFilters = function () { _applyFilters(); _renderRows(); closeDaiFilterModal(); };
+window.daiApplyFilters = function () {
+    // If period changed, reload data from Elastic
+    var currentPeriod = DAI.f.quickDate || '24h';
+    if (DAI.currentPeriod !== currentPeriod) {
+        DAI.currentPeriod = currentPeriod;
+        // Reload data with new period
+        daiFetchInitialAlerts();
+    }
+    _applyFilters();
+    _renderRows();
+    closeDaiFilterModal();
+};
 function _applyFilters() {
     const f = DAI.f, now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -577,9 +592,15 @@ function _renderRows() {
         pgEl = document.getElementById('daiPageInfo2'),
         moreBtn = document.getElementById('daiMoreBtn');
     if (!list) return;
-    const total = DAI.filtered.length, slice = DAI.filtered.slice(0, DAI.page * DAI.pageSize), hasMore = slice.length < total;
-    if (resEl) resEl.innerHTML = `Mostrando <strong>${slice.length}</strong> de <strong>${total}</strong> alertas`;
-    if (pgEl) pgEl.textContent = `${slice.length}/${total}`;
+    const filteredTotal = DAI.filtered.length;
+    const slice = DAI.filtered.slice(0, DAI.page * DAI.pageSize);
+    const hasMore = slice.length < filteredTotal;
+    
+    // Usar el total real de Elasticsearch si está disponible, sino el filtrado
+    const displayTotal = DAI.totalCount || filteredTotal;
+    
+    if (resEl) resEl.innerHTML = `Mostrando <strong>${slice.length}</strong> de <strong>${displayTotal}</strong> alertas`;
+    if (pgEl) pgEl.textContent = `${slice.length}/${displayTotal}`;
     if (moreBtn) moreBtn.style.display = hasMore ? 'flex' : 'none';
     if (!slice.length) { list.innerHTML = `<div class="dai-empty-state"><i class="material-icons">search_off</i><h4>Sin resultados</h4><p>Ajusta los filtros</p></div>`; return; }
     // Marcar las primeras 5 alertas NO resueltas para animación de pulso
@@ -1890,11 +1911,20 @@ window.addEventListener('resize', _daiFixHeight);
 
     // ── Fetch existing alert history ──────────────────────────────────
     window.daiFetchInitialAlerts = function () {
-        console.log('[DAI Live] Cargando historial de alertas...');
-        fetch('/api/alerts')
+        // Get current period from filter
+        var period = DAI.f.quickDate || 'today';
+        
+        console.log('[DAI Live] Cargando historial de alertas... (period: ' + period + ')');
+        fetch('/api/alerts?period=' + period)
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.success && data.alerts) {
+                    // Guardar el total real de Elasticsearch
+                    if (data.totalCount) {
+                        DAI.totalCount = data.totalCount;
+                        console.log('[DAI Live] Total en Elastic: ' + data.totalCount + ' alertas');
+                    }
+                    
                     // Filter out any we already have (by ID) just in case
                     var existingIds = new Set(DAI.all.map(function (a) { return a.id; }));
                     var toAdd = data.alerts.filter(function (a) { return !existingIds.has(a.id); });
@@ -1905,7 +1935,7 @@ window.addEventListener('resize', _daiFixHeight);
                         DAI.all = hydrated.concat(DAI.all);
                         DAI.all.sort(function (a, b) { return b.fecha - a.fecha; });
 
-                        console.log('[DAI Live] Historial cargado: ' + hydrated.length + ' alertas');
+                        console.log('[DAI Live] Historial cargado: ' + hydrated.length + ' alertas (mostrando ' + data.displayedCount + ' de ' + data.totalCount + ' totales)');
 
                         // Refresh UI if necessary
                         _buildStatCounts();
@@ -2195,6 +2225,36 @@ window.addEventListener('resize', _daiFixHeight);
     setInterval(function () {
         if (DAI.all.length > 0) _updateNotifBadge();
     }, 10000);
+
+    // ── Refresh total count from Elasticsearch every 15s ────────────────
+    window.daiRefreshTotalCount = function () {
+        // Get current period from filter
+        var period = DAI.f.quickDate || 'today';
+        
+        fetch('/api/alerts?period=' + period)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success && data.totalCount) {
+                    var oldCount = DAI.totalCount;
+                    DAI.totalCount = data.totalCount;
+                    
+                    // Only update UI if count changed
+                    if (oldCount !== data.totalCount) {
+                        console.log('[DAI] Total actualizado: ' + data.totalCount + ' alertas');
+                        if (typeof _renderRows === 'function') _renderRows();
+                        if (typeof _renderStatBar === 'function') _renderStatBar();
+                    }
+                }
+            })
+            .catch(function (err) {
+                // Silently fail - don't spam console
+            });
+    };
+
+    // Refresh count every 15 seconds
+    setInterval(function () {
+        daiRefreshTotalCount();
+    }, 15000);
 
     // ── Auto-start SSE when page loads ────────────────────────────────
     // Slight delay to let the DOM and initial data load first
