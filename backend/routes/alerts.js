@@ -81,6 +81,10 @@ router.get('/', async (req, res) => {
         // Get period from query params (today, week, month, or default today)
         const period = req.query.period || 'today';
         
+        // Get custom date range params
+        const dateFrom = req.query.dateFrom || null;
+        const dateTo = req.query.dateTo || null;
+        
         // Get pagination params
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 100; // Default 100 per page
@@ -90,10 +94,10 @@ router.get('/', async (req, res) => {
         const pageSize = Math.min(Math.max(size, 1), 1000); // Max 1000 per request
         
         // Fetch alerts from Elasticsearch with pagination
-        const { alerts, cursor: nextCursor, hasMore } = await fetchAlertsFromElasticForDisplay(period, pageSize, cursor);
+        const { alerts, cursor: nextCursor, hasMore } = await fetchAlertsFromElasticForDisplay(period, pageSize, cursor, dateFrom, dateTo);
         
         // Get total count separately (for accurate totals)
-        const totalCount = await countAlertsFromElastic(period);
+        const totalCount = await countAlertsFromElastic(period, dateFrom, dateTo);
         const totalPages = Math.ceil(totalCount / pageSize);
         
         console.log(`[Elastic] Pagination: totalCount=${totalCount}, pageSize=${pageSize}, totalPages=${totalPages}`);
@@ -688,7 +692,7 @@ router.get('/stream', (req, res) => {
 });
 
 // ── NEW: Fetch alerts from Elasticsearch for display (Dynamic) with pagination ──
-async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, cursor = null) {
+async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, cursor = null, dateFrom = null, dateTo = null) {
     // Skip if Elastic is not configured
     if (!elasticConfig.baseURL) {
         console.log('[Elastic] Not configured, returning empty array');
@@ -696,36 +700,56 @@ async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, 
     }
 
     try {
-        // Calculate the date range based on period
+        // Calculate the date range based on period or custom dates
         let startDate;
         const now = new Date();
         
-        switch (period) {
-            case 'today':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                break;
-            case 'week':
-                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                break;
-            case 'month':
-                startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                break;
-            case '24h':
-            default:
-                startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                break;
+        // If custom date range is provided, use it
+        if (dateFrom) {
+            startDate = new Date(dateFrom);
+            // If dateTo is not provided, use now
+            if (!dateTo) {
+                // Use end of day for dateTo
+            }
+        } else {
+            // Calculate based on period
+            switch (period) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case '24h':
+                default:
+                    startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+            }
+        }
+        
+        // Calculate end date
+        let endDate = dateTo ? new Date(dateTo) : now;
+        // If using custom date range without time, set to end of day
+        if (dateTo && !dateTo.includes('T')) {
+            endDate.setHours(23, 59, 59, 999);
         }
         
         const startDateStr = startDate.toISOString();
-        console.log(`[Elastic] Fetching alerts from last ${period} (from: ${startDateStr}), size: ${pageSize}, cursor: ${cursor ? 'provided' : 'none'}`);
+        const endDateStr = endDate.toISOString();
         
-        // Build the search query with pagination
+        const dateRangeInfo = dateFrom ? `custom range (${startDateStr} to ${endDateStr})` : `last ${period}`;
+        console.log(`[Elastic] Fetching alerts from ${dateRangeInfo}, size: ${pageSize}, cursor: ${cursor ? 'provided' : 'none'}`);
+        
+        // Build the search query with pagination and date range
         const searchQuery = {
             size: pageSize,
             query: {
                 bool: {
                     must: [
-                        { range: { '@timestamp': { gte: startDateStr } } }
+                        { range: { '@timestamp': {} } }
                     ]
                 }
             },
@@ -733,6 +757,18 @@ async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, 
                 { '@timestamp': 'desc' }
             ]
         };
+        
+        // Configure date range based on whether custom dates are provided
+        if (dateFrom && dateTo) {
+            // Custom range: both start and end
+            searchQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr, lte: endDateStr };
+        } else if (dateFrom) {
+            // Only start date
+            searchQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr };
+        } else {
+            // Default period-based range
+            searchQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr };
+        }
         
         // Add search_after if cursor is provided
         if (cursor) {
@@ -787,7 +823,7 @@ async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, 
 }
 
 // ── NEW: Count total alerts from Elasticsearch (for accurate totals) ────
-async function countAlertsFromElastic(period = '24h') {
+async function countAlertsFromElastic(period = '24h', dateFrom = null, dateTo = null) {
     // Skip if Elastic is not configured
     if (!elasticConfig.baseURL) {
         console.log('[Elastic Count] Not configured, returning 0');
@@ -795,37 +831,64 @@ async function countAlertsFromElastic(period = '24h') {
     }
 
     try {
-        // Calculate the date range based on period
+        // Calculate the date range based on period or custom dates
         let startDate;
         const now = new Date();
         
-        switch (period) {
-            case 'today':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                break;
-            case 'week':
-                startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                break;
-            case 'month':
-                startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                break;
-            case '24h':
-            default:
-                startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                break;
+        // If custom date range is provided, use it
+        if (dateFrom) {
+            startDate = new Date(dateFrom);
+        } else {
+            // Calculate based on period
+            switch (period) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case '24h':
+                default:
+                    startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+            }
+        }
+        
+        // Calculate end date
+        let endDate = dateTo ? new Date(dateTo) : now;
+        // If using custom date range without time, set to end of day
+        if (dateTo && !dateTo.includes('T')) {
+            endDate.setHours(23, 59, 59, 999);
         }
         
         const startDateStr = startDate.toISOString();
+        const endDateStr = endDate.toISOString();
         
+        // Build the count query with date range
         const countQuery = {
             query: {
                 bool: {
                     must: [
-                        { range: { '@timestamp': { gte: startDateStr } } }
+                        { range: { '@timestamp': {} } }
                     ]
                 }
             }
         };
+        
+        // Configure date range based on whether custom dates are provided
+        if (dateFrom && dateTo) {
+            // Custom range: both start and end
+            countQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr, lte: endDateStr };
+        } else if (dateFrom) {
+            // Only start date
+            countQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr };
+        } else {
+            // Default period-based range
+            countQuery.query.bool.must[0].range['@timestamp'] = { gte: startDateStr };
+        }
 
         const response = await elasticRequest('POST', `/${ELASTIC_INDEX}/_count`, countQuery);
         

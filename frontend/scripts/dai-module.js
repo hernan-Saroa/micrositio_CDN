@@ -70,6 +70,8 @@ Object.assign(window.DAI, {
     all: [], filtered: [], selected: null, page: 1, pageSize: 100, activeTab: 'detalle',
     totalCount: 0,  // ← Total real de alertas en Elasticsearch
     currentPeriod: 'today',  // ← Período actual (today, week, 24h)
+    _autoRefreshDisabled: false,  // ← Desactivar auto-refresh cuando se usa fecha personalizada
+    _lastDateRange: null,  // ← Guardar último rango de fecha personalizado
     f: {
         search: '', autoMan: new Set(['Automático', 'Manual']),
         quickDate: '', severidad: new Set(SEV_LEVELS), estado: '',
@@ -531,13 +533,39 @@ function daiToggleStatsSection() {
     setTimeout(function () { if (typeof _daiFixHeight === 'function') _daiFixHeight(); }, 450);
 }
 window.daiApplyFilters = function () {
-    // If period changed, reload data from Elastic
+    // Check if custom date range is being used
+    var hasCustomDate = DAI.f.dateFrom || DAI.f.dateTo;
     var currentPeriod = DAI.f.quickDate || '24h';
-    if (DAI.currentPeriod !== currentPeriod) {
-        DAI.currentPeriod = currentPeriod;
-        // Reload data with new period
+    
+    // Determine if we need to reload from Elastic:
+    // 1. Period changed (quickDate: today, week, etc.)
+    // 2. Custom date range is being used (dateFrom or dateTo)
+    var needsReload = false;
+    
+    if (hasCustomDate) {
+        // Custom date range - reload if different from previous or if previous wasn't custom
+        if (!DAI._lastDateRange || DAI._lastDateRange.dateFrom !== DAI.f.dateFrom || DAI._lastDateRange.dateTo !== DAI.f.dateTo) {
+            needsReload = true;
+            DAI._lastDateRange = { dateFrom: DAI.f.dateFrom, dateTo: DAI.f.dateTo };
+            // Disable auto-refresh when using custom date range
+            daiDisableAutoRefresh();
+        }
+    } else {
+        // Standard period-based filter
+        if (DAI.currentPeriod !== currentPeriod) {
+            needsReload = true;
+            DAI.currentPeriod = currentPeriod;
+            DAI._lastDateRange = null;
+            // Re-enable auto-refresh for standard periods
+            daiEnableAutoRefresh();
+        }
+    }
+    
+    if (needsReload) {
+        // Reload data with new period or date range
         daiFetchInitialAlerts();
     }
+    
     _applyFilters();
     _renderRows();
     closeDaiFilterModal();
@@ -572,7 +600,27 @@ window.daiSearch = function (v) { DAI.f.search = v; _applyFilters(); _renderRows
 
 window.daiChipDate = function (el, v) {
     document.querySelectorAll('.dai-chip[data-date]').forEach(c => c.classList.remove('active'));
-    if (DAI.f.quickDate === v) { DAI.f.quickDate = ''; } else { DAI.f.quickDate = v; el.classList.add('active'); }
+    var needsReload = false;
+    if (DAI.f.quickDate === v) { 
+        DAI.f.quickDate = ''; 
+    } else { 
+        DAI.f.quickDate = v; 
+        el.classList.add('active'); 
+        // Clear custom date range when selecting standard period
+        DAI.f.dateFrom = '';
+        DAI.f.dateTo = '';
+        DAI._lastDateRange = null;
+        // Check if period changed
+        if (DAI.currentPeriod !== v) {
+            DAI.currentPeriod = v;
+            needsReload = true;
+        }
+        // Re-enable auto-refresh for standard periods
+        daiEnableAutoRefresh();
+    }
+    if (needsReload) {
+        daiFetchInitialAlerts();
+    }
     _applyFilters(); _renderRows();
 };
 window.daiTabClick = function (el) {
@@ -1812,6 +1860,9 @@ window.daiClearAdvancedFilters = function () {
     DAI.f.tipos.clear(); DAI.f.dep = ''; DAI.f.tramo = ''; DAI.f.dispTipo = '';
     DAI.f.dateFrom = ''; DAI.f.dateTo = ''; DAI.f.quickDate = ''; DAI.severityFilter = '';
     DAI.f.severidad = new Set(SEV_LEVELS);
+    DAI._lastDateRange = null;
+    // Re-enable auto-refresh when clearing filters
+    daiEnableAutoRefresh();
     _renderStatBar(); _applyFilters(); _renderRows(); closeDaiFilterModal();
 };
 
@@ -2012,17 +2063,30 @@ window.addEventListener('resize', _daiFixHeight);
         // Get current period from filter
         var period = DAI.f.quickDate || 'today';
         
+        // Get custom date range if available
+        var dateFrom = DAI.f.dateFrom || null;
+        var dateTo = DAI.f.dateTo || null;
+        
         // Default to page 1 if not specified
         var currentPage = page || 1;
         var pageSize = 100;
         
-        // Build URL with pagination params
+        // Build URL with pagination params and date range
         var url = '/api/alerts?period=' + period + '&page=' + currentPage + '&size=' + pageSize;
+        
+        // Add custom date range if provided
+        if (dateFrom) {
+            url += '&dateFrom=' + encodeURIComponent(dateFrom);
+        }
+        if (dateTo) {
+            url += '&dateTo=' + encodeURIComponent(dateTo);
+        }
+        
         if (cursor) {
             url += '&cursor=' + encodeURIComponent(cursor);
         }
         
-        console.log('[DAI] Cargando alertas página ' + currentPage + ' (cursor: ' + (cursor ? 'sí' : 'no') + ')');
+        console.log('[DAI] Cargando alertas página ' + currentPage + ' (cursor: ' + (cursor ? 'sí' : 'no') + ', fecha personalizada: ' + (dateFrom ? 'sí' : 'no') + ')');
         
         fetch(url)
             .then(function (r) { return r.json(); })
@@ -2374,11 +2438,30 @@ window.addEventListener('resize', _daiFixHeight);
 
     // ── Refresh total count from Elasticsearch every 15s ────────────────
     window.daiRefreshTotalCount = function () {
+        // Don't refresh if auto-refresh is disabled (custom date range active)
+        if (DAI._autoRefreshDisabled) {
+            return;
+        }
+        
         // Get current period from filter
         var period = DAI.f.quickDate || 'today';
         
+        // Get custom date range if available
+        var dateFrom = DAI.f.dateFrom || null;
+        var dateTo = DAI.f.dateTo || null;
+        
         // Use pageSize=100 to calculate correct totalPages (not size=1 which would give wrong calculation)
-        fetch('/api/alerts?period=' + period + '&page=1&size=100')
+        var url = '/api/alerts?period=' + period + '&page=1&size=100';
+        
+        // Add custom date range if provided
+        if (dateFrom) {
+            url += '&dateFrom=' + encodeURIComponent(dateFrom);
+        }
+        if (dateTo) {
+            url += '&dateTo=' + encodeURIComponent(dateTo);
+        }
+        
+        fetch(url)
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.success && data.totalCount !== undefined) {
@@ -2416,6 +2499,19 @@ window.addEventListener('resize', _daiFixHeight);
     setInterval(function () {
         daiRefreshTotalCount();
     }, 15000);
+
+    // ── Auto-refresh control functions ──────────────────────────────────────
+    window.daiDisableAutoRefresh = function () {
+        DAI._autoRefreshDisabled = true;
+        console.log('[DAI] Auto-refresh desactivado (rango de fecha personalizado)');
+    };
+
+    window.daiEnableAutoRefresh = function () {
+        DAI._autoRefreshDisabled = false;
+        console.log('[DAI] Auto-refresh activado (período estándar)');
+        // Immediately refresh when re-enabled
+        daiRefreshTotalCount();
+    };
 
     // ── Auto-start SSE when page loads ────────────────────────────────
     // Slight delay to let the DOM and initial data load first
