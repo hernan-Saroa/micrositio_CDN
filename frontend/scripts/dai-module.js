@@ -67,7 +67,7 @@ const _currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 // ── State ─────────────────────────────────────────────────────────────
 window.DAI = window.DAI || {};
 Object.assign(window.DAI, {
-    all: [], filtered: [], selected: null, page: 1, pageSize: 30, activeTab: 'detalle',
+    all: [], filtered: [], selected: null, page: 1, pageSize: 100, activeTab: 'detalle',
     totalCount: 0,  // ← Total real de alertas en Elasticsearch
     currentPeriod: 'today',  // ← Período actual (today, week, 24h)
     f: {
@@ -647,6 +647,104 @@ function _rowHTML(a, idx = 0, isPulsing = false) {
     </div>`;
 }
 window.daiLoadMore = function () { DAI.page++; _renderRows(); };
+
+// ════════════════════════════════════════════════════════════════════════
+//  PAGINATION CONTROLS — Server-side pagination with cursor
+// ════════════════════════════════════════════════════════════════════════
+
+function _renderPagination() {
+    var moreBtn = document.getElementById('daiMoreBtn');
+    var pageInfo = document.getElementById('daiPageInfo2');
+    
+    var p = DAI._pagination;
+    
+    // If no pagination data, hide pagination controls
+    if (!p || !p.totalPages) {
+        if (moreBtn) moreBtn.style.display = 'none';
+        if (pageInfo) pageInfo.textContent = '';
+        return;
+    }
+    
+    // Update the page info text
+    if (pageInfo) {
+        pageInfo.textContent = 'Página ' + p.page + ' de ' + p.totalPages + ' (' + p.totalCount + ' alertas)';
+    }
+    
+    // Replace the "Load more" button with pagination controls
+    if (moreBtn) {
+        moreBtn.style.display = 'flex';
+        moreBtn.onclick = null; // Remove old load more handler
+        
+        // Build pagination HTML
+        var html = '';
+        
+        // Previous button
+        if (p.page > 1) {
+            html += '<button class="dai-pag-btn" onclick="daiPrevPage()">&laquo; Anterior</button>';
+        } else {
+            html += '<button class="dai-pag-btn" disabled>&laquo; Anterior</button>';
+        }
+        
+        // Page indicator
+        html += '<span style="margin: 0 12px; font-size: 13px;">' + p.page + ' / ' + p.totalPages + '</span>';
+        
+        // Next button
+        if (p.hasMore || p.page < p.totalPages) {
+            html += '<button class="dai-pag-btn" onclick="daiNextPage()">Siguiente &raquo;</button>';
+        } else {
+            html += '<button class="dai-pag-btn" disabled>Siguiente &raquo;</button>';
+        }
+        
+        moreBtn.innerHTML = html;
+    }
+}
+
+// Navigate to a specific page using cursor
+window.daiGoToPage = function (pageNum) {
+    var p = DAI._pagination;
+    if (!p) return;
+    
+    console.log('[DAI] Navegando a página ' + pageNum);
+    
+    // If going to page 1, no cursor needed
+    if (pageNum === 1) {
+        window.daiFetchInitialAlerts(1, null);
+        return;
+    }
+    
+    // For subsequent pages, we need the cursor from previous page
+    // The cursor points to the last item of the current page
+    if (pageNum > p.page) {
+        // Going forward - use nextCursor
+        if (p.nextCursor) {
+            window.daiFetchInitialAlerts(pageNum, p.nextCursor);
+        } else {
+            console.warn('[DAI] No hay cursor para la siguiente página');
+        }
+    } else if (pageNum < p.page) {
+        // Going backward - need to restart from page 1 with no cursor
+        // Note: ElasticSearch search_after doesn't support backward navigation efficiently
+        // We show a message or restart from beginning
+        console.warn('[DAI] Navegación hacia atrás no soportada eficientemente. Volviendo a página 1.');
+        window.daiFetchInitialAlerts(1, null);
+    }
+};
+
+// Go to next page
+window.daiNextPage = function () {
+    var p = DAI._pagination;
+    if (p && p.hasMore) {
+        daiGoToPage(p.page + 1);
+    }
+};
+
+// Go to previous page
+window.daiPrevPage = function () {
+    var p = DAI._pagination;
+    if (p && p.page > 1) {
+        daiGoToPage(p.page - 1);
+    }
+};
 
 // ════════════════════════════════════════════════════════════════════════
 //  DETAIL PANEL
@@ -1909,49 +2007,74 @@ window.addEventListener('resize', _daiFixHeight);
     var _maxReconn = 30000;   // max 30s between retries
     var _isConnected = false;
 
-    // ── Fetch existing alert history ──────────────────────────────────
-    window.daiFetchInitialAlerts = function () {
+    // ── Fetch existing alert history with pagination ────────────────────────────
+    window.daiFetchInitialAlerts = function (page, cursor) {
         // Get current period from filter
         var period = DAI.f.quickDate || 'today';
         
-        console.log('[DAI Live] Cargando historial de alertas... (period: ' + period + ')');
-        fetch('/api/alerts?period=' + period)
+        // Default to page 1 if not specified
+        var currentPage = page || 1;
+        var pageSize = 100;
+        
+        // Build URL with pagination params
+        var url = '/api/alerts?period=' + period + '&page=' + currentPage + '&size=' + pageSize;
+        if (cursor) {
+            url += '&cursor=' + encodeURIComponent(cursor);
+        }
+        
+        console.log('[DAI] Cargando alertas página ' + currentPage + ' (cursor: ' + (cursor ? 'sí' : 'no') + ')');
+        
+        fetch(url)
             .then(function (r) { return r.json(); })
             .then(function (data) {
                 if (data.success && data.alerts) {
                     // Guardar el total real de Elasticsearch
                     if (data.totalCount) {
                         DAI.totalCount = data.totalCount;
-                        console.log('[DAI Live] Total en Elastic: ' + data.totalCount + ' alertas');
+                        console.log('[DAI] Total en Elastic: ' + data.totalCount + ' alertas');
                     }
                     
-                    // Filter out any we already have (by ID) just in case
-                    var existingIds = new Set(DAI.all.map(function (a) { return a.id; }));
-                    var toAdd = data.alerts.filter(function (a) { return !existingIds.has(a.id); });
+                    // Guardar metadatos de paginación
+                    DAI._pagination = {
+                        page: data.page,
+                        pageSize: data.pageSize,
+                        totalPages: data.totalPages,
+                        totalCount: data.totalCount,
+                        hasMore: data.hasMore,
+                        nextCursor: data.nextCursor,
+                        currentCursor: cursor
+                    };
+                    
+                    // HYDRATE and REPLACE (not accumulate) - this is key for memory efficiency
+                    var hydrated = data.alerts.map(_hydrateAlert);
+                    
+                    // Sort by date descending
+                    hydrated.sort(function (a, b) { return b.fecha - a.fecha; });
+                    
+                    // REPLACE all alerts instead of accumulating
+                    DAI.all = hydrated;
+                    
+                    console.log('[DAI] Página ' + data.page + ' cargada: ' + hydrated.length + ' alertas (de ' + data.totalCount + ' totales, página ' + data.page + ' de ' + data.totalPages + ')');
 
-                    if (toAdd.length > 0) {
-                        var hydrated = toAdd.map(_hydrateAlert);
-                        // Add to all and sort
-                        DAI.all = hydrated.concat(DAI.all);
-                        DAI.all.sort(function (a, b) { return b.fecha - a.fecha; });
+                    // Refresh UI
+                    _buildStatCounts();
+                    _updateNotifBadge();
+                    if (typeof _renderStatBar === 'function') _renderStatBar();
+                    if (typeof _renderStatusTabCounts === 'function') _renderStatusTabCounts();
 
-                        console.log('[DAI Live] Historial cargado: ' + hydrated.length + ' alertas (mostrando ' + data.displayedCount + ' de ' + data.totalCount + ' totales)');
-
-                        // Refresh UI if necessary
-                        _buildStatCounts();
-                        _updateNotifBadge();
-                        if (typeof _renderStatBar === 'function') _renderStatBar();
-                        if (typeof _renderStatusTabCounts === 'function') _renderStatusTabCounts();
-
-                        var daiSection = document.getElementById('alertas-dai');
-                        if (daiSection && daiSection.style.display !== 'none') {
-                            if (typeof _applyFilters === 'function') _applyFilters();
-                            if (typeof _renderRows === 'function') _renderRows();
-                        }
+                    var daiSection = document.getElementById('alertas-dai');
+                    if (daiSection && daiSection.style.display !== 'none') {
+                        if (typeof _applyFilters === 'function') _applyFilters();
+                        if (typeof _renderRows === 'function') _renderRows();
+                    }
+                    
+                    // Render pagination controls
+                    if (typeof _renderPagination === 'function') {
+                        _renderPagination();
                     }
                 }
             })
-            .catch(function (err) { console.error('[DAI Live] Error cargando historial:', err); });
+            .catch(function (err) { console.error('[DAI] Error cargando alertas:', err); });
     };
 
     // ── Start the SSE connection ──────────────────────────────────────
@@ -2088,9 +2211,33 @@ window.addEventListener('resize', _daiFixHeight);
     }
 
     // ── Inject alert into DAI.all and refresh the UI ──────────────────
+    // Only injects real-time alerts when on page 1 to avoid pagination issues
     function _injectAlert(alert) {
-        // Prepend to DAI.all (newest first)
+        // Only prepend real-time alerts when on page 1
+        // On other pages, the user is viewing historical data
+        var p = DAI._pagination;
+        
+        // Check if we're on page 1 - if not, don't inject real-time alerts
+        if (!p || p.page !== 1) {
+            console.log('[DAI] Alerta en tiempo real llegada pero en página ' + (p ? p.page : 'desconocida') + ' - no se inyecta');
+            // Still update the badge for notification but don't inject
+            _updateNotifBadge();
+            
+            // Show toast for critical/alta alerts if enabled (but don't inject to list)
+            if ((alert.sev === 'critica' || alert.sev === 'alta') && DAI.notifDaiEnabled) {
+                _showAlertToast(alert);
+            }
+            return;
+        }
+        
+        // On page 1 - prepend to DAI.all (newest first)
         DAI.all.unshift(alert);
+        
+        // Keep only pageSize items in memory to prevent memory leaks
+        var maxItems = p ? p.pageSize : 100;
+        if (DAI.all.length > maxItems) {
+            DAI.all = DAI.all.slice(0, maxItems);
+        }
 
         // Rebuild counts
         _buildStatCounts();
@@ -2119,12 +2266,11 @@ window.addEventListener('resize', _daiFixHeight);
         _updateNotifBadge();
 
         // Show toast for critical/alta alerts if enabled
-        console.log('[DAI Live] ¿Mostrar toast?', alert.id, 'Sev:', alert.sev, 'Enabled:', DAI.notifDaiEnabled);
         if ((alert.sev === 'critica' || alert.sev === 'alta') && DAI.notifDaiEnabled) {
             _showAlertToast(alert);
         }
 
-        console.log('[DAI Live] Alerta inyectada: ' + alert.id + ' (' + alert.sev + ') → ' + alert.tipo);
+        console.log('[DAI Live] Alerta inyectada en página 1: ' + alert.id);
     }
 
     // ── Update notification bell badge ────────────────────────────────
@@ -2231,18 +2377,33 @@ window.addEventListener('resize', _daiFixHeight);
         // Get current period from filter
         var period = DAI.f.quickDate || 'today';
         
-        fetch('/api/alerts?period=' + period)
+        // Use pageSize=100 to calculate correct totalPages (not size=1 which would give wrong calculation)
+        fetch('/api/alerts?period=' + period + '&page=1&size=100')
             .then(function (r) { return r.json(); })
             .then(function (data) {
-                if (data.success && data.totalCount) {
+                if (data.success && data.totalCount !== undefined) {
                     var oldCount = DAI.totalCount;
                     DAI.totalCount = data.totalCount;
                     
+                    // Update pagination metadata - only update totalCount, preserve existing totalPages
+                    if (DAI._pagination) {
+                        DAI._pagination.totalCount = data.totalCount;
+                        // Only update totalPages if the backend provides it
+                        if (data.totalPages) {
+                            DAI._pagination.totalPages = data.totalPages;
+                        }
+                        // Recalculate hasMore based on current page
+                        if (data.totalPages) {
+                            DAI._pagination.hasMore = DAI._pagination.page < data.totalPages;
+                        }
+                    }
+                    
                     // Only update UI if count changed
                     if (oldCount !== data.totalCount) {
-                        console.log('[DAI] Total actualizado: ' + data.totalCount + ' alertas');
+                        console.log('[DAI] Total actualizado: ' + data.totalCount + ' alertas, páginas: ' + (data.totalPages || DAI._pagination?.totalPages));
                         if (typeof _renderRows === 'function') _renderRows();
                         if (typeof _renderStatBar === 'function') _renderStatBar();
+                        if (typeof _renderPagination === 'function') _renderPagination();
                     }
                 }
             })

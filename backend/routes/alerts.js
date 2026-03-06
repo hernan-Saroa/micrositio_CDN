@@ -75,20 +75,31 @@ async function getSeverityMap() {
 // This replaces the SQLite dai_alerts table for dynamic operation
 const alertMetadata = new Map(); // Key: alertId, Value: { locked_by, locked_at, assigned_to, history, notes, attachments }
 
-// ── GET /api/alerts — Listar alertas (REST) desde Elasticsearch ────────
+// ── GET /api/alerts — Listar alertas (REST) desde Elasticsearch con paginación ─────
 router.get('/', async (req, res) => {
     try {
         // Get period from query params (today, week, month, or default today)
         const period = req.query.period || 'today';
         
-        // Fetch fresh alerts from Elasticsearch (limited to 100 for display)
-        const elasticAlerts = await fetchAlertsFromElasticForDisplay(period);
+        // Get pagination params
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 100; // Default 100 per page
+        const cursor = req.query.cursor || null; // search_after cursor
+        
+        // Validate size limits
+        const pageSize = Math.min(Math.max(size, 1), 1000); // Max 1000 per request
+        
+        // Fetch alerts from Elasticsearch with pagination
+        const { alerts, cursor: nextCursor, hasMore } = await fetchAlertsFromElasticForDisplay(period, pageSize, cursor);
         
         // Get total count separately (for accurate totals)
         const totalCount = await countAlertsFromElastic(period);
+        const totalPages = Math.ceil(totalCount / pageSize);
+        
+        console.log(`[Elastic] Pagination: totalCount=${totalCount}, pageSize=${pageSize}, totalPages=${totalPages}`);
         
         // Merge with in-memory metadata (locks, assignments)
-        const enrichedAlerts = elasticAlerts.map(alert => {
+        const enrichedAlerts = alerts.map(alert => {
             const meta = alertMetadata.get(alert.id);
             if (meta) {
                 return {
@@ -108,8 +119,14 @@ router.get('/', async (req, res) => {
         res.json({
             success: true,
             alerts: enrichedAlerts,
-            totalCount: totalCount,           // ← Total real en Elastic (puede ser > 100)
-            displayedCount: enrichedAlerts.length,  // ← Cantidad mostrada (máx 100)
+            totalCount: totalCount,
+            displayedCount: enrichedAlerts.length,
+            page: page,
+            pageSize: pageSize,
+            totalPages: totalPages,
+            hasMore: hasMore,
+            nextCursor: nextCursor,
+            currentCursor: cursor,
             timestamp: new Date().toISOString(),
             source: 'elasticsearch'
         });
@@ -581,7 +598,8 @@ const MAX_HISTORY = 50;
 async function loadHistoryFromDB() {
     // Ahora carga dinámicamente desde Elasticsearch en lugar de SQLite
     try {
-        alertsHistory = await fetchAlertsFromElasticForDisplay();
+        const result = await fetchAlertsFromElasticForDisplay('24h', 50); // Limit to 50 for history
+        alertsHistory = result.alerts;
         console.log(`[SSE] Historial cargado desde Elastic: ${alertsHistory.length} alertas`);
     } catch (err) {
         console.error('Error cargando historial desde Elastic:', err);
@@ -669,12 +687,12 @@ router.get('/stream', (req, res) => {
     });
 });
 
-// ── NEW: Fetch alerts from Elasticsearch for display (Dynamic) ─────────
-async function fetchAlertsFromElasticForDisplay(period = '24h') {
+// ── NEW: Fetch alerts from Elasticsearch for display (Dynamic) with pagination ──
+async function fetchAlertsFromElasticForDisplay(period = '24h', pageSize = 100, cursor = null) {
     // Skip if Elastic is not configured
     if (!elasticConfig.baseURL) {
         console.log('[Elastic] Not configured, returning empty array');
-        return [];
+        return { alerts: [], cursor: null, hasMore: false };
     }
 
     try {
@@ -699,10 +717,11 @@ async function fetchAlertsFromElasticForDisplay(period = '24h') {
         }
         
         const startDateStr = startDate.toISOString();
-        console.log(`[Elastic] Fetching alerts from last ${period} (from: ${startDateStr})`);
+        console.log(`[Elastic] Fetching alerts from last ${period} (from: ${startDateStr}), size: ${pageSize}, cursor: ${cursor ? 'provided' : 'none'}`);
         
+        // Build the search query with pagination
         const searchQuery = {
-            size: 100,
+            size: pageSize,
             query: {
                 bool: {
                     must: [
@@ -710,23 +729,60 @@ async function fetchAlertsFromElasticForDisplay(period = '24h') {
                     ]
                 }
             },
-            sort: [{ '@timestamp': 'desc' }]
+            sort: [
+                { '@timestamp': 'desc' }
+            ]
         };
+        
+        // Add search_after if cursor is provided
+        if (cursor) {
+            try {
+                // Cursor is JSON-encoded array from frontend
+                const cursorArray = typeof cursor === 'string' ? JSON.parse(cursor) : cursor;
+                searchQuery.search_after = cursorArray;
+                console.log('[Elastic] Using search_after:', cursorArray);
+            } catch (e) {
+                console.warn('[Elastic] Invalid cursor format, ignoring:', cursor);
+            }
+        }
 
         const response = await elasticRequest('POST', `/${ELASTIC_INDEX}/_search`, searchQuery);
         
+        // Debug: log response structure
+        console.log('[Elastic] Response hits:', JSON.stringify(response.hits, null, 2).substring(0, 500));
+        
         if (!response.hits || !response.hits.hits) {
-            return [];
+            console.log('[Elastic] No hits in response');
+            return { alerts: [], cursor: null, hasMore: false };
         }
 
-        // Transform Elastic hits to alert format
-        const alerts = response.hits.hits.map(hit => transformElasticToAlert(hit._source));
+        // Debug: log first hit structure
+        if (response.hits.hits.length > 0) {
+            console.log('[Elastic] First hit structure:', JSON.stringify(response.hits.hits[0], null, 2).substring(0, 500));
+        }
         
-        console.log(`[Elastic] Fetched ${alerts.length} alerts for display`);
-        return alerts;
+        // Extract sort values from last hit for cursor
+        let nextCursor = null;
+        const hits = response.hits.hits;
+        
+        if (hits.length > 0) {
+            const lastHit = hits[hits.length - 1];
+            if (lastHit.sort) {
+                nextCursor = JSON.stringify(lastHit.sort);
+            }
+        }
+        
+        // Check if there are more results
+        const hasMore = hits.length === pageSize;
+        
+        // Transform Elastic hits to alert format
+        const alerts = hits.map(hit => transformElasticToAlert(hit._source));
+        
+        console.log(`[Elastic] Fetched ${alerts.length} alerts for display, hasMore: ${hasMore}`);
+        return { alerts, cursor: nextCursor, hasMore };
     } catch (err) {
         console.error('[Elastic] Error fetching alerts for display:', err.message);
-        return [];
+        return { alerts: [], cursor: null, hasMore: false };
     }
 }
 
