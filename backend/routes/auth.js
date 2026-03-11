@@ -299,6 +299,13 @@ router.post('/login', [
 
     const user = userResult.rows[0];
 
+    // DEBUG: Imprimir hash SHA-256 de la contraseña intentada (solo en desarrollo)
+    if (process.env.NODE_ENV !== 'production') {
+        const crypto = require('crypto');
+        const passwordHashDebug = crypto.createHash('sha256').update(password).digest('hex');
+        console.log(`[DEBUG LOGIN] Email: ${emailMask} | Password SHA-256: ${passwordHashDebug}`);
+    }
+
     // Verificar contraseña con bcrypt
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {

@@ -187,6 +187,39 @@ CREATE TABLE IF NOT EXISTS page_events (
     duration_seconds INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now'))
 );
+
+    -- Tabla de alertas DAI
+    CREATE TABLE IF NOT EXISTS dai_alerts (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        seq_id TEXT UNIQUE NOT NULL,
+        tipo TEXT NOT NULL,
+        severidad TEXT NOT NULL,
+        estado TEXT NOT NULL DEFAULT 'activa',
+        departamento TEXT NOT NULL,
+        tramo TEXT,
+        codigo_via TEXT,
+        poste_referencia TEXT,
+        dispositivo_id TEXT,
+        dispositivo_tipo TEXT,
+        latitud REAL,
+        longitud REAL,
+        tipo_registro TEXT DEFAULT 'Automático',
+        fecha_captura TEXT NOT NULL,
+        fecha_plataforma TEXT NOT NULL DEFAULT (datetime('now')),
+        latencia_ms INTEGER,
+        evidencia_json TEXT,
+        detalles_json TEXT,
+        assigned_to TEXT,
+        locked_by TEXT,
+        locked_at TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_dai_fecha ON dai_alerts(fecha_plataforma DESC);
+    CREATE INDEX IF NOT EXISTS idx_dai_severidad ON dai_alerts(severidad);
+    CREATE INDEX IF NOT EXISTS idx_dai_estado ON dai_alerts(estado);
+    CREATE INDEX IF NOT EXISTS idx_dai_departamento ON dai_alerts(departamento);
 `);
 
 console.log('✅ Tablas creadas correctamente');
@@ -200,7 +233,7 @@ const ADMIN_ID = 'admin-0001-0001-0001-000100010001';
 
 // -- 1. Usuario administrador
 // Contraseña: admin123  (hash bcrypt pre-generado)
-const adminHash = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5lH3vQQp0hL5G';
+const adminHash = '$2b$12$42eySg6GNYlQMCAirYzY0uSk.b2sA1Ov5E5H0kJm7U833EQlE1dgq';
 
 const insertAdmin = db.prepare(`
     INSERT OR IGNORE INTO users (id, email, email_mask, password_hash, name, role, is_active, email_verified)

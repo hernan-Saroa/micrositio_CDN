@@ -180,6 +180,13 @@ loginForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
+    // DEBUG: Log en consola del navegador (modo desarrollador)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('%c[DEBUG LOGIN] Intentando inicio de sesión...', 'color: #f97316; font-weight: bold;');
+        console.log('%c[DEBUG] Email:', 'color: #22c55e;', email);
+        // No imprimir la contraseña por seguridad
+    }
+
     if (!email || !password) { showAlert('Por favor completa todos los campos'); return; }
     if (!email.includes('@')) { showAlert('Por favor ingresa un correo electrónico válido'); return; }
 
